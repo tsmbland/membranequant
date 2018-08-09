@@ -1,21 +1,14 @@
-from IA import *
 import BgCurves as b
 import AFSettings as s
-
-"""
-Example script to be used as a template for analysis of other experiments
-
-Things that need to be personalised for the particular experiment:
-- list of directories containing embryo folders
-- af settings
-- background curve(s)
-- method of segmentation (e.g. which channel is being used as the guide)
-- which quantifications are suitable
-- bounds for averaging cortical fluorescence over
-- magnification of images
+from IA import *
 
 
 """
+
+
+"""
+
+# Done, checked
 
 #####################################################################################
 
@@ -125,11 +118,11 @@ nwg93_rd = Results(np.array(conds_list_total)[[5, 6, 7]])
 #     data = d(embryo)
 #     print(data.direc)
 #
-#     # plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
-#     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     # plt.show()
-#     #
+#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
+#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
+#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
+#     plt.show()
+#
 #     # plt.imshow(data.RFP, cmap='gray')
 #     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
 #     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
@@ -138,5 +131,5 @@ nwg93_rd = Results(np.array(conds_list_total)[[5, 6, 7]])
 #     # plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50), cmap='gray')
 #     # plt.show()
 #
-#     plt.imshow(straighten(data.RFP, data.ROI_fitted, 50), cmap='gray')
-#     plt.show()
+#     # plt.imshow(straighten(data.RFP, data.ROI_fitted, 50), cmap='gray')
+#     # plt.show()

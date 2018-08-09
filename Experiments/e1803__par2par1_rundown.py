@@ -1,14 +1,17 @@
-from IA import *
 import BgCurves as b
 import AFSettings as s
-
+from IA import *
 
 """
+
 PAR-2 rundown, looking at PAR-1 and PAR-2 to assess recruitment (March 2018)
 
 
 """
 
+# Done, checked segmentation
+
+#########################################################################
 
 # INPUT DATA
 
@@ -29,6 +32,7 @@ bgcurve = b.bgG4
 d = Data
 
 
+#########################################################################
 
 # SEGMENTATION
 
@@ -41,6 +45,7 @@ def func1(embryo):
 
 # Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func1)(embryo) for embryo in embryos_list_total)
 
+#########################################################################
 
 # GFP QUANTIFICATION
 
@@ -90,6 +95,8 @@ def func5(embryo):
 # Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func5)(embryo) for embryo in embryos_list_total)
 
 
+#########################################################################
+
 ################# Load data
 
 nwg42_wt = Results(np.array(conds_list_total)[[4, 5]])
@@ -106,13 +113,13 @@ nwg0132_rd = Results(np.array(conds_list_total)[[1, 2, 3, 6, 7]])
 #
 #     print(data.direc)
 #
-#     # plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2))
-#     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     # plt.show()
-#
-#     plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50))
+#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2))
+#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
+#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
 #     plt.show()
+#
+#     # plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50))
+#     # plt.show()
 
 
 # CHECK RFP BG <- good

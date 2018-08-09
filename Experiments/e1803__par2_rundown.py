@@ -1,14 +1,15 @@
-from IA import *
 import BgCurves as b
 import AFSettings as s
+from IA import *
 
 """
 PAR-2 rundown experiment (Feb-March 2018)
 
-Not suitable for computational segmentation (no guide in strong RNAi), all segmented manually
 PFS in for all embryos so not directly comparable with other experiments
 
 """
+
+# Done, checked segmentation
 
 #####################################################################################
 
@@ -23,8 +24,6 @@ conds_list_total = [
     '180309/180309_nwg0123_par3,1400par2_tom,15,pfsin',
     '180223/180223_nwg0123_24hr0par2,par3_tom3,15,pfsin',
     '180223/180223_nwg0123_24hr10par2,par3_tom3,15,pfsin',
-    '180223/180223_nwg0123_24hr50par2,par3_tom3,15,pfsin',
-    '180223/180223_nwg0123_24hr100par2,par3_tom3,15,pfsin',
     '180223/180223_kk1273_wt_tom3,15,pfsin']
 
 embryos_list_total = embryos_direcslist(conds_list_total)
@@ -33,6 +32,23 @@ settings = s.N2s1
 bgcurve = b.bgG4
 d = Data
 
+
+#####################################################################################
+
+
+# SEGMENTATION
+
+def func1(embryo):
+    data = d(embryo)
+    try:
+        img = af_subtraction(data.GFP, data.AF, settings=settings)
+        coors = fit_coordinates_alg3(img, data.ROI_orig, bgcurve, 2)
+        np.savetxt('%s/ROI_fitted.txt' % data.direc, coors, fmt='%.4f', delimiter='\t')
+    except np.linalg.linalg.LinAlgError:
+        print(data.direc)
+
+
+# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func1)(embryo) for embryo in embryos_list_total)
 
 
 #####################################################################################
@@ -78,20 +94,22 @@ def func6(embryo):
 # LOAD DATA
 
 nwg0123_wt = Results(np.array(conds_list_total)[[0, 6]])
-nwg0123_rd = Results(np.array(conds_list_total)[[1, 2, 3, 4, 5, 7, 8, 9]])
-kk1273_wt = Results(np.array(conds_list_total)[[10]])
-
+nwg0123_rd = Results(np.array(conds_list_total)[[1, 2, 3, 4, 5, 7]])
+kk1273_wt = Results(np.array(conds_list_total)[[8]])
 
 #####################################################################################
 
 
-# CHECK SEGMENTATION (MANUAL) <- good
+# CHECK SEGMENTATION
 
 # for embryo in embryos_list_total:
 #     data = d(embryo)
 #     print(data.direc)
 #
+#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2))
+#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
+#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
+#     plt.show()
+#
 #     plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50), cmap='gray')
 #     plt.show()
-
-

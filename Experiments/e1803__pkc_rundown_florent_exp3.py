@@ -1,6 +1,7 @@
-from IA import *
 import BgCurves as b
 import AFSettings as s
+from IA import *
+
 
 """
 Example script to be used as a template for analysis of other experiments
@@ -16,6 +17,8 @@ Things that need to be personalised for the particular experiment:
 
 
 """
+
+# Done, checked
 
 #####################################################################################
 
@@ -114,11 +117,11 @@ nwg91_rd = Results(np.array(conds_list_total)[[0, 1, 2]])
 #     data = d(embryo)
 #     print(data.direc)
 #
-#     # plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
-#     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     # plt.show()
-#     #
+#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
+#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
+#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
+#     plt.show()
+#
 #     # plt.imshow(data.RFP, cmap='gray')
 #     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
 #     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
@@ -127,5 +130,5 @@ nwg91_rd = Results(np.array(conds_list_total)[[0, 1, 2]])
 #     # plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50), cmap='gray')
 #     # plt.show()
 #
-#     plt.imshow(straighten(data.RFP, data.ROI_fitted, 50), cmap='gray')
-#     plt.show()
+#     # plt.imshow(straighten(data.RFP, data.ROI_fitted, 50), cmap='gray')
+#     # plt.show()

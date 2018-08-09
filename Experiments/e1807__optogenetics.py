@@ -1,11 +1,14 @@
-from IA import *
 import BgCurves as b
 import AFSettings as s
+from IA import *
+
 
 """
 
 
 """
+
+# Done, checked
 
 #####################################################################################
 
@@ -104,13 +107,13 @@ e6 = Results(np.array(conds_list_total)[[4]])
 #     data = d(embryo)
 #     print(data.direc)
 #
-#     # plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
-#     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     # plt.show()
-#
-#     plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50), cmap='gray')
+#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
+#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
+#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
 #     plt.show()
+#
+#     # plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50), cmap='gray')
+#     # plt.show()
 #
 #     # plt.imshow(straighten(data.RFP, data.ROI_fitted, 50), cmap='gray')
 #     # plt.show()

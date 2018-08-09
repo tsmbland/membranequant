@@ -3,25 +3,26 @@ import AFSettings as s
 from IA import *
 
 """
-June 2018
-Playing with PAR-2/PKC double line in variety of conditions, looking for correlation between PAR-2 and PKC
+Looking at nwg0158 line, aiming to understand if PAR-2 homodimerises
 
 
 """
 
-# Done, checked
-
 #####################################################################################
+
 
 # INPUT DATA
 
-conds_list_total = [
-    '180607/180607_nwg91_wt_tom4,15,30',
-    '180611/180611_nwg91_24hrchin1_tom4,15,30',
-    '180611/180611_nwg91_24hrpar1_tom4,15,30',
-    '180611/180611_nwg91_24hrspd5_tom4,15,30',
-    '180612/180612_nwg91_48hrchin1_tom4,15,30',
-    '180612/180612_nwg91_48hrpar1_tom4,15,30']
+conds_list_total = ['180803/180803_nwg0158_pmawashin,perm,dmso_tom4,15,30/e1',
+                    '180803/180803_nwg0158_pmawashin,perm,dmso_tom4,15,30/e2',
+                    '180803/180803_nwg0158_pmawashin,perm,dmso_tom4,15,30/e3',
+                    '180803/180803_nwg0158_pmawashin,perm,dmso_tom4,15,30/e4',
+                    '180803/180803_nwg0158_pmawashin,perm,dmso_tom4,15,30/e5',
+                    '180803/MP',
+                    '180726/180726_nwg0158_wt_tom4,15,30']
+
+conds_list_2 = ['180730/180730_nwg0151_wt_tom4,15,30',
+                '180726/180726_nwg0151_wt_tom4,15,30']
 
 embryos_list_total = embryos_direcslist(conds_list_total)
 
@@ -32,11 +33,12 @@ d = Data
 
 #####################################################################################
 
+
 # SEGMENTATION
 
 def func1(embryo):
     data = d(embryo)
-    img = af_subtraction(composite(data, settings, 3), data.AF, settings=settings)
+    img = af_subtraction(data.GFP, data.AF, settings=settings)
     coors = fit_coordinates_alg3(img, data.ROI_orig, bgcurve, 2)
     np.savetxt('%s/ROI_fitted.txt' % data.direc, coors, fmt='%.4f', delimiter='\t')
 
@@ -44,11 +46,14 @@ def func1(embryo):
 # Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func1)(embryo) for embryo in embryos_list_total)
 
 
+#####################################################################################
+
+
 # GFP QUANTIFICATION
 
 def func2(embryo):
     data = d(embryo)
-    sig = cortical_signal_GFP(data, bgcurve, settings, bounds=(0.4, 0.6))
+    sig = cortical_signal_GFP(data, bgcurve, settings, bounds=(0.9, 0.1))
     cyt = cytoplasmic_signal_GFP(data, settings)
     total = cyt + (data.sa / data.vol) * cortical_signal_GFP(data, bgcurve, settings, bounds=(0, 1))
     pklsave(data.direc, Res(cyt, sig, total), 'res1')
@@ -91,23 +96,50 @@ def func5(embryo):
 
 # Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func5)(embryo) for embryo in embryos_list_total)
 
+
+# CROSS SECTION GFP
+
+def func6(embryo):
+    data = d(embryo)
+    img = af_subtraction(data.GFP, data.AF, settings=settings)
+    sec = cross_section(img=img, coors=data.ROI_fitted, thickness=50, extend=1.2)
+    pklsave(data.direc, sec, 'res1_csection')
+
+
+# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func6)(embryo) for embryo in embryos_list_total)
+
+
+# CROSS SECTION RFP
+
+def func7(embryo):
+    data = d(embryo)
+    img = data.RFP
+    mag = 1
+    bg = straighten(img, offset_coordinates(data.ROI_fitted, 50 * mag), 50 * mag)
+    sec = cross_section(img=img, coors=data.ROI_fitted, thickness=50, extend=1.2) - np.nanmean(bg[np.nonzero(bg)])
+    pklsave(data.direc, sec, 'res2_csection')
+
+
+# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func7)(embryo) for embryo in embryos_list_total)
+
 #####################################################################################
 
 
 # LOAD DATA
-
-alldata = Results(np.array(conds_list_total)[:])
-wt = Results(np.array(conds_list_total)[[0]])
-chin1 = Results(np.array(conds_list_total)[[1, 4]])
-par1 = Results(np.array(conds_list_total)[[2, 5]])
-spd5 = Results(np.array(conds_list_total)[[3]])
+e1 = Results(np.array(conds_list_total)[[0]])
+e2 = Results(np.array(conds_list_total)[[1]])
+e3 = Results(np.array(conds_list_total)[[2]])
+e4 = Results(np.array(conds_list_total)[[3]])
+e5 = Results(np.array(conds_list_total)[[4]])
+nwg158_pma_mp = Results(np.array(conds_list_total)[[5]])
+nwg158_mp = Results(np.array(conds_list_total)[[6]])
+nwg151_wt = Results(np.array(conds_list_2)[[0, 1]])
 
 
 
 #####################################################################################
 
-
-# # CHECK SEGMENTATION <- good
+# CHECK SEGMENTATION
 
 # for embryo in embryos_list_total:
 #     data = d(embryo)
@@ -122,13 +154,4 @@ spd5 = Results(np.array(conds_list_total)[[3]])
 #     plt.show()
 #
 #     plt.imshow(straighten(data.RFP, data.ROI_fitted, 50), cmap='gray')
-#     plt.show()
-
-
-# CHECK RFP BG <- good
-
-# for embryo in embryos_list_total:
-#     data = d(embryo)
-#     print(data.direc)
-#     plt.imshow(straighten(data.RFP, offset_coordinates(data.ROI_fitted, 50), 50))
 #     plt.show()

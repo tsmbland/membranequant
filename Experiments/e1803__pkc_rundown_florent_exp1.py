@@ -1,6 +1,7 @@
-from IA import *
 import BgCurves as b
 import AFSettings as s
+from IA import *
+
 
 """
 Example script to be used as a template for analysis of other experiments
@@ -16,6 +17,9 @@ Things that need to be personalised for the particular experiment:
 
 
 """
+
+# Done, checked segmentation
+
 
 #####################################################################################
 
@@ -124,21 +128,21 @@ nwg93_rd = Results(np.array(conds_list_total)[[4, 5]])
 #     data = d(embryo)
 #     print(data.direc)
 #
-#     # plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
-#     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     # plt.show()
-#     #
+#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
+#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
+#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
+#     plt.show()
+#
 #     # plt.imshow(data.RFP, cmap='gray')
 #     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
 #     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
 #     # plt.show()
-#
+#     #
 #     # plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50), cmap='gray')
 #     # plt.show()
-#
-#     plt.imshow(straighten(data.RFP, data.ROI_fitted, 50), cmap='gray')
-#     plt.show()
+#     #
+#     # plt.imshow(straighten(data.RFP, data.ROI_fitted, 50), cmap='gray')
+#     # plt.show()
 
 
 # Check bg fitting
@@ -167,9 +171,9 @@ nwg93_rd = Results(np.array(conds_list_total)[[4, 5]])
 #     profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
 #
 #     # Get cortical signal
-#     a, bg = fit_background_v2_2(profile, bgcurve[25:75])
+#     bg = fit_background_v2_2(profile, bgcurve[25:75])
 #     signal = profile - bg
 #     plt.plot(profile)
 #     plt.plot(bg)
-#     plt.plot(gaussian_plus2(b.bgG4[25:75], *a))
+#     # plt.plot(gaussian_plus2(b.bgG4[25:75], *a))
 #     plt.show()

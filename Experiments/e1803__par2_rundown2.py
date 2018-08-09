@@ -2,31 +2,28 @@ import BgCurves as b
 import AFSettings as s
 from IA import *
 
+"""
+PAR-2 rundown experiment 
+
+PFS out
 
 """
 
-Looking at PKC in embryos with it71 mutant PAR-3, comparing with wt
-
-
-"""
-
-# Done, checked
-
+# Done, checked segmentation
 
 #####################################################################################
 
-
 # INPUT DATA
 
-conds_list_total = ['180316/180316_nwg0129_par3_tom3,15,pfsout',
-                    '180316/180316_kk1228_wt_tom3,15,pfsout']
+conds_list_total = [
+    '180302/180302_nwg0123_24hr10par2,par3_tom3,15,pfsout',
+    '180302/180302_nwg0123_24hr50par2,par3_tom3,15,pfsout']
 
 embryos_list_total = embryos_direcslist(conds_list_total)
 
 settings = s.N2s2
 bgcurve = b.bgG4
 d = Data
-
 
 
 #####################################################################################
@@ -36,9 +33,12 @@ d = Data
 
 def func1(embryo):
     data = d(embryo)
-    img = af_subtraction(data.GFP, data.AF, settings=settings)
-    coors = fit_coordinates_alg3(img, data.ROI_orig, bgcurve, 2)
-    np.savetxt('%s/ROI_fitted.txt' % data.direc, coors, fmt='%.4f', delimiter='\t')
+    try:
+        img = af_subtraction(data.GFP, data.AF, settings=settings)
+        coors = fit_coordinates_alg3(img, data.ROI_orig, bgcurve, 2)
+        np.savetxt('%s/ROI_fitted.txt' % data.direc, coors, fmt='%.4f', delimiter='\t')
+    except np.linalg.linalg.LinAlgError:
+        print(data.direc)
 
 
 # Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func1)(embryo) for embryo in embryos_list_total)
@@ -46,12 +46,11 @@ def func1(embryo):
 
 #####################################################################################
 
-
 # GFP QUANTIFICATION
 
 def func2(embryo):
     data = d(embryo)
-    sig = cortical_signal_GFP(data, bgcurve, settings, bounds=(0, 1))
+    sig = cortical_signal_GFP(data, bgcurve, settings, bounds=(0.9, 0.1))
     cyt = cytoplasmic_signal_GFP(data, settings)
     total = cyt + (data.sa / data.vol) * cortical_signal_GFP(data, bgcurve, settings, bounds=(0, 1))
     pklsave(data.direc, Res(cyt, sig, total), 'res1')
@@ -73,40 +72,35 @@ def func4(embryo):
 
 # CROSS SECTION GFP
 
-def func7(embryo):
+def func6(embryo):
     data = d(embryo)
     img = af_subtraction(data.GFP, data.AF, settings=settings)
-    sec = cross_section(img=img, coors=data.ROI_fitted, thickness=10, extend=1.5)
+    sec = cross_section(img=img, coors=data.ROI_fitted, thickness=50, extend=1.2)
     pklsave(data.direc, sec, 'res1_csection')
 
 
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func7)(embryo) for embryo in embryos_list_total)
-
+# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func6)(embryo) for embryo in embryos_list_total)
 
 
 #####################################################################################
-
 
 # LOAD DATA
 
-nwg0129_wt = Results(np.array(conds_list_total)[[0]])
-kk1228_wt = Results(np.array(conds_list_total)[[1]])
-
-
+nwg0123_rd = Results(np.array(conds_list_total)[[0, 1]])
 
 #####################################################################################
 
-# CHECK SEGMENTATION <- good
+
+# CHECK SEGMENTATION
 
 # for embryo in embryos_list_total:
 #     data = d(embryo)
 #     print(data.direc)
 #
-#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
+#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2))
 #     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
 #     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#
 #     plt.show()
 #
-#     # plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50), cmap='gray')
-#     # plt.show()
+#     plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50), cmap='gray')
+#     plt.show()

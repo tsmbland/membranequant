@@ -1,12 +1,15 @@
-from IA import *
 import BgCurves as b
 import AFSettings as s
+from IA import *
 
 """
 Comparision of cytoplasmic affinity of different PAR-2 mutants in PKC+/- conditions (June 2018)
 On SD after move to new room
 
 """
+
+# Done, checked
+
 
 #####################################################################################
 
@@ -29,7 +32,6 @@ bgcurve = b.bgG4
 d = Data
 
 
-
 #####################################################################################
 
 # SEGMENTATION
@@ -42,6 +44,9 @@ def func1(embryo):
 
 
 # Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func1)(embryo) for embryo in embryos_list_total)
+
+
+#####################################################################################
 
 
 # QUANTIFICATION
@@ -104,13 +109,13 @@ th129_pkc = Results(np.array(conds_list_total)[[6]])
 #
 #     print(data.direc)
 #
-#     # plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2))
-#     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     # plt.show()
-#
-#     plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50))
+#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2))
+#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
+#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
 #     plt.show()
+#
+#     # plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50))
+#     # plt.show()
 
 
 # # Check bg fitting

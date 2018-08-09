@@ -1,6 +1,6 @@
-from IA import *
 import BgCurves as b
 import AFSettings as s
+from IA import *
 
 """
 Nelio's PAR-2 rundown data in NWG76 (March-April 2018)
@@ -8,6 +8,8 @@ Nelio's PAR-2 rundown data in NWG76 (March-April 2018)
 Manually segmented by Nelio
 
 """
+
+# Done, checked
 
 #####################################################################################
 
@@ -33,12 +35,7 @@ bgcurve = b.bgG4
 d = Data
 
 
-# data = d('PAR2_Nelio/NR020418_P2rundown_NWG0076/6')
-# plt.imshow(composite(data, settings, 2))
-# plt.show()
-
 #####################################################################################
-
 
 # SEGMENTATION
 
@@ -103,14 +100,12 @@ def func5(embryo):
 
 # Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func5)(embryo) for embryo in embryos_list_total)
 
-
 #####################################################################################
 
 # LOAD DATA
 
 nwg76_wt = Results(np.array(conds_list_total)[[1, 3, 5, 7, 9]])
 nwg76_rd = Results(np.array(conds_list_total)[[0, 2, 4, 6, 9]])
-
 
 #####################################################################################
 
@@ -120,16 +115,16 @@ nwg76_rd = Results(np.array(conds_list_total)[[0, 2, 4, 6, 9]])
 #     data = d(embryo)
 #     print(data.direc)
 #
-#     # plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2), cmap='gray')
-#     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     # plt.show()
+#     plt.imshow(data.RFP, cmap='gray')
+#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
+#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
+#     plt.show()
 #
 #     # plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 100), cmap='gray')
 #     # plt.show()
-#
-#     plt.imshow(straighten(data.RFP, data.ROI_fitted, 100), cmap='gray')
-#     plt.show()
+#     #
+#     # plt.imshow(straighten(data.RFP, data.ROI_fitted, 100), cmap='gray')
+#     # plt.show()
 
 
 # CHECK RFP BG <- good
@@ -173,4 +168,3 @@ nwg76_rd = Results(np.array(conds_list_total)[[0, 2, 4, 6, 9]])
 #     plt.plot(bg)
 #     plt.plot(gaussian_plus2(b.bgG4[25:75], *a))
 #     plt.show()
-

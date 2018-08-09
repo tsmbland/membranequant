@@ -1,12 +1,14 @@
-from IA import *
 import BgCurves as b
 import AFSettings as s
+from IA import *
 
 """
 PH-rundown control experiment (April 2018)
 
 
 """
+
+# Done,  checked
 
 #################################################################
 
@@ -24,6 +26,8 @@ embryos_list_total = embryos_direcslist(conds_list_total)
 bgcurve = b.bgG2
 settings = s.OD70s1
 d = Data
+
+embryoslist2 = embryos_direcslist(['180420/180420_nwg1_0920xfp_tom4,5,30'])
 
 
 #################################################################
@@ -120,25 +124,25 @@ def func7(embryo):
 
 
 ph_rd = Results(np.array(conds_list_total)[[0, 1, 3]])
-ph_wt = Results(np.array(conds_list_total)[[2, 4]])  # <- fudging this a bit, 2 is not strictly wt (but only embryos 6 and 8 appear affected by RNAi)
-
+ph_wt = Results(np.array(conds_list_total)[[2,
+                                            4]])  # <- fudging this a bit, 2 is not strictly wt (but only embryos 6 and 8 appear affected by RNAi)
 
 #################################################################
 
-# Check segmentation <- ok but not great, I wonder why...
+# Check segmentation <- much improved
 
 # for embryo in embryos_list_total:
 #     data = d(embryo)
 #
 #     print(data.direc)
 #
-#     # plt.imshow(data.RFP)
-#     # plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     # plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     # plt.show()
-#
-#     plt.imshow(straighten(data.RFP, data.ROI_fitted, 50))
+#     plt.imshow(data.RFP)
+#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
+#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
 #     plt.show()
+#
+#     # plt.imshow(straighten(data.RFP, data.ROI_fitted, 50))
+#     # plt.show()
 
 
 # CHECK RFP BG <- considerable glow from the cell visible
@@ -150,7 +154,7 @@ ph_wt = Results(np.array(conds_list_total)[[2, 4]])  # <- fudging this a bit, 2 
 #     plt.show()
 
 
-# # Check bg fitting <- looks a bit off
+# Check bg fitting <- looks a bit off
 # for embryo in embryos_list_total:
 #     data = Data(embryo)
 #
@@ -161,9 +165,9 @@ ph_wt = Results(np.array(conds_list_total)[[2, 4]])  # <- fudging this a bit, 2 
 #     profile = np.nanmean(np.hstack(
 #         (img_straight[:, :int(len(img_straight[0, :]) * 0.1)], img_straight[:, int(len(img_straight[0, :]) * 0.9):])),
 #         1)
-#     a, bg = fit_background_v2_2(profile, b.bgG4[25:75])
+#     bg = fit_background_v2_2(profile, b.bgG4[25:75])
 #     signal = profile - bg
 #     plt.plot(profile)
 #     plt.plot(bg)
-#     plt.plot(gaussian_plus2(b.bgG4[25:75], *a))
+#     # plt.plot(gaussian_plus2(b.bgG4[25:75], *a))
 #     plt.show()
