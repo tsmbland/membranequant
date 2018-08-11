@@ -7,7 +7,7 @@ from Experiments.e1802__par6_rundown_nelio import *
 
 def func(dataset, c):
     for x in range(len(dataset.gfp_spatial[:, 0])):
-        plt.scatter(dataset.gfp_spatial[x, :], dataset.rfp_spatial[x, :], s=0.2, c=c)
+        plt.scatter(dataset.gfp_spatial[x, :], dataset.rfp_spatial[x, :], s=0.5, c=c)
 
 
 # func(nwg26_wt, c='k')
@@ -24,12 +24,12 @@ def func(dataset, c):
 
 def func(dataset, c):
     for x in range(len(dataset.gfp_spatial[:, 0])):
-        plt.scatter(dataset.gfp_spatial[x, :], dataset.cyts_RFP[x] / dataset.rfp_spatial[x, :], s=0.2, c=c)
+        plt.scatter(dataset.gfp_spatial[x, :], dataset.cyts_RFP[x] / dataset.rfp_spatial[x, :], s=0.5, c=c)
 
 
 # func(nwg26_wt, c='k')
 # func(nwg26_rd, c='k')
-# # plt.ylim([0, 3])
+# # plt.ylim([0, 10])
 # plt.xlabel('Cortical PAR-6')
 # plt.ylabel('Cytoplasmic / Cortical PAR-2')
 # sns.despine()
@@ -135,42 +135,19 @@ def func7(dataset):
 
         # Anterior aPAR vs anterior pPAR
         plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds1),
-                    bounded_mean(dataset.rfp_spatial[x, :], bounds1) / dataset.cyts_RFP[x], c='k', s=10)
+                    dataset.cyts_RFP[x] / bounded_mean(dataset.rfp_spatial[x, :], bounds1), c='k', s=10)
 
-        # Anterior aPAR vs posterior pPAR
-        plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds1),
-                    bounded_mean(dataset.rfp_spatial[x, :], bounds2) / dataset.cyts_RFP[x], c='b', s=10)
-
-
-func7(nwg26_wt)
-func7(nwg26_rd)
-# plt.gca().set_ylim(top=15000)
-sns.despine()
-plt.show()
+        # # Anterior aPAR vs posterior pPAR
+        # plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds1),
+        #             bounded_mean(dataset.rfp_spatial[x, :], bounds2) / dataset.cyts_RFP[x], c='b', s=10)
 
 
-################################################################
-
-
-def func8(dataset, c):
-    for x in range(len(dataset.gfp_spatial[:, 0])):
-        bounds1 = (0.4, 0.6)
-        bounds2 = (0.9, 0.1)
-
-        # Anterior aPAR vs anterior pPAR
-        plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds1),
-                    bounded_mean(dataset.rfp_spatial[x, :], bounds1) / dataset.cyts_RFP[x], c='r', s=10)
-
-        # Posterior aPAR vs posterior pPAR
-        plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds2),
-                    bounded_mean(dataset.rfp_spatial[x, :], bounds2) / dataset.cyts_RFP[x], c='b', s=10)
-
-
-# func8(nwg26_wt, c='k')
-# func8(nwg26_rd, c='k')
+# func7(nwg26_wt)
+# func7(nwg26_rd)
+# # plt.gca().set_ylim(top=15000)
+# plt.yscale('log')
 # sns.despine()
 # plt.show()
-
 
 
 ################################################################
@@ -185,18 +162,20 @@ def func9(dataset, c):
 
         # Total aPAR vs anterior aPAR
         plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds0),
-                    bounded_mean(dataset.gfp_spatial[x, :], bounds1), s=10, c=bounded_mean(dataset.rfp_spatial[x, :], bounds1) / dataset.cyts_RFP[x], vmin=0, vmax=20, cmap='winter')
+                    bounded_mean(dataset.gfp_spatial[x, :], bounds1), s=10,
+                    c=bounded_mean(dataset.rfp_spatial[x, :], bounds1) / dataset.cyts_RFP[x], vmin=0, vmax=20,
+                    cmap='winter')
 
         # Total aPAR vs posterior aPAR
         plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds0),
-                    bounded_mean(dataset.gfp_spatial[x, :], bounds2), s=10, c=bounded_mean(dataset.rfp_spatial[x, :], bounds2) / dataset.cyts_RFP[x], vmin=0, vmax=20, cmap='winter')
+                    bounded_mean(dataset.gfp_spatial[x, :], bounds2), s=10,
+                    c=bounded_mean(dataset.rfp_spatial[x, :], bounds2) / dataset.cyts_RFP[x], vmin=0, vmax=20,
+                    cmap='winter')
 
 
-func9(nwg26_wt, c='k')
-func9(nwg26_rd, c='k')
-sns.despine()
-plt.xlabel('Total PKC-3')
-plt.ylabel('Local PKC-3')
-plt.show()
-
-
+# func9(nwg26_wt, c='k')
+# func9(nwg26_rd, c='k')
+# sns.despine()
+# plt.xlabel('Total PKC-3')
+# plt.ylabel('Local PKC-3')
+# plt.show()

@@ -47,7 +47,7 @@ def func2(dataset, c):
 
 
 # func2(nwg42_wt, c='r')
-# # func2(nwg0132_wt, c='b')
+# func2(nwg0132_wt, c='b')
 # # func2(nwg0132_rd, c='g')
 # plt.show()
 

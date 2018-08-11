@@ -1,7 +1,13 @@
-from IA import *
 import Experiments.e1803__pkc_rundown_florent_exp1 as exp1
 import Experiments.e1803__pkc_rundown_florent_exp2 as exp2
 import Experiments.e1803__pkc_rundown_florent_exp3 as exp3
+from IA import *
+
+
+"""
+Exp1 quantitatively not matching up with others
+
+"""
 
 ################################################################
 
@@ -40,6 +46,38 @@ def func2(dataset, c='k', linestyle='-'):
 # plt.show()
 
 
+###############################################################
+
+# Spatial distribution with stdev
+
+def func1(dataset, c):
+    gfp_spatial = np.concatenate((dataset.gfp_spatial[:, :50], np.flip(dataset.gfp_spatial[:, 50:], 1)))
+    cyts_GFP = np.append(dataset.cyts_GFP, dataset.cyts_GFP)
+    mean = np.mean(gfp_spatial, 0) / np.mean(cyts_GFP)
+    stdev = np.std(gfp_spatial / np.tile(cyts_GFP, (50, 1)).T, 0)
+    plt.fill_between(range(50), mean + stdev, mean - stdev, facecolor=c, alpha=0.2)
+    plt.plot(mean, c=c)
+
+
+def func2(dataset, c):
+    rfp_spatial = np.concatenate((dataset.rfp_spatial[:, :50], np.flip(dataset.rfp_spatial[:, 50:], 1)))
+    cyts_RFP = np.append(dataset.cyts_RFP, dataset.cyts_RFP)
+    mean = np.mean(rfp_spatial, 0) / np.mean(cyts_RFP)
+    stdev = np.std(rfp_spatial / np.tile(cyts_RFP, (50, 1)).T, 0)
+    plt.fill_between(range(50), mean + stdev, mean - stdev, facecolor=c, alpha=0.2)
+    plt.plot(mean, c=c)
+
+
+func1(exp2.nwg91_wt, c='g')
+func2(exp2.nwg91_wt, c='r')
+
+func1(exp2.nwg93_wt, c='b')
+func2(exp2.nwg93_wt, c='k')
+plt.show()
+
+
+
+
 ################################################################
 
 # Correlation (cortex, loc by loc)
@@ -53,13 +91,13 @@ Plots the cortical correlation between the G and R channels on a location by loc
 
 def func(dataset, c='k'):
     for x in range(len(dataset.gfp_spatial[:, 0])):
-        plt.scatter(dataset.gfp_spatial[x, :], dataset.rfp_spatial[x, :], s=0.2, c=c)
+        plt.scatter(dataset.gfp_spatial[x, :], dataset.rfp_spatial[x, :], s=0.5, c=c)
 
 
-# func(exp2.nwg93_wt, c='r')
-# func(exp2.nwg93_rd, c='r')
-# func(exp2.nwg91_wt, c='g')
-# func(exp2.nwg91_rd, c='g')
+# func(exp1.nwg93_wt, c='r')
+# func(exp1.nwg93_rd, c='r')
+# func(exp1.nwg91_wt, c='g')
+# func(exp1.nwg91_rd, c='g')
 # # plt.gca().set_xlim(left=-5000)
 # sns.despine()
 # plt.xlabel('Cortical PKC-3')
@@ -156,15 +194,15 @@ def func7(dataset, c):
                     bounded_mean(dataset.rfp_spatial[x, :], bounds2) / dataset.cyts_RFP[x], c=c, s=5)
 
 
-func7(exp1.nwg91_wt, c='r')
-func7(exp1.nwg91_rd, c='r')
-func7(exp1.nwg93_wt, c='k')
-func7(exp1.nwg93_rd, c='k')
-sns.despine()
-plt.xlabel('Cortical PKC-3')
-plt.ylabel('Cortical / Cytoplasmic PAR-2')
-# plt.gca().set_ylim(bottom=0)
-plt.show()
+# func7(exp1.nwg91_wt, c='r')
+# func7(exp1.nwg91_rd, c='r')
+# func7(exp1.nwg93_wt, c='k')
+# func7(exp1.nwg93_rd, c='k')
+# sns.despine()
+# plt.xlabel('Cortical PKC-3')
+# plt.ylabel('Cortical / Cytoplasmic PAR-2')
+# # plt.gca().set_ylim(bottom=0)
+# plt.show()
 
 
 

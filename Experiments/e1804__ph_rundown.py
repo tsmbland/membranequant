@@ -171,3 +171,44 @@ ph_wt = Results(np.array(conds_list_total)[[2,
 #     plt.plot(bg)
 #     # plt.plot(gaussian_plus2(b.bgG4[25:75], *a))
 #     plt.show()
+
+
+# gfps = []
+# afs = []
+# cors = []
+#
+#
+# for e in ph_wt.direcs:
+#     data = d(e)
+#     gfps.append(cytoconc(data.GFP, data.ROI_fitted, expand=5))
+#     afs.append(cytoconc(data.AF, data.ROI_fitted, expand=5))
+#     cors.append(cytoconc(af_subtraction(data.GFP, data.AF, settings), data.ROI_fitted, expand=5))
+#
+# gfps = np.array(gfps)
+# afs = settings.m * np.array(afs) + settings.c
+# cors = np.array(cors)
+#
+#
+# def bar(ax, data, pos):
+#     plt.gca().set_prop_cycle(None)
+#     ax.bar(pos, np.mean(data), width=3, color='k', alpha=0.1)
+#     for d in data:
+#         ax.scatter(pos - 1 + 2 * np.random.rand(len(data))[0], d, facecolors='none', edgecolors='k', linewidth=1,
+#                    zorder=2,
+#                    s=10)
+#     ax.set_xticklabels([])
+#     ax.set_xticks([])
+#
+#
+# def tidy(ax, labels, positions):
+#         ax.set_xticks(positions)
+#         ax.set_xticklabels(labels, fontsize=10)
+#
+#
+# ax = plt.subplot2grid((1, 1), (0, 0))
+# bar(ax, gfps, 4)
+# bar(ax, afs, 8)
+# bar(ax, cors, 12)
+# tidy(ax, ['GFP', 'AF', 'Corrected'], [4, 8, 12])
+# ax.set_ylabel('Intensity')
+# plt.show()

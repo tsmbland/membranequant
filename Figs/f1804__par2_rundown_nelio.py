@@ -5,13 +5,13 @@ from Experiments.e1804__par2_rundown_nelio import *
 
 # Cyt vs mem
 
-# plt.scatter(nwg76_wt.cyts_GFP, nwg76_wt.corts_GFP,  s=5, facecolors='g', edgecolors='g', linewidth=1)
-# plt.scatter(nwg76_rd.cyts_GFP, nwg76_rd.corts_GFP, s=5, facecolors='none', edgecolors='g', linewidth=1)
-# plt.xlabel('[Cytoplasmic PAR-2] (a.u.)')
-# plt.ylabel('[Cortical PAR-2] (a.u.)')
-#
-# sns.despine()
-# plt.show()
+plt.scatter(nwg76_wt.cyts_GFP, nwg76_wt.corts_GFP,  s=5, facecolors='g', edgecolors='g', linewidth=1)
+plt.scatter(nwg76_rd.cyts_GFP, nwg76_rd.corts_GFP, s=5, facecolors='none', edgecolors='g', linewidth=1)
+plt.xlabel('[Cytoplasmic PAR-2] (a.u.)')
+plt.ylabel('[Cortical PAR-2] (a.u.)')
+
+sns.despine()
+plt.show()
 
 
 ####################################################################
@@ -70,7 +70,7 @@ def func2(dataset, c):
 
 def func(dataset, c):
     for x in range(len(dataset.gfp_spatial[:, 0])):
-        plt.scatter(dataset.cyts_GFP[x], np.mean(dataset.gfp_spatial[x, dataset.rfp_spatial[x, :] < 500]),  s=5, c=c)
+        plt.scatter(dataset.cyts_GFP[x], np.mean(dataset.gfp_spatial[x, dataset.rfp_spatial[x, :] < 500]), s=5, c=c)
 
 
 # func(nwg76_wt, 'r')
@@ -124,15 +124,16 @@ def func(dataset, c):
 
 def func7(dataset):
     for x in range(len(dataset.gfp_spatial[:, 0])):
-
         bounds1 = (0.4, 0.6)
         bounds2 = (0.9, 0.1)
 
         # Posterior pPAR vs anterior aPAR
-        plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds2), bounded_mean(dataset.rfp_spatial[x, :], bounds1), c='k', s=10)
+        # plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds2), bounded_mean(dataset.rfp_spatial[x, :], bounds1),
+        #             c='k', s=10)
 
         # Posterior pPAR vs posterior aPAR
-        plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds2), bounded_mean(dataset.rfp_spatial[x, :], bounds2), c='b', s=10)
+        plt.scatter(bounded_mean(dataset.gfp_spatial[x, :], bounds2), bounded_mean(dataset.rfp_spatial[x, :], bounds2),
+                    c='b', s=10)
 
 
 # func7(nwg76_wt)
@@ -142,6 +143,17 @@ def func7(dataset):
 # plt.show()
 
 
+####################################################################
 
 
+# Remove datapoints where PAR-6 is above a threshold
 
+def func(dataset):
+    plt.scatter(dataset.cyts_GFP[dataset.corts_RFP < 500], dataset.corts_GFP[dataset.corts_RFP < 500], s=10)
+
+
+func(nwg76_wt)
+func(nwg76_rd)
+# plt.gca().set_ylim(top=15000)
+sns.despine()
+plt.show()

@@ -7,7 +7,7 @@ from Experiments.e1806__nwg91 import *
 
 def func(dataset, c):
     for x in range(len(dataset.gfp_spatial[:, 0])):
-        plt.scatter(dataset.gfp_spatial[x, :], dataset.rfp_spatial[x, :], s=0.2, c=c)
+        plt.scatter(dataset.gfp_spatial[x, :], dataset.rfp_spatial[x, :], s=0.5, c=c)
 
 
 # func(par1, c='b')
@@ -26,7 +26,7 @@ def func(dataset, c):
 
 def func(dataset, c):
     for x in range(len(dataset.gfp_spatial[:, 0])):
-        plt.scatter(dataset.gfp_spatial[x, :], dataset.cyts_RFP[x] / dataset.rfp_spatial[x, :], s=0.2, c=c)
+        plt.scatter(dataset.gfp_spatial[x, :], dataset.cyts_RFP[x] / dataset.rfp_spatial[x, :], s=0.5, c=c)
 
 
 # func(par1, c='b')
@@ -54,14 +54,96 @@ def func2(dataset, c):
     plt.plot(np.mean(dataset.rfp_spatial, 0) / np.mean(dataset.cyts_RFP), c='r', linestyle='-')
 
 
-func2(wt, c='r')
-# func2(par1, c='b')
-# func2(chin1, c='g')
-# func2(spd5, c='k')
-plt.xlabel('x / circumference')
-plt.ylabel('Cortex / Cytoplasm (a.u.)')
-sns.despine()
-plt.show()
+# func2(wt, c='r')
+# # func2(par1, c='b')
+# # func2(chin1, c='g')
+# # func2(spd5, c='k')
+# plt.xlabel('x / circumference')
+# plt.ylabel('Cortex / Cytoplasm (a.u.)')
+# sns.despine()
+# plt.show()
+
+
+###############################################################
+
+# Spatial distribution with stdev
+
+def func1(dataset, c):
+    gfp_spatial = np.concatenate((dataset.gfp_spatial[:, :50], np.flip(dataset.gfp_spatial[:, 50:], 1)))
+    cyts_GFP = np.append(dataset.cyts_GFP, dataset.cyts_GFP)
+    mean = np.mean(gfp_spatial, 0) / np.mean(cyts_GFP)
+    stdev = np.std(gfp_spatial / np.tile(cyts_GFP, (50, 1)).T, 0)
+    plt.fill_between(range(50), mean + stdev, mean - stdev, facecolor=c, alpha=0.2)
+    plt.plot(mean, c=c)
+
+
+def func2(dataset, c):
+    rfp_spatial = np.concatenate((dataset.rfp_spatial[:, :50], np.flip(dataset.rfp_spatial[:, 50:], 1)))
+    cyts_RFP = np.append(dataset.cyts_RFP, dataset.cyts_RFP)
+    mean = np.mean(rfp_spatial, 0) / np.mean(cyts_RFP)
+    stdev = np.std(rfp_spatial / np.tile(cyts_RFP, (50, 1)).T, 0)
+    plt.fill_between(range(50), mean + stdev, mean - stdev, facecolor=c, alpha=0.2)
+    plt.plot(mean, c=c)
+
+
+# func1(wt, c='g')
+# func2(wt, c='r')
+# plt.show()
+
+
+# func1(par1, c='g')
+# func2(par1, c='r')
+# plt.show()
+#
+# func1(chin1, c='g')
+# func2(chin1, c='r')
+# plt.show()
+
+
+###############################################################
+
+# Spatial distribution with stdev, normalised, a to p
+
+def func1(dataset, c):
+    gfp_spatial = np.concatenate((np.flip(dataset.gfp_spatial[:, :50], 1), dataset.gfp_spatial[:, 50:]))
+    mean = np.mean(gfp_spatial, 0)
+    a = np.polyfit([min(mean), max(mean)], [0, 1], 1)
+    gfp_spatial = a[0] * gfp_spatial + a[1]
+    mean = a[0] * mean + a[1]
+    stdev = np.std(gfp_spatial, 0)
+    plt.fill_between(range(50), mean + stdev, mean - stdev, facecolor=c, alpha=0.2)
+    plt.plot(mean, c=c)
+
+
+def func2(dataset, c):
+    rfp_spatial = np.concatenate((np.flip(dataset.rfp_spatial[:, :50], 1), dataset.rfp_spatial[:, 50:]))
+    mean = np.mean(rfp_spatial, 0)
+    a = np.polyfit([min(mean), max(mean)], [0, 1], 1)
+    rfp_spatial = a[0] * rfp_spatial + a[1]
+    mean = a[0] * mean + a[1]
+    stdev = np.std(rfp_spatial, 0)
+    plt.fill_between(range(50), mean + stdev, mean - stdev, facecolor=c, alpha=0.2)
+    plt.plot(mean, c=c)
+
+
+# func1(wt, c='r')
+# func2(wt, c='c')
+# sns.despine()
+# plt.xticks([])
+# plt.yticks([0, 1])
+# # plt.xlabel('x / circumference')
+# # plt.ylabel('Cortex / Cytoplasm (a.u.)')
+# plt.rcParams['savefig.dpi'] = 600
+# plt.show()
+
+
+# func1(par1, c='g')
+# func2(par1, c='r')
+# plt.show()
+#
+# func1(chin1, c='g')
+# func2(chin1, c='r')
+# plt.show()
 
 
 ####################################################################
@@ -100,3 +182,32 @@ plt.show()
 #
 # sns.despine()
 # plt.show()
+
+
+
+################################################################
+
+# Dual channel embryo
+
+data = Data(wt.direcs[0])
+
+img10 = rotated_embryo(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 300)
+saveimg(img10, 'img10.TIF')
+plt.imshow(img10)
+plt.show()
+
+img11 = straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50)
+saveimg(img11, 'img11.TIF')
+plt.imshow(img11)
+plt.show()
+
+bg = straighten(data.RFP, offset_coordinates(data.ROI_fitted, 50), 50)
+img20 = rotated_embryo(data.RFP - np.nanmean(bg[np.nonzero(bg)]), data.ROI_fitted, 300)
+saveimg(img20, 'img20.TIF')
+plt.imshow(img20)
+plt.show()
+
+img21 = straighten(data.RFP - np.nanmean(bg[np.nonzero(bg)]), data.ROI_fitted, 50)
+saveimg(img21, 'img21.TIF')
+plt.imshow(img21)
+plt.show()
