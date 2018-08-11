@@ -16,7 +16,6 @@ import multiprocessing
 import pickle
 import copy
 import pandas as pd
-import scipy.misc
 
 sns.set()
 sns.set_style("ticks")
@@ -30,7 +29,7 @@ os.chdir(os.path.expanduser('~/Desktop/Data'))
 
 def embryofiles(direc, num):
     """
-    Returns a list of files containing the prefix corresponding to the embryo number specified
+    Returns a list of files containing the prefix corresponding to the embryo number specifies
 
     :param direc:
     :param num:
@@ -40,33 +39,6 @@ def embryofiles(direc, num):
     embryofileslist = [os.path.basename(x) for x in glob.glob('%s/*_%s_*' % (direc, int(num)))]
     embryofileslist.extend(os.path.basename(x) for x in glob.glob('%s/*_%s.nd' % (direc, int(num))))
     return embryofileslist
-
-
-def stagefiles(direc, num):
-    """
-    Returns a list of files containing the suffix corresponding to the stage number specified
-
-    :param direc:
-    :param num:
-    :return:
-    """
-
-    stagefileslist = [os.path.basename(x) for x in glob.glob('%s/*_s%s_*' % (direc, int(num)))]
-    stagefileslist.extend(os.path.basename(x) for x in glob.glob('%s/*_s%s.TIF' % (direc, int(num))))
-    return stagefileslist
-
-
-def timefiles(direc, num):
-    """
-    Returns a list of files containing the suffix corresponding to the timepoint specified
-
-    :param direc:
-    :param num:
-    :return:
-    """
-
-    timefileslist = [os.path.basename(x) for x in glob.glob('%s/*_t%s.TIF' % (direc, int(num)))]
-    return timefileslist
 
 
 def direcslist(direc):
@@ -125,28 +97,6 @@ def organise(direc, start=0):
         for file in embyrofileslist:
             os.rename('%s/%s' % (direc, file), '%s/%s/%s' % (direc, embryo, file))
         embryo += 1
-
-
-def split_stage_positions(direc, start=0):
-    stage = start
-    while len(stagefiles(direc, stage)) != 0:
-        os.makedirs('%s/%s' % (direc, stage))
-        stagefileslist = stagefiles(direc, stage)
-
-        for file in stagefileslist:
-            os.rename('%s/%s' % (direc, file), '%s/%s/%s' % (direc, stage, file))
-        stage += 1
-
-
-def split_timepoints(direc, start=0):
-    time = start
-    while len(timefiles(direc, time)) != 0:
-        os.makedirs('%s/%s' % (direc, time))
-        timefileslist = timefiles(direc, time)
-
-        for file in timefileslist:
-            os.rename('%s/%s' % (direc, file), '%s/%s/%s' % (direc, time, file))
-        time += 1
 
 
 ######################## DATA IMPORT #######################
@@ -322,11 +272,6 @@ def saveimg(img, direc):
     im.save(direc)
 
 
-def saveimg_jpeg(img, direc, min, max):
-    a = scipy.misc.toimage(img, cmin=min, cmax=max)
-    a.save(direc)
-
-
 def pklsave(direc, object, name):
     file = open('%s/%s.pkl' % (direc, name), 'wb')
     pickle.dump(object, file)
@@ -436,13 +381,11 @@ class Settings:
 
     """
 
-    def __init__(self, m=0., c=0., x=0., y=0., m2=0., c2=0.):
+    def __init__(self, m=0., c=0., x=0., y=0.):
         self.m = m
         self.c = c
         self.x = x
         self.y = y
-        self.m2 = m2
-        self.c2 = c2
 
 
 def n2_analysis(direcs, plot=0):
@@ -456,34 +399,21 @@ def n2_analysis(direcs, plot=0):
 
     xdata = []
     ydata = []
-    cdata = []
-    bdata = []
 
     for direc in direcs:
         embryos = direcslist(direc)
 
+        # Cytoplasmic means
         for embryo in range(len(embryos)):
             data = Data(embryos[embryo])
-
-            # Cytoplasmic means
             xdata.extend([cytoconc(data.AF, data.ROI_fitted)])
             ydata.extend([cytoconc(data.GFP, data.ROI_fitted)])
-            cdata.extend([cytoconc(data.RFP, data.ROI_fitted)])
-
-            # Background
-            bg = straighten(data.RFP, offset_coordinates(data.ROI_fitted, 50 * 1), int(50 * 1))
-            mean1 = np.nanmean(bg[np.nonzero(bg)])
-            bdata.extend([mean1])
 
     xdata = np.array(xdata)
     ydata = np.array(ydata)
-    bdata = np.array(bdata)
-    cdata = np.array(cdata)
 
     a = np.polyfit(xdata, ydata, 1)
     print(a)
-    print(np.mean(xdata, 0))
-    print(np.mean(ydata, 0))
 
     if plot == 1:
         x = np.array([0.9 * min(xdata.flatten()), 1.1 * max(xdata.flatten())])
@@ -491,16 +421,8 @@ def n2_analysis(direcs, plot=0):
         plt.plot(x, y, c='b')
         plt.scatter(xdata, ydata)
 
-    a2 = np.polyfit(bdata, cdata, 1)
-    print(a2)
-    print(np.mean(bdata, 0))
-    print(np.mean(cdata, 0))
-
-    if plot == 2:
-        x = np.array([0.9 * min(bdata.flatten()), 1.1 * max(bdata.flatten())])
-        y = (a[0] * x) + a[1]
-        plt.plot(x, y, c='b')
-        plt.scatter(bdata, cdata)
+    print(np.mean(xdata, 0))
+    print(np.mean(ydata, 0))
 
 
 def af_subtraction(ch1, ch2, settings):
@@ -715,35 +637,16 @@ def fit_background_v2(curve, bgcurve):
     :return:
     """
 
-    # Fix ends
-    ms = np.zeros([50])
-    cs = np.zeros([50])
-    for l in range(50):
-        bgcurve2 = bgcurve[250 + 10 * l: 1250 + 10 * l]
-        line = np.polyfit(
-            [np.nanmean(bgcurve2[:int(len(bgcurve2) * 0.2)]), np.nanmean(bgcurve2[int(len(bgcurve2) * 0.8):])],
-            [np.nanmean(curve[:int(len(curve) * 0.2)]), np.nanmean(curve[int(len(curve) * 0.8):])], 1)
-        ms[l] = line[0]
-        cs[l] = line[1]
-        # a0 = np.nanmean(curve[:int(len(curve) * 0.2)])
-        # a1 = np.nanmean(curve[int(len(curve) * 0.8):])
-        # b0 = np.nanmean(bgcurve2[:int(len(bgcurve2) * 0.2)])
-        # b1 = np.nanmean(bgcurve2[int(len(bgcurve2) * 0.8):])
-        # ms[l] = (a1 - a0) / (b1 - b0)
-        # cs[l] = a0 - ms[l] * b0
+    # Fix ends: use as initial guess for fitting
+    line = np.polyfit(
+        [np.nanmean(bgcurve[:int(len(bgcurve) * 0.2)]), np.nanmean(bgcurve[int(len(bgcurve) * 0.8):])],
+        [np.nanmean(curve[:int(len(curve) * 0.2)]), np.nanmean(curve[int(len(curve) * 0.8):])], 1)
 
-    # Interpolate
-    ms = np.interp(np.linspace(0, 50, 500), np.array(range(50)), ms)
-    cs = np.interp(np.linspace(0, 50, 500), np.array(range(50)), cs)
-    msfull = np.zeros([2000])
-    msfull[250:750] = ms
-    csfull = np.zeros([2000])
-    csfull[250:750] = cs
-
-    x = np.stack((bgcurve, msfull, csfull), axis=0)
-
-    # Fit gaussian to find offset
-    popt, pcov = curve_fit(gaussian_plus, x, curve, bounds=([250, 0, 50], [750, np.inf, 80]), p0=[500, 0, 65])
+    # Fit
+    popt, pcov = curve_fit(gaussian_plus, bgcurve, curve,
+                           bounds=([line[0] - 1000, line[1] - 1000, 250, 0, 50],
+                                   [line[0] + 1000, line[1] + 1000, 750, np.inf, 80]),
+                           p0=[line[0], line[1], 500, 0, 65])
 
     return popt
 
@@ -760,20 +663,18 @@ def calc_offsets3(img, bgcurve):
     :return: offsets
     """
 
-    # Smoothen/interpolate image
     img2 = interp(img, 1000)
     img3 = rolling_ave(img2, 50)
     img4 = savitsky_golay(img3, 251, 5)
 
-    # Interpolate bg curve
     bgcurve2 = np.interp(np.linspace(0, len(bgcurve), 2000), range(len(bgcurve)), bgcurve)
 
-    # Calculate offsets
     offsets = np.zeros(len(img[0, :]) // 5)
+
     for x in range(len(offsets)):
         try:
             a = fit_background_v2(img4[:, x * 5], bgcurve2)
-            offsets[x] = (a[0] - 500) / 20
+            offsets[x] = (a[2] - 500) / 20
         except RuntimeError:
             offsets[x] = np.nan
 
@@ -804,42 +705,125 @@ def fit_coordinates_alg3(img, coors, bgcurve, iterations, mag=1):
     """
 
     for i in range(iterations):
-        # Straighten
         straight = straighten(img, coors, int(50 * mag))
         straight = interp(straight, 50)
-
-        # # Adjust range
-        line = np.polyfit([np.percentile(straight.flatten(), 5), np.percentile(straight.flatten(), 95)], [0, 1], 1)
-        straight = straight * line[0] + line[1]
-        # plt.imshow(straight)
-        # plt.show()
-
-        # Calculate offsets
         offsets = calc_offsets3(straight, bgcurve)
         coors = offset_coordinates(coors, offsets)
-
-        # Filter
         coors = np.vstack(
             (savgol_filter(coors[:, 0], 19, 1, mode='wrap'), savgol_filter(coors[:, 1], 19, 1, mode='wrap'))).T
 
-    # Rotate
     coors = rotate_coors(coors)
     return coors
 
 
-def gaussian_plus(x, l, a, c):
+# def calc_offsets4(img, bgcurve):
+#     """
+#     Calculates coordinate offset required, by fitting straightened image to background curve
+#     + throws mse of fitting
+#
+#     :param img: straightened image
+#     :param bgcurve: background curve
+#     :return: offsets
+#     """
+#
+#     img2 = interp(img, 1000)
+#     img3 = rolling_ave(img2, 50)
+#     img4 = savitsky_golay(img3, 251, 5)
+#
+#     bgcurve2 = np.interp(np.linspace(0, len(bgcurve), 2000), range(len(bgcurve)), bgcurve)
+#     bgcurve2 = savgol_filter(bgcurve2, 251, 5)
+#
+#     offsets = np.zeros(len(img[0, :]) // 10)
+#     mse = np.zeros(len(img[0, :]) // 10)
+#
+#     for x in range(len(offsets)):
+#         try:
+#             a = fit_background_v2(img4[:, x * 10], bgcurve2)
+#             offsets[x] = (a[2] - 500) / 20
+#             mse[x] = ((img4[:, x * 10] - gaussian_plus(bgcurve2, *a)) ** 2).mean(axis=None)
+#         except RuntimeError:
+#             offsets[x] = np.nan
+#             mse[x] = np.nan
+#
+#     # Interpolate nans
+#     nans, x = np.isnan(offsets), lambda z: z.nonzero()[0]
+#     offsets[nans] = np.interp(x(nans), x(~nans), offsets[~nans])
+#
+#     nans, x = np.isnan(mse), lambda z: z.nonzero()[0]
+#     mse[nans] = np.interp(x(nans), x(~nans), mse[~nans])
+#
+#     # Interpolate
+#     offsets = np.interp(np.linspace(0, len(offsets), len(img[0, :])), range(len(offsets)), offsets)
+#     mse = np.interp(np.linspace(0, len(mse), len(img[0, :])), range(len(mse)), mse)
+#
+#     return offsets, mse
+#
+#
+# def fit_coordinates_alg4(data, settings, bgcurve, iterations, mag=1):
+#     """
+#     Segmentation algorithm that uses both channels
+#     For each location, fits to both channels, and picks offset from channel with best fit
+#
+#     :param data:
+#     :param settings:
+#     :param bgcurve:
+#     :param iterations:
+#     :param mag:
+#     :return:
+#     """
+#
+#     coors = data.ROI_orig
+#     for i in range(iterations):
+#
+#         # GFP
+#         straight = straighten(af_subtraction(data.GFP, data.AF, settings), coors, int(50 * mag))
+#         straight = interp(straight, 50)
+#         offsets1, mse1 = calc_offsets4(straight, bgcurve)
+#
+#         # RFP
+#         straight = straighten(data.RFP, coors, int(50 * mag))
+#         straight = interp(straight, 50)
+#         offsets2, mse2 = calc_offsets4(straight, bgcurve)
+#
+#         # plt.plot(offsets1)
+#         # plt.plot(offsets2)
+#         # plt.plot((offsets1 + offsets2) / 2)
+#         # plt.show()
+#
+#         # offsets = np.zeros([len(offsets1)])
+#         # for pos in range(len(offsets)):
+#         #     if mse1[pos] < mse2[pos]:
+#         #         offsets[pos] = offsets1[pos]
+#         #     elif mse2[pos] < mse1[pos]:
+#         #         offsets[pos] = offsets2[pos]
+#
+#         coors = offset_coordinates(coors, (offsets1 + offsets2) / 2)
+#         coors = np.vstack(
+#             (savgol_filter(coors[:, 0], 19, 1, mode='wrap'), savgol_filter(coors[:, 1], 19, 1, mode='wrap'))).T
+#
+#     try:
+#         coors = rotate_coors(coors)
+#     except:
+#         print('segmentation error: %s' % data.direc)
+#
+#     return coors
+
+
+def gaussian_plus(x, j, k, l, a, c):
     """
     For fitting signal curve to background curve + gaussian. Interpolated curves, sliding permitted
     (Used for segmentation)
 
-    :param x: background curve, end fits
+    :param x: background curve
+    :param j: bg curve fit
+    :param k: bg curve fit
     :param l: bg curve fit (offset)
     :param a: gaussian param
     :param c: gaussian param
     :return: y: bgcurve + gaussian
     """
 
-    y = (x[1, int(l)] * x[0, int(l):int(l) + 1000] + x[2, int(l)]) + (
+    y = (j * x[int(l):int(l) + 1000] + k) + (
         a * np.e ** (-((np.array(range(1000)) - (1000 - l)) ** 2) / (2 * (c ** 2))))
 
     return y
@@ -857,15 +841,40 @@ def fit_background_v2_2(curve, bgcurve):
     :return:
     """
 
-    # Fix ends
+    # Fix ends: use as initial guess for fitting
     line = np.polyfit(
         [np.nanmean(bgcurve[:int(len(bgcurve) * 0.2)]), np.nanmean(bgcurve[int(len(bgcurve) * 0.8):])],
         [np.nanmean(curve[:int(len(curve) * 0.2)]), np.nanmean(curve[int(len(curve) * 0.8):])], 1)
 
-    # Create new bgcurve
-    curve2 = bgcurve * line[0] + line[1]
+    # Fit
+    popt, pcov = curve_fit(gaussian_plus2, bgcurve, curve, bounds=(
+        [line[0] - 1000, line[1] - 1000, 0, 2.5], [line[0] + 1000, line[1] + 1000, np.inf, 4]),
+                           p0=[line[0], line[1], 0, 3.25])
 
-    return curve2
+    # Create new bgcurve
+    bgcurve = bgcurve * popt[0] + popt[1]
+
+    return popt, bgcurve
+
+
+def gaussian_plus2(x, j, k, a, c):
+    """
+    For fitting signal curve to background curve + gaussian. Non-interpolated curves, no sliding permitted
+    For fitting background curve prior to subtraction
+
+    :param x: background curve
+    :param j: bg curve fit
+    :param k: bg curve fit
+    :param l: bg curve fit (offset)
+    :param a: gaussian param
+    :param b: gaussian param
+    :param c: gaussian param
+    :return: y: bgcurve + gaussian
+    """
+
+    y = (j * x + k) + (a * np.e ** (-((np.array(range(50)) - 25) ** 2) / (2 * (c ** 2))))
+
+    return y
 
 
 def cortical_signal_GFP(data, bg, settings, bounds, mag=1):
@@ -886,7 +895,7 @@ def cortical_signal_GFP(data, bg, settings, bounds, mag=1):
     profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
 
     # Get cortical signal
-    bg = fit_background_v2_2(profile, bg[25:75])
+    a, bg = fit_background_v2_2(profile, bg[25:75])
     cort = np.trapz(profile - bg)
 
     return cort
@@ -907,7 +916,7 @@ def cortical_signal_RFP(data, bg, bounds, mag=1):
     profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
 
     # Get cortical signal
-    bg = fit_background_v2_2(profile, bg[25:75])
+    a, bg = fit_background_v2_2(profile, bg[25:75])
     cort = np.trapz(profile - bg)
 
     return cort
@@ -924,12 +933,23 @@ def spatial_signal_GFP(data, bg, settings, mag=1):
     img_straight = rolling_ave(img_straight, int(20 * mag))
 
     # Get cortical signals
-    sigs = np.zeros([100])
-    for x in range(100):
-        profile = img_straight[:, int(np.linspace(0, len(img_straight[0, :]), 100)[x] - 1)]
-        profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
-        bg2 = fit_background_v2_2(profile, bg[25:75])
-        sigs[x] = np.trapz(profile - bg2)
+    sigs = np.zeros(len(img_straight[0, :]) // 5)
+    for x in range(len(sigs)):
+        try:
+            profile = img_straight[:, x * 5]
+            profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
+            a, bg2 = fit_background_v2_2(profile, bg[25:75])
+            sigs[x] = np.trapz(profile - bg2)
+
+        except RuntimeError:
+            sigs[x] = np.nan
+
+    # Interpolate nans
+    nans, x = np.isnan(sigs), lambda z: z.nonzero()[0]
+    sigs[nans] = np.interp(x(nans), x(~nans), sigs[~nans])
+
+    # Interpolate
+    sigs = np.interp(np.linspace(0, len(sigs), 1000), range(len(sigs)), sigs)
 
     return sigs
 
@@ -942,12 +962,23 @@ def spatial_signal_RFP(data, bg, mag=1):
     img_straight = rolling_ave(img_straight, int(20 * mag))
 
     # Get cortical signals
-    sigs = np.zeros([100])
-    for x in range(100):
-        profile = img_straight[:, int(np.linspace(0, len(img_straight[0, :]), 100)[x] - 1)]
-        profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
-        bg2 = fit_background_v2_2(profile, bg[25:75])
-        sigs[x] = np.trapz(profile - bg2)
+    sigs = np.zeros(len(img_straight[0, :]) // 5)
+    for x in range(len(sigs)):
+        try:
+            profile = img_straight[:, x * 5]
+            profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
+            a, bg2 = fit_background_v2_2(profile, bg[25:75])
+            sigs[x] = np.trapz(profile - bg2)
+
+        except RuntimeError:
+            sigs[x] = np.nan
+
+    # Interpolate nans
+    nans, x = np.isnan(sigs), lambda z: z.nonzero()[0]
+    sigs[nans] = np.interp(x(nans), x(~nans), sigs[~nans])
+
+    # Interpolate
+    sigs = np.interp(np.linspace(0, len(sigs), 1000), range(len(sigs)), sigs)
 
     return sigs
 
@@ -1029,8 +1060,8 @@ def cytoplasmic_signal_RFP(data, mag=1):
     return mean2 - mean1
 
 
-def cytoconc(img, coors, expand=-20):
-    img2 = polycrop(img, coors, expand)
+def cytoconc(img, coors):
+    img2 = polycrop(img, coors, -20)
     mean = np.nanmean(img2[np.nonzero(img2)])
     return mean
 
@@ -1159,22 +1190,6 @@ def normalise(instance1, instance2, objects):
     return norm
 
 
-def join(instances, objects):
-    """
-    Joins instances of a class to create one class
-
-    :param instances:
-    :param objects:
-    :return:
-    """
-
-    joined = copy.deepcopy(instances[0])
-    for i in range(1, len(instances)):
-        for o in objects:
-            setattr(joined, o, np.append(getattr(joined, o), getattr(instances[i], o)))
-    return joined
-
-
 def rotated_embryo(img, coors, l):
     """
     Takes an image and rotates according to coordinates so that anterior is on left, posterior on right
@@ -1253,22 +1268,6 @@ def composite(data, settings, factor, mag=1):
     img2 = data.RFP - np.nanmean(bg[np.nonzero(bg)])
     img3 = img1 + (factor * img2)
     return img3
-
-
-def rotate_array(array, n):
-    l = list(array)
-    return np.array(l[-n:] + l[:-n])
-
-
-def norm01(array):
-    """
-    Takes array, normalises to range between 0 and 1
-    :param array:
-    :return:
-    """
-
-    a = np.polyfit([min(array), max(array)], [0, 1], 1)
-    return a[0] * array + a[1]
 
 
 experiment_database()

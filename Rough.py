@@ -1,8 +1,8 @@
 from IA import *
-import BgCurves as b
-import AFSettings as s
-import time
-import shutil
+# import BgCurves as b
+# import AFSettings as s
+# import time
+# import shutil
 
 # direc = '180302/180302_nwg0123_24hr0par2,par3_tom3,15,pfsout'
 #
@@ -191,7 +191,19 @@ import shutil
 #     shutil.move(a[4 * x + 3], '%s/%s/%s' % (direc, x, os.path.basename(a[4 * x + 3])))
 
 
-# organise('180726/180726_nwg0126_wt_tom4,15,30', start=0)
+# split_stage_positions('180803/180803_nwg0158_pmawashin,perm,dmso_tom4,15,30/43', start=1)
+# organise('180804/180804_nwg0151dr466_wt_tom4,15,30', start=0)
+
+# organise('180804/180804_nwg0123_wt_tom4,15,30')
 
 
 
+# Legend
+
+# plt.plot(0, 0, c='k', label='wild type')
+# plt.plot(0, 0, c='g', label='par-3 -/-')
+# plt.plot(0, 0, c='b', label='par-2 (s241a)*')
+# plt.legend()
+# plt.rcParams['savefig.dpi'] = 600
+# sns.despine()
+# plt.show()

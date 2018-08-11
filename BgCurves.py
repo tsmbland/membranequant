@@ -57,11 +57,13 @@ def func(direc, settings, pole):
 bgG1 = np.loadtxt('BackgroundCurves/bgG1')
 
 
-######### PAR-2 mCherry anterior
-
-# direc = '180322/180322_nwg42_wt_tom4,15,30,pfsout'
-# embryoslist = dirslist(direc)
+# ######### PAR-2 mCherry anterior
+#
+# direcs = ['180322/180322_nwg42_wt_tom4,15,30,pfsout']
+# embryoslist = direcslist(direc)
 # profiles = np.zeros([len(embryoslist), 50])
+#
+#
 #
 # for embryo in range(len(embryoslist)):
 #     data = Data('%s/%s' % (direc, embryoslist[embryo]))
@@ -73,8 +75,28 @@ bgG1 = np.loadtxt('BackgroundCurves/bgG1')
 #     profiles[embryo, :] = profile_norm
 # bgC1 = np.mean(profiles, 0)
 # np.savetxt('BackgroundCurves/bgC1', bgC1)
-
+#
 # bgC1 = np.loadtxt('BackgroundCurves/bgC1')
+
+
+############ PAR-2 mCherry, anterior, one copy
+
+# direcs = ['180804/180804_nwg0151dr466_wt_tom4,15,30']
+# embryoslist = embryos_direcslist(direcs)
+# profiles = []
+#
+# for embryo in embryoslist:
+#     data = Data(embryo)
+#     img_straight = straighten(data.RFP, data.ROI_fitted, 100)
+#     prof = bgcurve(img_straight, pole=1)
+#     profiles.extend([prof])
+#
+# bgC2 = np.mean(np.array(profiles), 0)
+# np.savetxt('BackgroundCurves/bgC2', bgC2)
+
+bgC2 = np.loadtxt('BackgroundCurves/bgC2')
+
+
 
 ############# PAR-2 GFP anterior (PH-cherry)
 
@@ -106,9 +128,9 @@ bgG4 = np.loadtxt('BackgroundCurves/bgG4')
 
 ####################################
 
-# plt.plot(bgC1)
-# plt.plot(bgG1)
-# plt.plot(bgG2)
-# plt.plot(bgG3)
+# plt.plot(bgC2)
+# # plt.plot(bgG1)
+# # plt.plot(bgG2)
+# # plt.plot(bgG3)
 # plt.plot(bgG4)
 # plt.show()

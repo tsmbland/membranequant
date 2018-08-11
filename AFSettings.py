@@ -40,7 +40,15 @@ N2s9 = Settings(m=1.72050066, c=858.62079693)
 
 # N2, Tom4, 15, 30, pfsout, after microscope move
 # n2_analysis(['N2/180716_n2_wt_tom4,15,30'], 1)
-N2s10 = Settings(m=1.85090169, c=1593.27561763)
+# N2s10 = Settings(m=1.81985846, c=1923.41578)
+
+# N2, Tom4, 15, 30, pfsout, after microscope move
+# n2_analysis(['N2/180730_n2_wt_tom4,15,30'], 1)
+N2s10 = Settings(m=1.82883199, c=1997.95716, m2=0.90837544, c2=344.00076897)
+
+# N2, Tom4, 15, 30, pfsout, after microscope move, with bleach
+# n2_analysis(['N2/180730_n2_wt_tom4,15,30+bleach'], 1)
+N2s11 = Settings(m=1.34077353, c=4856.91160)
 
 # plt.show()
 

@@ -641,3 +641,95 @@ def fit_coordinates_alg2(img, coors, func, iterations):
 
     coors = rotate_coors(coors)
     return coors
+
+# def calc_offsets4(img, bgcurve):
+#     """
+#     Calculates coordinate offset required, by fitting straightened image to background curve
+#     + throws mse of fitting
+#
+#     :param img: straightened image
+#     :param bgcurve: background curve
+#     :return: offsets
+#     """
+#
+#     img2 = interp(img, 1000)
+#     img3 = rolling_ave(img2, 50)
+#     img4 = savitsky_golay(img3, 251, 5)
+#
+#     bgcurve2 = np.interp(np.linspace(0, len(bgcurve), 2000), range(len(bgcurve)), bgcurve)
+#     bgcurve2 = savgol_filter(bgcurve2, 251, 5)
+#
+#     offsets = np.zeros(len(img[0, :]) // 10)
+#     mse = np.zeros(len(img[0, :]) // 10)
+#
+#     for x in range(len(offsets)):
+#         try:
+#             a = fit_background_v2(img4[:, x * 10], bgcurve2)
+#             offsets[x] = (a[2] - 500) / 20
+#             mse[x] = ((img4[:, x * 10] - gaussian_plus(bgcurve2, *a)) ** 2).mean(axis=None)
+#         except RuntimeError:
+#             offsets[x] = np.nan
+#             mse[x] = np.nan
+#
+#     # Interpolate nans
+#     nans, x = np.isnan(offsets), lambda z: z.nonzero()[0]
+#     offsets[nans] = np.interp(x(nans), x(~nans), offsets[~nans])
+#
+#     nans, x = np.isnan(mse), lambda z: z.nonzero()[0]
+#     mse[nans] = np.interp(x(nans), x(~nans), mse[~nans])
+#
+#     # Interpolate
+#     offsets = np.interp(np.linspace(0, len(offsets), len(img[0, :])), range(len(offsets)), offsets)
+#     mse = np.interp(np.linspace(0, len(mse), len(img[0, :])), range(len(mse)), mse)
+#
+#     return offsets, mse
+#
+#
+# def fit_coordinates_alg4(data, settings, bgcurve, iterations, mag=1):
+#     """
+#     Segmentation algorithm that uses both channels
+#     For each location, fits to both channels, and picks offset from channel with best fit
+#
+#     :param data:
+#     :param settings:
+#     :param bgcurve:
+#     :param iterations:
+#     :param mag:
+#     :return:
+#     """
+#
+#     coors = data.ROI_orig
+#     for i in range(iterations):
+#
+#         # GFP
+#         straight = straighten(af_subtraction(data.GFP, data.AF, settings), coors, int(50 * mag))
+#         straight = interp(straight, 50)
+#         offsets1, mse1 = calc_offsets4(straight, bgcurve)
+#
+#         # RFP
+#         straight = straighten(data.RFP, coors, int(50 * mag))
+#         straight = interp(straight, 50)
+#         offsets2, mse2 = calc_offsets4(straight, bgcurve)
+#
+#         # plt.plot(offsets1)
+#         # plt.plot(offsets2)
+#         # plt.plot((offsets1 + offsets2) / 2)
+#         # plt.show()
+#
+#         # offsets = np.zeros([len(offsets1)])
+#         # for pos in range(len(offsets)):
+#         #     if mse1[pos] < mse2[pos]:
+#         #         offsets[pos] = offsets1[pos]
+#         #     elif mse2[pos] < mse1[pos]:
+#         #         offsets[pos] = offsets2[pos]
+#
+#         coors = offset_coordinates(coors, (offsets1 + offsets2) / 2)
+#         coors = np.vstack(
+#             (savgol_filter(coors[:, 0], 19, 1, mode='wrap'), savgol_filter(coors[:, 1], 19, 1, mode='wrap'))).T
+#
+#     try:
+#         coors = rotate_coors(coors)
+#     except:
+#         print('segmentation error: %s' % data.direc)
+#
+#     return coors
