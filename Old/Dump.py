@@ -733,3 +733,316 @@ def fit_coordinates_alg2(img, coors, func, iterations):
 #         print('segmentation error: %s' % data.direc)
 #
 #     return coors
+
+
+# def rotate_array(array, n):
+#     l = list(array)
+#     return np.array(l[-n:] + l[:-n])
+
+
+# def norm01(array):
+#     """
+#     Takes array, normalises to range between 0 and 1
+#     :param array:
+#     :return:
+#     """
+#
+#     a = np.polyfit([min(array), max(array)], [0, 1], 1)
+#     return a[0] * array + a[1]
+
+
+# def tidy():
+#     for c in direcslist('.'):
+#         for e in direcslist(c):
+#             for f in glob.glob('%s/*_cell*' % e) + glob.glob('%s/*_straight*' % e) + glob.glob(
+#                             '%s/*.pkl' % e) + glob.glob('%s/*_fitted*' % e):
+#                 os.remove(f)
+
+
+# def tidy():
+#     for c in direcslist('.'):
+#         for e in direcslist(c):
+#             try:
+#                 os.rename('%s/ROI_orig.txt' % e, '%s/ROI.txt' % e)
+#             except:
+#                 print(e)
+
+# def tidy():
+#     for c in direcslist('.'):
+#         for e in direcslist(c):
+#             try:
+#                 os.rename(e, '%s/%s' % (c, '{0:02}'.format(int(os.path.basename(os.path.normpath(e))))))
+#                 # print('{0:02}'.format(int(os.path.basename(os.path.normpath(e)))))
+#             except:
+#                 print(e)
+
+
+# def getsecs(time):
+#     """
+#     Converts time in hh:mm:ss into seconds (i.e. seconds from midnight)
+#     For comparison of times between acquisitions/events
+#
+#     :param time: in string format (hh:mm:ss) e.g. nd['StartTime1'].split()[1]
+#     :return:
+#     """
+#     h, m, s = time.split(':')
+#     secs = int(h) * 3600 + int(m) * 60 + int(s)
+#     return secs
+
+
+# def reverse_polycrop(img, polyline, enlarge=10):
+#     """
+#     Crops the area outside the polyline
+#
+#     :param img:
+#     :param polyline:
+#     :param enlarge:
+#     :return:
+#     """
+#
+#     newcoors = np.int32(offset_coordinates(polyline, enlarge * np.ones([len(polyline[:, 0])])))
+#     mask = np.ones(img.shape)
+#     mask = cv2.fillPoly(mask, [newcoors], 0)
+#     newimg = img * mask
+#     return newimg
+
+
+# def direcslist2(direc):
+#     """
+#     Like direcslist but goes down an extra level
+#
+#     :param direc:
+#     :return:
+#     """
+#     dlist = []
+#     clist = glob.glob('%s/*/' % direc)
+#     clist = [x for x in clist if '!' not in x]
+#     for i in clist:
+#         dlist.extend(glob.glob('%s/*/' % i))
+#     dlist = [x for x in dlist if '!' not in x]
+#     return dlist
+
+
+class Data:
+    """
+    Structure to hold all imported data for an embryo
+    Compatible with most experiments
+
+    """
+
+    def __init__(self, direc):
+
+        # Directory
+        self.direc = direc
+        self.cond_direc = os.path.dirname(direc)
+
+        # nd file
+        try:
+            self.nd = readnd(direc)
+        except IndexError:
+            self.nd = None
+
+        # Conditions
+        try:
+            self.conds = read_conditions(direc)
+        except:
+            self.conds = None
+
+        # EmbryoID
+        self.emID = os.path.basename(direc)
+
+        # DIC
+        try:
+            self.DIC = loadimage(sorted(glob.glob('%s/*DIC SP Camera*' % direc), key=len)[0])
+        except IndexError:
+            self.DIC = None
+
+        # GFP
+        try:
+            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 535-50*' % direc), key=len)[0])
+        except IndexError:
+            try:
+                self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 525-50*' % direc), key=len)[0])
+            except IndexError:
+                try:
+                    self.GFP = loadimage(sorted(glob.glob('%s/*GFP*' % direc), key=len)[0])
+                except IndexError:
+                    self.GFP = None
+
+        # AF
+        try:
+            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
+        except IndexError:
+            try:
+                self.AF = loadimage(sorted(glob.glob('%s/*AF*' % direc), key=len)[0])
+            except IndexError:
+                self.AF = None
+
+        # RFP
+        try:
+            self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
+        except IndexError:
+            self.RFP = None
+
+        # ROI orig
+        try:
+            self.ROI_orig = np.loadtxt('%s/ROI.txt' % direc)
+        except FileNotFoundError:
+            self.ROI_orig = None
+
+            # # ROI fitted
+            # try:
+            #     self.ROI_fitted = np.loadtxt('%s/ROI_fitted.txt' % direc)
+            # except FileNotFoundError:
+            #     try:
+            #         self.ROI_fitted = np.loadtxt('%s/ROI_orig.txt' % direc)
+            #     except FileNotFoundError:
+            #         self.ROI_fitted = None
+            #
+            # # Surface area / Volume
+            # try:
+            #     [self.sa, self.vol] = geometry(self.ROI_fitted)
+            # except:
+            #     self.sa = None
+            #     self.vol = None
+
+
+# class Data2:
+#     def __init__(self, direc):
+#         self.direc = direc
+#         self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 525-50*' % direc), key=len)[0])
+#         self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
+#         self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
+#         self.ROI_orig = np.loadtxt('%s/ROI_orig.txt' % direc)
+#
+#         try:
+#             self.ROI_fitted = np.loadtxt('%s/ROI_fitted.txt' % direc)
+#         except FileNotFoundError:
+#             self.ROI_fitted = self.ROI_orig
+#
+#         try:
+#             [self.sa, self.vol] = geometry(self.ROI_fitted)
+#         except:
+#             self.sa = None
+#             self.vol = None
+#
+#
+# class Data3:
+#     def __init__(self, direc):
+#         self.direc = direc
+#         self.GFP = loadimage(sorted(glob.glob('%s/*GFP*' % direc), key=len)[0])
+#         self.AF = loadimage(sorted(glob.glob('%s/*AF*' % direc), key=len)[0])
+#         self.RFP = loadimage(sorted(glob.glob('%s/*PAR2*' % direc), key=len)[0])
+#         self.ROI_orig = np.loadtxt('%s/ROI_orig.txt' % direc)
+#
+#         try:
+#             self.ROI_fitted = np.loadtxt('%s/ROI_fitted.txt' % direc)
+#         except FileNotFoundError:
+#             self.ROI_fitted = self.ROI_orig
+#
+#         try:
+#             [self.sa, self.vol] = geometry(self.ROI_fitted)
+#         except:
+#             self.sa = None
+#             self.vol = None
+
+
+# def pklload(direc, name):
+#     file = open('%s/%s.pkl' % (direc, name), 'rb')
+#     res = pickle.load(file)
+#     return res
+
+
+class Res:
+    def __init__(self, cyt=None, cort=None, total=None):
+        self.cyt = cyt
+        self.cort = cort
+        self.total = total
+
+
+class Results:
+    """
+    Class that holds all results for embryos in given directories
+
+    """
+
+    def __init__(self, direcs):
+        self.direcs = []
+
+        self.cyts_GFP = np.array([])
+        self.corts_GFP = np.array([])
+        self.totals_GFP = np.array([])
+
+        self.cyts_RFP = np.array([])
+        self.corts_RFP = np.array([])
+        self.totals_RFP = np.array([])
+
+        self.gfp_spatial = []
+
+        self.rfp_spatial = []
+
+        self.gfp_csection = []
+
+        self.rfp_csection = []
+
+        for d in direcs:
+            for e in direcslist(d):
+
+                # GFP Quantification
+                try:
+                    res1 = pklload(e, 'res1')
+                    self.cyts_GFP = np.append(self.cyts_GFP, [res1.cyt], axis=0)
+                    self.corts_GFP = np.append(self.corts_GFP, [res1.cort], axis=0)
+                    self.totals_GFP = np.append(self.totals_GFP, [res1.total], axis=0)
+                except:
+                    pass
+
+                # RFP Quantification
+                try:
+                    res2 = pklload(e, 'res2')
+                    self.cyts_RFP = np.append(self.cyts_RFP, [res2.cyt], axis=0)
+                    self.corts_RFP = np.append(self.corts_RFP, [res2.cort], axis=0)
+                    self.totals_RFP = np.append(self.totals_RFP, [res2.total], axis=0)
+                except:
+                    pass
+
+                # GFP Spatial Quantification
+                try:
+                    res1_spatial = pklload(e, 'res1_spatial')
+                    self.gfp_spatial.extend([res1_spatial])
+                except:
+                    pass
+
+                # RFP Spatial Quantification
+                try:
+                    res2_spatial = pklload(e, 'res2_spatial')
+                    self.rfp_spatial.extend([res2_spatial])
+                except:
+                    pass
+
+                # GFP Cross Section
+                try:
+                    res1_csection = pklload(e, 'res1_csection')
+                    self.gfp_csection.extend([res1_csection])
+                except:
+                    pass
+
+                # RFP Cross Section
+                try:
+                    res2_csection = pklload(e, 'res2_csection')
+                    self.rfp_csection.extend([res2_csection])
+                except:
+                    pass
+
+                # Direcs
+                self.direcs.extend([e])
+
+        self.gfp_spatial = np.array(self.gfp_spatial)
+        self.rfp_spatial = np.array(self.rfp_spatial)
+        self.gfp_csection = np.array(self.gfp_csection)
+        self.rfp_csection = np.array(self.rfp_csection)
+
+
+# def pklsave(direc, object, name):
+#     file = open('%s/%s.pkl' % (direc, name), 'wb')
+#     pickle.dump(object, file)

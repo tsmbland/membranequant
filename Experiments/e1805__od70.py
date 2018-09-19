@@ -2,11 +2,8 @@ import BgCurves as b
 import AFSettings as s
 from IA import *
 
-import BgCurves as b
-import AFSettings as s
-from IA import *
-
 """
+
 
 
 """
@@ -14,18 +11,13 @@ from IA import *
 ############################# INPUT / SETTINGS ################################
 
 # Input data
-conds_list_total = ['180110_NWG91_0PKC_Florent1',
-                    '180110_NWG91_25PKC_Florent1',
-                    '180110_NWG91_75PKC_Florent1',
-                    '180110_NWG93_0PKC_Florent1',
-                    '180110_NWG93_25PKC_Florent1',
-                    '180110_NWG93_75PKC_Florent1']
+conds_list_total = ['180501_od70_wt_tom4,5,30', '180420_od70_wt_tom4,5,30']
 
 # Global variables
-settings = s.N2s7
+settings = s.N2s2
 bgcurve = b.bgG4
 adirec = '../Analysis/%s' % os.path.basename(__file__)[:-3]
-mag = 5 / 3
+mag = 1
 
 
 ################################ DATA IMPORT #################################
@@ -33,9 +25,10 @@ mag = 5 / 3
 class Data:
     def __init__(self, direc):
         self.direc = direc
-        self.GFP = loadimage(sorted(glob.glob('%s/*GFP*' % direc), key=len)[0])
-        self.AF = loadimage(sorted(glob.glob('%s/*AF*' % direc), key=len)[0])
-        self.RFP = loadimage(sorted(glob.glob('%s/*PAR2*' % direc), key=len)[0])
+        self.DIC = loadimage(sorted(glob.glob('%s/*DIC SP Camera*' % direc), key=len)[0])
+        self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 535-50*' % direc), key=len)[0])
+        self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
+        self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
         self.ROI = np.loadtxt('%s/ROI.txt' % direc)
 
 
@@ -45,8 +38,7 @@ class Data:
 def segment(direc):
     try:
         data = Data(direc)
-        img = composite(data, settings=settings, factor=0.3, mag=mag, coors=data.ROI)
-        coors = fit_coordinates_alg(img, data.ROI, bgcurve, 2, mag=mag)
+        coors = fit_coordinates_alg(data.RFP, data.ROI, bgcurve, 2, mag=mag)
         np.savetxt('%s/ROI_fitted.txt' % direc, coors, fmt='%.4f', delimiter='\t')
     except np.linalg.linalg.LinAlgError:
         print(direc)
@@ -108,7 +100,7 @@ class Analysis:
                                        thickness=10, extend=1.5)
 
     def r_cse(self, data, coors):
-        bg = straighten(data.RFP, offset_coordinates(coors, int(50 * mag)), int(50 * mag))
+        bg = straighten(data.RFP, offset_coordinates(coors, 50 * mag), 50 * mag)
         self.res.r_cse = cross_section(img=data.RFP, coors=coors, thickness=10, extend=1.5) - np.nanmean(
             bg[np.nonzero(bg)])
 
@@ -131,7 +123,4 @@ embryos_list_total = embryos_direcslist(direcslist(adirec))
 
 ################################ IMPORT ######################################
 
-nwg91_wt = batch_import(adirec, np.array(conds_list_total)[[0]], Res)
-nwg91_rd = batch_import(adirec, np.array(conds_list_total)[[1, 2]], Res)
-nwg93_wt = batch_import(adirec, np.array(conds_list_total)[[3]], Res)
-nwg93_rd = batch_import(adirec, np.array(conds_list_total)[[4, 5]], Res)
+od70_wt = batch_import(adirec, np.array(conds_list_total)[:], Res)

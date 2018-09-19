@@ -1,5 +1,11 @@
 from Experiments.e1807__s241e import *
 
+plt.rcParams['savefig.dpi'] = 600
+fdirec = '../Figures/%s' % os.path.basename(__file__)[:-3]
+if not os.path.exists(fdirec):
+    os.mkdir(fdirec)
+f = 0
+
 ################################################################
 
 # Bar plots
@@ -19,10 +25,10 @@ def bar(ax, data, pos, c):
 
 
 def plots(axes, data, pos, c='k'):
-    bar(axes[0], data.cyts_GFP, pos, c)
-    bar(axes[1], data.corts_GFP, pos, c)
-    bar(axes[2], data.corts_GFP / data.cyts_GFP, pos, c)
-    bar(axes[3], data.totals_GFP, pos, c)
+    bar(axes[0], data.g_cyt, pos, c)
+    bar(axes[1], data.g_mem, pos, c)
+    bar(axes[2], data.g_mem / data.g_cyt, pos, c)
+    bar(axes[3], data.g_tot, pos, c)
 
 
 def init():
@@ -43,16 +49,17 @@ def tidy(axes, labels, positions):
         a.set_xticklabels(labels, fontsize=7)
 
 
-# [ax0, ax1, ax2, ax3] = init()
-# plots([ax0, ax1, ax2, ax3], kk1273_wt, 4, c='k')
-# plots([ax0, ax1, ax2, ax3], nwg62_wt, 8, c='r')
-# plots([ax0, ax1, ax2, ax3], nwg126_wt, 12, c='b')
-# labels = []
-# positions = []
-# tidy([ax0, ax1, ax2, ax3], labels, positions)
-# sns.despine()
-# plt.show()
-
+f += 1
+plt.close()
+[ax0, ax1, ax2, ax3] = init()
+plots([ax0, ax1, ax2, ax3], kk1273_wt, 4, c='k')
+plots([ax0, ax1, ax2, ax3], nwg62_wt, 8, c='r')
+plots([ax0, ax1, ax2, ax3], nwg126_wt, 12, c='b')
+labels = []
+positions = []
+tidy([ax0, ax1, ax2, ax3], labels, positions)
+sns.despine()
+plt.savefig('%s/f%s.png' % (fdirec, f))
 
 ################################################################
 
@@ -65,20 +72,21 @@ Plots the cortical/cytoplasm intensities around the circumference. Separate func
 
 
 def func1(dataset, c='k'):
-    for x in range(len(dataset.gfp_spatial[:, 0])):
-        plt.plot(dataset.gfp_spatial[x, :] / dataset.cyts_GFP[x], c=c, alpha=0.2)
-    plt.plot(np.mean(dataset.gfp_spatial, 0) / np.mean(dataset.cyts_GFP), c=c)
+    for x in range(len(dataset.g_spa[:, 0])):
+        plt.plot(dataset.g_spa[x, :] / dataset.g_cyt[x], c=c, alpha=0.2)
+    plt.plot(np.mean(dataset.g_spa, 0) / np.mean(dataset.g_cyt), c=c)
     plt.xlabel('x / circumference')
     plt.ylabel('Cortex / Cytoplasm (a.u.)')
     # plt.gca().set_ylim(bottom=0)
     sns.despine()
 
 
+f += 1
+plt.close()
 func1(kk1273_wt, c='k')
 func1(nwg62_wt, c='r')
 func1(nwg126_wt, c='b')
-
 # func1(kk1273_wt_bleach, c='k')
 # func1(nwg62_wt_bleach, c='b')
 # func1(nwg126_wt_bleach, c='b')
-plt.show()
+plt.savefig('%s/f%s.png' % (fdirec, f))

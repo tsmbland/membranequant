@@ -5,166 +5,150 @@ from IA import *
 """
 Nelio's PAR-2 rundown data in NWG76 (March-April 2018)
 
-Manually segmented by Nelio
 
 """
 
-# Done, checked
+"""
+Example script to be used as a template for analysis of other experiments
 
-#####################################################################################
+Checklist
+- description
+- conds_list
+- global variables
+- Data class
+- method of segmentation (e.g. which channel is being used as the guide)
+- which quantifications are suitable
+- bounds for averaging cortical fluorescence over
+- import
 
 
-# INPUT DATA
+"""
 
+############################# INPUT / SETTINGS ################################
+
+# Input data
 conds_list_total = [
-    'PAR2_Nelio/NR020418_P2rundown_NWG0076',
-    'PAR2_Nelio/NR020418_P2rundown_NWG0076_WT',
-    'PAR2_Nelio/NR030418 - P2 rundown - NWG0076',
-    'PAR2_Nelio/NR030418 - P2 rundown - NWG0076_WT',
-    'PAR2_Nelio/NR040418 - P2 rundown - NWG0076',
-    'PAR2_Nelio/NR040418 - P2 rundown - NWG0076_WT',
-    'PAR2_Nelio/NR290318 - P2 rundown - NWG0076',
-    'PAR2_Nelio/NR290318 - P2 rundown - NWG0076_WT',
-    'PAR2_Nelio/NR300318 - P2 rundown - NWG0076',
-    'PAR2_Nelio/NR300318 - P2 rundown - NWG0076_WT']
+    '180329_nwg76_p2rundown_Nelio1',
+    '180329_nwg76_wt_Nelio1',
+    '180330_nwg76_p2rundown_Nelio1',
+    '180330_nwg76_wt_Nelio1',
+    '180402_nwg76_p2rundown_Nelio1',
+    '180402_nwg76_wt_Nelio1',
+    '180403_nwg76_p2rundown_Nelio1',
+    '180403_nwg76_wt_Nelio1',
+    '180404_nwg76_p2rundown_Nelio1',
+    '180404_nwg76_wt_Nelio1']
 
-embryos_list_total = embryos_direcslist(conds_list_total)
-
+# Global variables
 settings = s.N2s4
 bgcurve = b.bgG4
-d = Data
+adirec = '../Analysis/%s' % os.path.basename(__file__)[:-3]
+mag = 2
 
 
-#####################################################################################
+################################ DATA IMPORT #################################
 
-# SEGMENTATION
+class Data:
+    def __init__(self, direc):
+        self.direc = direc
+        self.DIC = loadimage(sorted(glob.glob('%s/*DIC SP Camera*' % direc), key=len)[0])
+        self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 535-50*' % direc), key=len)[0])
+        self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
+        self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
+        self.ROI = np.loadtxt('%s/ROI.txt' % direc)
 
-def func1(embryo):
-    data = d(embryo)
+
+############################### SEGMENTATION #################################
+
+
+def segment(direc):
     try:
-        coors = fit_coordinates_alg3(composite(data, settings, 2), data.ROI_orig, bgcurve, 2, mag=2)
-        np.savetxt('%s/ROI_fitted.txt' % data.direc, coors, fmt='%.4f', delimiter='\t')
+        data = Data(direc)
+        img = composite(data, settings=settings, factor=2, mag=mag, coors=data.ROI)
+        coors = fit_coordinates_alg(img, data.ROI, bgcurve, 2, mag=mag)
+        np.savetxt('%s/ROI_fitted.txt' % direc, coors, fmt='%.4f', delimiter='\t')
     except np.linalg.linalg.LinAlgError:
-        print(data.direc)
+        print(direc)
 
 
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func1)(embryo) for embryo in embryos_list_total)
+################################ ANALYSIS ###################################
 
 
-#####################################################################################
-
-# GFP QUANTIFICATION
-
-def func2(embryo):
-    data = d(embryo)
-    sig = cortical_signal_GFP(data, bgcurve, settings, bounds=(0.9, 0.1), mag=2)
-    cyt = cytoplasmic_signal_GFP(data, settings, mag=2)
-    total = cyt + (data.sa / data.vol) * cortical_signal_GFP(data, bgcurve, settings, bounds=(0, 1), mag=2)
-    pklsave(data.direc, Res(cyt, sig, total), 'res1')
-
-
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func2)(embryo) for embryo in embryos_list_total)
-
-
-# RFP QUANTIFICATION
-
-def func3(embryo):
-    data = d(embryo)
-    sig = cortical_signal_RFP(data, bgcurve, bounds=(0.9, 0.1), mag=2)
-    cyt = cytoplasmic_signal_RFP(data, mag=2)
-    total = cyt + (data.sa / data.vol) * cortical_signal_RFP(data, bgcurve, bounds=(0, 1), mag=2)
-    pklsave(data.direc, Res(cyt, sig, total), 'res2')
+class Res:
+    def __init__(self):
+        self.g_mem = []
+        self.r_mem = []
+        self.g_cyt = []
+        self.r_cyt = []
+        self.g_tot = []
+        self.r_tot = []
+        self.g_spa = []
+        self.r_spa = []
+        self.g_cse = []
+        self.r_cse = []
 
 
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func3)(embryo) for embryo in embryos_list_total)
+class Analysis:
+    def __init__(self):
+        self.res = Res()
+
+    def g_mem(self, data, coors):
+        self.res.g_mem = [cortical_signal_g(data, coors, bgcurve, settings, bounds=(0.9, 0.1), mag=mag)]
+
+    def r_mem(self, data, coors):
+        self.res.r_mem = [cortical_signal_r(data, coors, bgcurve, bounds=(0, 1), mag=mag)]
+
+    def g_cyt(self, data, coors):
+        self.res.g_cyt = [cytoplasmic_signal_g(data, coors, settings, mag=mag)]
+
+    def r_cyt(self, data, coors):
+        self.res.r_cyt = [cytoplasmic_signal_r(data, coors, mag=mag)]
+
+    def g_tot(self, data, coors):
+        cyt = cytoplasmic_signal_g(data, coors, settings, mag=mag)
+        self.res.g_tot = [cyt + (geometry(coors)[0] / geometry(coors)[1]) * cortical_signal_g(data, coors, bgcurve,
+                                                                                              settings, bounds=(0, 1),
+                                                                                              mag=mag)]
+
+    def r_tot(self, data, coors):
+        cyt = cytoplasmic_signal_r(data, coors, mag=mag)
+        self.res.r_tot = [cyt + (geometry(coors)[0] / geometry(coors)[1]) * cortical_signal_r(data, coors, bgcurve,
+                                                                                              bounds=(0, 1),
+                                                                                              mag=mag)]
+
+    def g_spa(self, data, coors):
+        self.res.g_spa = spatial_signal_g(data, coors, bgcurve, settings, mag=mag)
+
+    def r_spa(self, data, coors):
+        self.res.r_spa = spatial_signal_r(data, coors, bgcurve, mag=mag)
+
+    def g_cse(self, data, coors):
+        self.res.g_cse = cross_section(img=af_subtraction(data.GFP, data.AF, settings=settings), coors=coors,
+                                       thickness=10, extend=1.5)
+
+    def r_cse(self, data, coors):
+        bg = straighten(data.RFP, offset_coordinates(coors, 50 * mag), 50 * mag)
+        self.res.r_cse = cross_section(img=data.RFP, coors=coors, thickness=10, extend=1.5) - np.nanmean(
+            bg[np.nonzero(bg)])
 
 
-# GFP SPATIAL QUANTIFICATION
-
-def func4(embryo):
-    data = d(embryo)
-    sigs = spatial_signal_GFP(data, bgcurve, settings, mag=2)
-    pklsave(data.direc, sigs, 'res1_spatial')
 
 
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func4)(embryo) for embryo in embryos_list_total)
 
+################################## SETUP #####################################
 
-# RFP SPATIAL QUANTIFICATION
+# if os.path.exists(adirec):
+#     shutil.rmtree(adirec)
+# for cond in conds_list_total:
+#     shutil.copytree(cond, '%s/%s' % (adirec, cond))
 
-def func5(embryo):
-    data = d(embryo)
-    sigs = spatial_signal_RFP(data, bgcurve, mag=2)
-    pklsave(data.direc, sigs, 'res2_spatial')
+################################ RUN #########################################
 
+embryos_list_total = embryos_direcslist(direcslist(adirec))
+# Parallel(n_jobs=4, verbose=50)(delayed(segment)(embryo) for embryo in embryos_list_total)
+# Parallel(n_jobs=4, verbose=50)(delayed(run_analysis)(embryo, Data, Res, Analysis) for embryo in embryos_list_total)
 
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func5)(embryo) for embryo in embryos_list_total)
+################################ IMPORT ######################################
 
-#####################################################################################
-
-# LOAD DATA
-
-nwg76_wt = Results(np.array(conds_list_total)[[1, 3, 5, 7, 9]])
-nwg76_rd = Results(np.array(conds_list_total)[[0, 2, 4, 6, 9]])
-
-#####################################################################################
-
-# CHECK SEGMENTATION <- good
-
-# for embryo in embryos_list_total:
-#     data = d(embryo)
-#     print(data.direc)
-#
-#     plt.imshow(data.RFP, cmap='gray')
-#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     plt.show()
-#
-#     # plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 100), cmap='gray')
-#     # plt.show()
-#     #
-#     # plt.imshow(straighten(data.RFP, data.ROI_fitted, 100), cmap='gray')
-#     # plt.show()
-
-
-# CHECK RFP BG <- good
-
-# for embryo in embryos_list_total:
-#     data = d(embryo)
-#     print(data.direc)
-#
-#     plt.imshow(straighten(data.RFP, offset_coordinates(data.ROI_fitted, 100), 100))
-#     plt.show()
-
-
-# Check bg fitting
-
-# for embryo in embryos_list_total:
-#     data = Data(embryo)
-#
-#     mag = 2
-#     bounds = (0.9, 0.1)
-#
-#     # Correct autofluorescence
-#     img = af_subtraction(data.GFP, data.AF, settings=settings)
-#
-#     # Straighten
-#     img = straighten(img, data.ROI_fitted, int(50 * mag))
-#
-#     # Average
-#     if bounds[0] < bounds[1]:
-#         profile = np.nanmean(img[:, int(len(img[0, :]) * bounds[0]): int(len(img[0, :]) * bounds[1] + 1)], 1)
-#     else:
-#         profile = np.nanmean(
-#             np.hstack((img[:, :int(len(img[0, :]) * bounds[1] + 1)], img[:, int(len(img[0, :]) * bounds[0]):])), 1)
-#
-#     # Adjust for magnification (e.g. if 2x multiplier is used)
-#     profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
-#
-#     # Get cortical signal
-#     a, bg = fit_background_v2_2(profile, bgcurve[25:75])
-#     signal = profile - bg
-#     plt.plot(profile)
-#     plt.plot(bg)
-#     plt.plot(gaussian_plus2(b.bgG4[25:75], *a))
-#     plt.show()
+nwg76_wt = batch_import(adirec, np.array(conds_list_total)[[1, 3, 5, 7, 9]], Res)
+nwg76_rd = batch_import(adirec, np.array(conds_list_total)[[0, 2, 4, 6, 8]], Res)

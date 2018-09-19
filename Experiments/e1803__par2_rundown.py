@@ -9,107 +9,102 @@ PFS in for all embryos so not directly comparable with other experiments
 
 """
 
-# Done, checked segmentation
+############################# INPUT / SETTINGS ################################
 
-#####################################################################################
-
-# INPUT DATA
-
+# Input data
 conds_list_total = [
-    '180309/180309_nwg0123_par3_tom3,15,pfsin',
-    '180309/180309_nwg0123_par3,0945par2_tom3,15,pfsin',
-    '180309/180309_nwg0123_par3,1100par2_tom3,15,pfsin',
-    '180309/180309_nwg0123_par3,1200par2_tom3,15,pfsin',
-    '180309/180309_nwg0123_par3,1300par2_tom3,15,pfsin',
-    '180309/180309_nwg0123_par3,1400par2_tom,15,pfsin',
-    '180223/180223_nwg0123_24hr0par2,par3_tom3,15,pfsin',
-    '180223/180223_nwg0123_24hr10par2,par3_tom3,15,pfsin',
-    '180223/180223_kk1273_wt_tom3,15,pfsin']
+    '180309_nwg0123_par3_tom3,15,pfsin',
+    '180309_nwg0123_par3,0945par2_tom3,15,pfsin',
+    '180309_nwg0123_par3,1100par2_tom3,15,pfsin',
+    '180309_nwg0123_par3,1200par2_tom3,15,pfsin',
+    '180309_nwg0123_par3,1300par2_tom3,15,pfsin',
+    '180309_nwg0123_par3,1400par2_tom,15,pfsin',
+    '180223_nwg0123_24hr0par2,par3_tom3,15,pfsin',
+    '180223_nwg0123_24hr10par2,par3_tom3,15,pfsin',
+    '180223_kk1273_wt_tom3,15,pfsin']
 
-embryos_list_total = embryos_direcslist(conds_list_total)
-
+# Global variables
 settings = s.N2s1
 bgcurve = b.bgG4
-d = Data
+adirec = '../Analysis/%s' % os.path.basename(__file__)[:-3]
+mag = 1
 
 
-#####################################################################################
+################################ DATA IMPORT #################################
+
+class Data:
+    def __init__(self, direc):
+        self.direc = direc
+        self.DIC = loadimage(sorted(glob.glob('%s/*DIC SP Camera*' % direc), key=len)[0])
+        self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 535-50*' % direc), key=len)[0])
+        self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
+        self.ROI = np.loadtxt('%s/ROI.txt' % direc)
 
 
-# SEGMENTATION
+############################### SEGMENTATION #################################
 
-def func1(embryo):
-    data = d(embryo)
+
+def segment(direc):
     try:
+        data = Data(direc)
         img = af_subtraction(data.GFP, data.AF, settings=settings)
-        coors = fit_coordinates_alg3(img, data.ROI_orig, bgcurve, 2)
-        np.savetxt('%s/ROI_fitted.txt' % data.direc, coors, fmt='%.4f', delimiter='\t')
+        coors = fit_coordinates_alg(img, data.ROI, bgcurve, 2, mag=mag)
+        np.savetxt('%s/ROI_fitted.txt' % direc, coors, fmt='%.4f', delimiter='\t')
     except np.linalg.linalg.LinAlgError:
-        print(data.direc)
+        print(direc)
 
 
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func1)(embryo) for embryo in embryos_list_total)
+################################ ANALYSIS ####################################
 
 
-#####################################################################################
-
-# GFP QUANTIFICATION
-
-def func2(embryo):
-    data = d(embryo)
-    sig = cortical_signal_GFP(data, bgcurve, settings, bounds=(0.9, 0.1))
-    cyt = cytoplasmic_signal_GFP(data, settings)
-    total = cyt + (data.sa / data.vol) * cortical_signal_GFP(data, bgcurve, settings, bounds=(0, 1))
-    pklsave(data.direc, Res(cyt, sig, total), 'res1')
+class Res:
+    def __init__(self):
+        self.g_mem = []
+        self.g_cyt = []
+        self.g_tot = []
+        self.g_spa = []
+        self.g_cse = []
 
 
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func2)(embryo) for embryo in embryos_list_total)
+class Analysis:
+    def __init__(self):
+        self.res = Res()
+
+    def g_mem(self, data, coors):
+        self.res.g_mem = [cortical_signal_g(data, coors, bgcurve, settings, bounds=(0.9, 0.1), mag=mag)]
+
+    def g_cyt(self, data, coors):
+        self.res.g_cyt = [cytoplasmic_signal_g(data, coors, settings, mag=mag)]
+
+    def g_tot(self, data, coors):
+        cyt = cytoplasmic_signal_g(data, coors, settings, mag=mag)
+        self.res.g_tot = [cyt + (geometry(coors)[0] / geometry(coors)[1]) * cortical_signal_g(data, coors, bgcurve,
+                                                                                              settings, bounds=(0, 1),
+                                                                                              mag=mag)]
+
+    def g_spa(self, data, coors):
+        self.res.g_spa = spatial_signal_g(data, coors, bgcurve, settings, mag=mag)
+
+    def g_cse(self, data, coors):
+        self.res.g_cse = cross_section(img=af_subtraction(data.GFP, data.AF, settings=settings), coors=coors,
+                                       thickness=10, extend=1.5)
 
 
-# GFP SPATIAL QUANTIFICATION
+################################## SETUP #####################################
 
-def func4(embryo):
-    data = d(embryo)
-    sigs = spatial_signal_GFP(data, bgcurve, settings)
-    pklsave(data.direc, sigs, 'res1_spatial')
+# if os.path.exists(adirec):
+#     shutil.rmtree(adirec)
+# for cond in conds_list_total:
+#     shutil.copytree(cond, '%s/%s' % (adirec, cond))
 
+################################ RUN #########################################
 
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func4)(embryo) for embryo in embryos_list_total)
+embryos_list_total = embryos_direcslist(direcslist(adirec))
+# Parallel(n_jobs=4, verbose=50)(delayed(segment)(embryo) for embryo in embryos_list_total)
+# Parallel(n_jobs=4, verbose=50)(delayed(run_analysis)(embryo, Data, Res, Analysis) for embryo in embryos_list_total)
 
+################################ IMPORT ######################################
 
-# CROSS SECTION GFP
-
-def func6(embryo):
-    data = d(embryo)
-    img = af_subtraction(data.GFP, data.AF, settings=settings)
-    sec = cross_section(img=img, coors=data.ROI_fitted, thickness=50, extend=1.2)
-    pklsave(data.direc, sec, 'res1_csection')
-
-
-# Parallel(n_jobs=multiprocessing.cpu_count(), verbose=50)(delayed(func6)(embryo) for embryo in embryos_list_total)
-
-
-#####################################################################################
-
-# LOAD DATA
-
-nwg0123_wt = Results(np.array(conds_list_total)[[0, 6]])
-nwg0123_rd = Results(np.array(conds_list_total)[[1, 2, 3, 4, 5, 7]])
-kk1273_wt = Results(np.array(conds_list_total)[[8]])
-
-#####################################################################################
-
-
-# CHECK SEGMENTATION
-
-# for embryo in embryos_list_total:
-#     data = d(embryo)
-#     print(data.direc)
-#
-#     plt.imshow(af_subtraction(data.GFP, data.AF, s.N2s2))
-#     plt.plot(data.ROI_fitted[:, 0], data.ROI_fitted[:, 1])
-#     plt.scatter(data.ROI_fitted[0, 0], data.ROI_fitted[0, 1])
-#     plt.show()
-#
-#     plt.imshow(straighten(af_subtraction(data.GFP, data.AF, s.N2s2), data.ROI_fitted, 50), cmap='gray')
-#     plt.show()
+nwg0123_wt = batch_import(adirec, np.array(conds_list_total)[[0, 6]], Res)
+nwg0123_rd = batch_import(adirec, np.array(conds_list_total)[[1, 2, 3, 4, 5, 7]], Res)
+kk1273_wt = batch_import(adirec, np.array(conds_list_total)[[8]], Res)

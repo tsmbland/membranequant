@@ -17,6 +17,7 @@ import pickle
 import copy
 import pandas as pd
 import scipy.misc
+import shutil
 
 sns.set()
 sns.set_style("ticks")
@@ -81,22 +82,6 @@ def direcslist(direc):
 
     dlist = glob.glob('%s/*/' % direc)
     dlist = [x[:-1] for x in dlist if '!' not in x]
-    return dlist
-
-
-def direcslist2(direc):
-    """
-    Like direcslist but goes down an extra level
-
-    :param direc:
-    :return:
-    """
-    dlist = []
-    clist = glob.glob('%s/*/' % direc)
-    clist = [x for x in clist if '!' not in x]
-    for i in clist:
-        dlist.extend(glob.glob('%s/*/' % i))
-    dlist = [x for x in dlist if '!' not in x]
     return dlist
 
 
@@ -187,134 +172,42 @@ def read_conditions(direc):
     cond['strain'] = a.split('_')[1]
     cond['exp'] = a.split('_')[2]
     cond['img'] = a.split('_')[3]
+    cond['misc'] = a.split('_')[4:]
     return cond
 
 
-class Data:
-    """
-    Structure to hold all imported data for an embryo
-    Compatible with most experiments
+def loaddata(direc, c):
+    # Create data class
+    s = c()
 
-    """
+    # Loop through objects, fill in class
+    for key in vars(s):
+        x = np.loadtxt('%s/%s.txt' % (direc, key))
+        setattr(s, key, x)
 
-    def __init__(self, direc):
+    return s
 
-        # Directory
-        self.direc = direc
-        self.cond_direc = os.path.dirname(direc)
 
-        # nd file
-        try:
-            self.nd = readnd(direc)
-        except IndexError:
-            self.nd = None
-
-        # Conditions
-        try:
-            self.conds = read_conditions(direc)
-        except:
-            self.conds = None
-
-        # EmbryoID
-        self.emID = os.path.basename(direc)
-
-        # DIC
-        try:
-            self.DIC = loadimage(sorted(glob.glob('%s/*DIC SP Camera*' % direc), key=len)[0])
-        except IndexError:
-            self.DIC = None
-
-        # GFP
-        try:
-            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 535-50*' % direc), key=len)[0])
-        except IndexError:
+def batch_import(adirec, conds, clas):
+    c = clas()
+    for cond in conds:
+        for e in direcslist('%s/%s' % (adirec, cond)):
             try:
-                self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 525-50*' % direc), key=len)[0])
-            except IndexError:
-                try:
-                    self.GFP = loadimage(sorted(glob.glob('%s/*GFP*' % direc), key=len)[0])
-                except IndexError:
-                    self.GFP = None
-
-        # AF
-        try:
-            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
-        except IndexError:
-            try:
-                self.AF = loadimage(sorted(glob.glob('%s/*AF*' % direc), key=len)[0])
-            except IndexError:
-                self.AF = None
-
-        # RFP
-        try:
-            self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
-        except IndexError:
-            self.RFP = None
-
-        # ROI orig
-        try:
-            self.ROI_orig = np.loadtxt('%s/ROI_orig.txt' % direc)
-        except FileNotFoundError:
-            self.ROI_orig = None
-
-        # ROI fitted
-        try:
-            self.ROI_fitted = np.loadtxt('%s/ROI_fitted.txt' % direc)
-        except FileNotFoundError:
-            try:
-                self.ROI_fitted = np.loadtxt('%s/ROI_orig.txt' % direc)
-            except FileNotFoundError:
-                self.ROI_fitted = None
-
-        # Surface area / Volume
-        try:
-            [self.sa, self.vol] = geometry(self.ROI_fitted)
-        except:
-            self.sa = None
-            self.vol = None
-
-
-class Data2:
-    def __init__(self, direc):
-        self.direc = direc
-        self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 525-50*' % direc), key=len)[0])
-        self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
-        self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
-        self.ROI_orig = np.loadtxt('%s/ROI_orig.txt' % direc)
-
-        try:
-            self.ROI_fitted = np.loadtxt('%s/ROI_fitted.txt' % direc)
-        except FileNotFoundError:
-            self.ROI_fitted = self.ROI_orig
-
-        try:
-            [self.sa, self.vol] = geometry(self.ROI_fitted)
-        except:
-            self.sa = None
-            self.vol = None
-
-
-class Data3:
-    def __init__(self, direc):
-        self.direc = direc
-        self.GFP = loadimage(sorted(glob.glob('%s/*GFP*' % direc), key=len)[0])
-        self.AF = loadimage(sorted(glob.glob('%s/*AF*' % direc), key=len)[0])
-        self.RFP = loadimage(sorted(glob.glob('%s/*PAR2*' % direc), key=len)[0])
-        self.ROI_orig = np.loadtxt('%s/ROI_orig.txt' % direc)
-
-        try:
-            self.ROI_fitted = np.loadtxt('%s/ROI_fitted.txt' % direc)
-        except FileNotFoundError:
-            self.ROI_fitted = self.ROI_orig
-
-        try:
-            [self.sa, self.vol] = geometry(self.ROI_fitted)
-        except:
-            self.sa = None
-            self.vol = None
+                c = join2(c, loaddata(e, clas))
+            except ValueError:
+                # Will fail for first embryo
+                for key in vars(c):
+                    x = np.loadtxt('%s/%s.txt' % (e, key))
+                    setattr(c, key, [x])
+    return c
 
 
 ######################## DATA EXPORT #######################
+
+def savedata(res, direc):
+    d = vars(res)
+    for key, value in d.items():
+        np.savetxt('%s/%s.txt' % (direc, key), value, fmt='%.4f', delimiter='\t')
 
 
 def saveimg(img, direc):
@@ -325,107 +218,6 @@ def saveimg(img, direc):
 def saveimg_jpeg(img, direc, min, max):
     a = scipy.misc.toimage(img, cmin=min, cmax=max)
     a.save(direc)
-
-
-def pklsave(direc, object, name):
-    file = open('%s/%s.pkl' % (direc, name), 'wb')
-    pickle.dump(object, file)
-
-
-def pklload(direc, name):
-    file = open('%s/%s.pkl' % (direc, name), 'rb')
-    res = pickle.load(file)
-    return res
-
-
-class Res:
-    def __init__(self, cyt=None, cort=None, total=None):
-        self.cyt = cyt
-        self.cort = cort
-        self.total = total
-
-
-class Results:
-    """
-    Class that holds all results for embryos in given directories
-
-    """
-
-    def __init__(self, direcs):
-        self.direcs = []
-
-        self.cyts_GFP = np.array([])
-        self.corts_GFP = np.array([])
-        self.totals_GFP = np.array([])
-
-        self.cyts_RFP = np.array([])
-        self.corts_RFP = np.array([])
-        self.totals_RFP = np.array([])
-
-        self.gfp_spatial = []
-
-        self.rfp_spatial = []
-
-        self.gfp_csection = []
-
-        self.rfp_csection = []
-
-        for d in direcs:
-            for e in direcslist(d):
-
-                # GFP Quantification
-                try:
-                    res1 = pklload(e, 'res1')
-                    self.cyts_GFP = np.append(self.cyts_GFP, [res1.cyt], axis=0)
-                    self.corts_GFP = np.append(self.corts_GFP, [res1.cort], axis=0)
-                    self.totals_GFP = np.append(self.totals_GFP, [res1.total], axis=0)
-                except:
-                    pass
-
-                # RFP Quantification
-                try:
-                    res2 = pklload(e, 'res2')
-                    self.cyts_RFP = np.append(self.cyts_RFP, [res2.cyt], axis=0)
-                    self.corts_RFP = np.append(self.corts_RFP, [res2.cort], axis=0)
-                    self.totals_RFP = np.append(self.totals_RFP, [res2.total], axis=0)
-                except:
-                    pass
-
-                # GFP Spatial Quantification
-                try:
-                    res1_spatial = pklload(e, 'res1_spatial')
-                    self.gfp_spatial.extend([res1_spatial])
-                except:
-                    pass
-
-                # RFP Spatial Quantification
-                try:
-                    res2_spatial = pklload(e, 'res2_spatial')
-                    self.rfp_spatial.extend([res2_spatial])
-                except:
-                    pass
-
-                # GFP Cross Section
-                try:
-                    res1_csection = pklload(e, 'res1_csection')
-                    self.gfp_csection.extend([res1_csection])
-                except:
-                    pass
-
-                # RFP Cross Section
-                try:
-                    res2_csection = pklload(e, 'res2_csection')
-                    self.rfp_csection.extend([res2_csection])
-                except:
-                    pass
-
-                # Direcs
-                self.direcs.extend([e])
-
-        self.gfp_spatial = np.array(self.gfp_spatial)
-        self.rfp_spatial = np.array(self.rfp_spatial)
-        self.gfp_csection = np.array(self.gfp_csection)
-        self.rfp_csection = np.array(self.rfp_csection)
 
 
 ####################### AF CORRECTION ######################
@@ -445,62 +237,62 @@ class Settings:
         self.c2 = c2
 
 
-def n2_analysis(direcs, plot=0):
-    """
-    Cytoplasmic mean correlation between the two channels for N2 embryos
-
-    :param direcs:
-    :param plot:
-    :return:
-    """
-
-    xdata = []
-    ydata = []
-    cdata = []
-    bdata = []
-
-    for direc in direcs:
-        embryos = direcslist(direc)
-
-        for embryo in range(len(embryos)):
-            data = Data(embryos[embryo])
-
-            # Cytoplasmic means
-            xdata.extend([cytoconc(data.AF, data.ROI_fitted)])
-            ydata.extend([cytoconc(data.GFP, data.ROI_fitted)])
-            cdata.extend([cytoconc(data.RFP, data.ROI_fitted)])
-
-            # Background
-            bg = straighten(data.RFP, offset_coordinates(data.ROI_fitted, 50 * 1), int(50 * 1))
-            mean1 = np.nanmean(bg[np.nonzero(bg)])
-            bdata.extend([mean1])
-
-    xdata = np.array(xdata)
-    ydata = np.array(ydata)
-    bdata = np.array(bdata)
-    cdata = np.array(cdata)
-
-    a = np.polyfit(xdata, ydata, 1)
-    print(a)
-    print(np.mean(xdata, 0))
-    print(np.mean(ydata, 0))
-
-    if plot == 1:
-        x = np.array([0.9 * min(xdata.flatten()), 1.1 * max(xdata.flatten())])
-        y = (a[0] * x) + a[1]
-        plt.plot(x, y, c='b')
-        plt.scatter(xdata, ydata)
-
-    a2 = np.polyfit(bdata, cdata, 1)
-    print(a2)
-    print(np.mean(bdata, 0))
-    print(np.mean(cdata, 0))
-
-    if plot == 2:
-        x = np.array([0.9 * min(bdata.flatten()), 1.1 * max(bdata.flatten())])
-        y = (a[0] * x) + a[1]
-        plt.plot(x, y, c='b')
-        plt.scatter(bdata, cdata)
+# def n2_analysis(direcs, plot=0):
+#     """
+#     Cytoplasmic mean correlation between the two channels for N2 embryos
+#
+#     :param direcs:
+#     :param plot:
+#     :return:
+#     """
+#
+#     xdata = []
+#     ydata = []
+#     cdata = []
+#     bdata = []
+#
+#     for direc in direcs:
+#         embryos = direcslist(direc)
+#
+#         for embryo in range(len(embryos)):
+#             data = Data(embryos[embryo])
+#
+#             # Cytoplasmic means
+#             xdata.extend([cytoconc(data.AF, data.ROI_fitted)])
+#             ydata.extend([cytoconc(data.GFP, data.ROI_fitted)])
+#             cdata.extend([cytoconc(data.RFP, data.ROI_fitted)])
+#
+#             # Background
+#             bg = straighten(data.RFP, offset_coordinates(data.ROI_fitted, 50 * 1), int(50 * 1))
+#             mean1 = np.nanmean(bg[np.nonzero(bg)])
+#             bdata.extend([mean1])
+#
+#     xdata = np.array(xdata)
+#     ydata = np.array(ydata)
+#     bdata = np.array(bdata)
+#     cdata = np.array(cdata)
+#
+#     a = np.polyfit(xdata, ydata, 1)
+#     print(a)
+#     print(np.mean(xdata, 0))
+#     print(np.mean(ydata, 0))
+#
+#     if plot == 1:
+#         x = np.array([0.9 * min(xdata.flatten()), 1.1 * max(xdata.flatten())])
+#         y = (a[0] * x) + a[1]
+#         plt.plot(x, y, c='b')
+#         plt.scatter(xdata, ydata)
+#
+#     a2 = np.polyfit(bdata, cdata, 1)
+#     print(a2)
+#     print(np.mean(bdata, 0))
+#     print(np.mean(cdata, 0))
+#
+#     if plot == 2:
+#         x = np.array([0.9 * min(bdata.flatten()), 1.1 * max(bdata.flatten())])
+#         y = (a[0] * x) + a[1]
+#         plt.plot(x, y, c='b')
+#         plt.scatter(bdata, cdata)
 
 
 def af_subtraction(ch1, ch2, settings):
@@ -705,7 +497,25 @@ def offset_coordinates(coors, offsets):
 ############### SEGMENTATION ################
 
 
-def fit_background_v2(curve, bgcurve):
+def gaussian_plus(x, l, a, c):
+    """
+    For fitting signal curve to background curve + gaussian. Interpolated curves, sliding permitted
+    (Used for segmentation)
+
+    :param x: background curve, end fits
+    :param l: bg curve fit (offset)
+    :param a: gaussian param
+    :param c: gaussian param
+    :return: y: bgcurve + gaussian
+    """
+
+    y = (x[1, int(l)] * x[0, int(l):int(l) + 1000] + x[2, int(l)]) + (
+        a * np.e ** (-((np.array(range(1000)) - (1000 - l)) ** 2) / (2 * (c ** 2))))
+
+    return y
+
+
+def fit_background(curve, bgcurve):
     """
     Used in segmentation. Takes interpolated curves, returns optimal fitting parameters.
     (popt[2] then used to adjust coordinates)
@@ -725,12 +535,6 @@ def fit_background_v2(curve, bgcurve):
             [np.nanmean(curve[:int(len(curve) * 0.2)]), np.nanmean(curve[int(len(curve) * 0.8):])], 1)
         ms[l] = line[0]
         cs[l] = line[1]
-        # a0 = np.nanmean(curve[:int(len(curve) * 0.2)])
-        # a1 = np.nanmean(curve[int(len(curve) * 0.8):])
-        # b0 = np.nanmean(bgcurve2[:int(len(bgcurve2) * 0.2)])
-        # b1 = np.nanmean(bgcurve2[int(len(bgcurve2) * 0.8):])
-        # ms[l] = (a1 - a0) / (b1 - b0)
-        # cs[l] = a0 - ms[l] * b0
 
     # Interpolate
     ms = np.interp(np.linspace(0, 50, 500), np.array(range(50)), ms)
@@ -748,7 +552,7 @@ def fit_background_v2(curve, bgcurve):
     return popt
 
 
-def calc_offsets3(img, bgcurve):
+def calc_offsets(img, bgcurve):
     """
     Calculates coordinate offset required, by fitting straightened image to background curve
 
@@ -772,7 +576,7 @@ def calc_offsets3(img, bgcurve):
     offsets = np.zeros(len(img[0, :]) // 5)
     for x in range(len(offsets)):
         try:
-            a = fit_background_v2(img4[:, x * 5], bgcurve2)
+            a = fit_background(img4[:, x * 5], bgcurve2)
             offsets[x] = (a[0] - 500) / 20
         except RuntimeError:
             offsets[x] = np.nan
@@ -787,7 +591,7 @@ def calc_offsets3(img, bgcurve):
     return offsets
 
 
-def fit_coordinates_alg3(img, coors, bgcurve, iterations, mag=1):
+def fit_coordinates_alg(img, coors, bgcurve, iterations, mag=1):
     """
     Segmentation algorithm. Segments by fitting rolling average profiles to background curve, and offsetting original
     coordinates. Followed by smoothing
@@ -815,7 +619,7 @@ def fit_coordinates_alg3(img, coors, bgcurve, iterations, mag=1):
         # plt.show()
 
         # Calculate offsets
-        offsets = calc_offsets3(straight, bgcurve)
+        offsets = calc_offsets(straight, bgcurve)
         coors = offset_coordinates(coors, offsets)
 
         # Filter
@@ -827,30 +631,13 @@ def fit_coordinates_alg3(img, coors, bgcurve, iterations, mag=1):
     return coors
 
 
-def gaussian_plus(x, l, a, c):
-    """
-    For fitting signal curve to background curve + gaussian. Interpolated curves, sliding permitted
-    (Used for segmentation)
-
-    :param x: background curve, end fits
-    :param l: bg curve fit (offset)
-    :param a: gaussian param
-    :param c: gaussian param
-    :return: y: bgcurve + gaussian
-    """
-
-    y = (x[1, int(l)] * x[0, int(l):int(l) + 1000] + x[2, int(l)]) + (
-        a * np.e ** (-((np.array(range(1000)) - (1000 - l)) ** 2) / (2 * (c ** 2))))
-
-    return y
-
-
 ############## CORTICAL SIGNAL ###############
 
 
-def fit_background_v2_2(curve, bgcurve):
+def fix_ends(curve, bgcurve):
     """
     Used for background subtraction. Returns fitted bgcurve which can then be subtracted from the signal curve
+    Bg fitted by fixing ends
 
     :param curve:
     :param bgcurve:
@@ -868,12 +655,12 @@ def fit_background_v2_2(curve, bgcurve):
     return curve2
 
 
-def cortical_signal_GFP(data, bg, settings, bounds, mag=1):
+def cortical_signal_g(data, coors, bg, settings, bounds, mag=1):
     # Correct autofluorescence
     img = af_subtraction(data.GFP, data.AF, settings=settings)
 
     # Straighten
-    img = straighten(img, data.ROI_fitted, int(50 * mag))
+    img = straighten(img, coors, int(50 * mag))
 
     # Average
     if bounds[0] < bounds[1]:
@@ -886,15 +673,15 @@ def cortical_signal_GFP(data, bg, settings, bounds, mag=1):
     profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
 
     # Get cortical signal
-    bg = fit_background_v2_2(profile, bg[25:75])
+    bg = fix_ends(profile, bg[25:75])
     cort = np.trapz(profile - bg)
 
     return cort
 
 
-def cortical_signal_RFP(data, bg, bounds, mag=1):
+def cortical_signal_r(data, coors, bg, bounds, mag=1):
     # Straighten
-    img = straighten(data.RFP, data.ROI_fitted, int(50 * mag))
+    img = straighten(data.RFP, coors, int(50 * mag))
 
     # Average
     if bounds[0] < bounds[1]:
@@ -907,18 +694,18 @@ def cortical_signal_RFP(data, bg, bounds, mag=1):
     profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
 
     # Get cortical signal
-    bg = fit_background_v2_2(profile, bg[25:75])
+    bg = fix_ends(profile, bg[25:75])
     cort = np.trapz(profile - bg)
 
     return cort
 
 
-def spatial_signal_GFP(data, bg, settings, mag=1):
+def spatial_signal_g(data, coors, bg, settings, mag=1):
     # Correct autofluorescence
     img = af_subtraction(data.GFP, data.AF, settings)
 
     # Straighten
-    img_straight = straighten(img, data.ROI_fitted, int(50 * mag))
+    img_straight = straighten(img, coors, int(50 * mag))
 
     # Smoothen
     img_straight = rolling_ave(img_straight, int(20 * mag))
@@ -928,15 +715,15 @@ def spatial_signal_GFP(data, bg, settings, mag=1):
     for x in range(100):
         profile = img_straight[:, int(np.linspace(0, len(img_straight[0, :]), 100)[x] - 1)]
         profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
-        bg2 = fit_background_v2_2(profile, bg[25:75])
+        bg2 = fix_ends(profile, bg[25:75])
         sigs[x] = np.trapz(profile - bg2)
 
     return sigs
 
 
-def spatial_signal_RFP(data, bg, mag=1):
+def spatial_signal_r(data, coors, bg, mag=1):
     # Straighten
-    img_straight = straighten(data.RFP, data.ROI_fitted, int(50 * mag))
+    img_straight = straighten(data.RFP, coors, int(50 * mag))
 
     # Smoothen
     img_straight = rolling_ave(img_straight, int(20 * mag))
@@ -946,7 +733,7 @@ def spatial_signal_RFP(data, bg, mag=1):
     for x in range(100):
         profile = img_straight[:, int(np.linspace(0, len(img_straight[0, :]), 100)[x] - 1)]
         profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
-        bg2 = fit_background_v2_2(profile, bg[25:75])
+        bg2 = fix_ends(profile, bg[25:75])
         sigs[x] = np.trapz(profile - bg2)
 
     return sigs
@@ -987,46 +774,21 @@ def polycrop(img, polyline, enlarge=-10):
     return newimg
 
 
-def reverse_polycrop(img, polyline, enlarge=10):
-    """
-    Crops the area outside the polyline
-
-    :param img:
-    :param polyline:
-    :param enlarge:
-    :return:
-    """
-
-    newcoors = np.int32(offset_coordinates(polyline, enlarge * np.ones([len(polyline[:, 0])])))
-    mask = np.ones(img.shape)
-    mask = cv2.fillPoly(mask, [newcoors], 0)
-    newimg = img * mask
-    return newimg
-
-
-def cytoplasmic_signal_GFP(data, settings, mag=1):
+def cytoplasmic_signal_g(data, coors, settings, mag=1):
     # Correct autofluorescence
     img = af_subtraction(data.GFP, data.AF, settings=settings)
 
     # Get cytoplasmic signal
-    img2 = polycrop(img, data.ROI_fitted, -20 * mag)
-    mean = np.nanmean(img2[np.nonzero(img2)])
-
-    return mean
+    return cytoconc(img, coors, -20 * mag)
 
 
-def cytoplasmic_signal_RFP(data, mag=1):
-    img = data.RFP
+def cytoplasmic_signal_r(data, coors, mag=1):
+    # Get cytoplasmic signal
+    mean2 = cytoconc(data.RFP, coors, -20 * mag)
 
     # Subtract background
-    bg = straighten(img, offset_coordinates(data.ROI_fitted, 50 * mag), int(50 * mag))
-    mean1 = np.nanmean(bg[np.nonzero(bg)])
-
-    # Get cytoplasmic signal
-    img2 = polycrop(img, data.ROI_fitted, -20 * mag)
-    mean2 = np.nanmean(img2[np.nonzero(img2)])  # mean, excluding zeros
-
-    return mean2 - mean1
+    bg = straighten(data.RFP, offset_coordinates(coors, 50 * mag), int(50 * mag))
+    return mean2 - np.nanmean(bg[np.nonzero(bg)])
 
 
 def cytoconc(img, coors, expand=-20):
@@ -1036,19 +798,6 @@ def cytoconc(img, coors, expand=-20):
 
 
 ########################### MISC ############################
-
-
-def getsecs(time):
-    """
-    Converts time in hh:mm:ss into seconds (i.e. seconds from midnight)
-    For comparison of times between acquisitions/events
-
-    :param time: in string format (hh:mm:ss) e.g. nd['StartTime1'].split()[1]
-    :return:
-    """
-    h, m, s = time.split(':')
-    secs = int(h) * 3600 + int(m) * 60 + int(s)
-    return secs
 
 
 def geometry(coors):
@@ -1143,35 +892,49 @@ def straighten(img, coors, thickness):
     return img2
 
 
-def normalise(instance1, instance2, objects):
+def normalise(instance1, instance2):
     """
-    Creates new class, by dividing objects in class instance 1 by corresponding objects in class instance 2
+    Creates new class, by dividing objects in class instance 1 by objects in class instance 2
 
     :param instance1:
     :param instance2:
-    :param objects:
     :return:
     """
 
     norm = copy.deepcopy(instance1)
-    for o in objects:
+    for o in vars(instance1):
         setattr(norm, o, getattr(instance1, o) / np.mean(getattr(instance2, o)))
     return norm
 
 
-def join(instances, objects):
-    """
-    Joins instances of a class to create one class
+# def join(instances, objects):
+#     """
+#     Joins instances of a class to create one class
+#
+#     :param instances:
+#     :param objects:
+#     :return:
+#     """
+#
+#     joined = copy.deepcopy(instances[0])
+#     for i in range(1, len(instances)):
+#         for o in objects:
+#             setattr(joined, o, np.append(getattr(joined, o), getattr(instances[i], o)))
+#     return joined
 
-    :param instances:
-    :param objects:
-    :return:
-    """
 
+def join2(instance0, instance1):
+    joined = copy.deepcopy(instance0)
+    for key in vars(joined):
+        setattr(joined, key, np.append(getattr(instance0, key), [getattr(instance1, key)], axis=0))
+    return joined
+
+
+def join3(instances):
     joined = copy.deepcopy(instances[0])
     for i in range(1, len(instances)):
-        for o in objects:
-            setattr(joined, o, np.append(getattr(joined, o), getattr(instances[i], o)))
+        for key in vars(joined):
+            setattr(joined, key, np.append(getattr(joined, key), [getattr(instances[i], key)]))
     return joined
 
 
@@ -1230,60 +993,46 @@ def rotated_embryo(img, coors, l):
 
 
 def experiment_database():
-    df = pd.DataFrame(columns=['Direc', 'Date', 'Line', 'Experiment', 'Imaging', 'n'])
+    df = pd.DataFrame(columns=['Direc', 'Date', 'Line', 'Experiment', 'Imaging', 'n', 'Misc'])
 
-    for d in direcslist('.'):
-        for c in direcslist(d):
-            try:
-                cond = read_conditions('%s/0' % c)
-                n = len(direcslist(c))
-                row = pd.DataFrame([[c[2:], cond['date'], cond['strain'], cond['exp'], cond['img'], n]],
-                                   columns=['Direc', 'Date', 'Line', 'Experiment', 'Imaging', 'n'])
-                df = df.append(row)
+    for c in direcslist('.'):
+        try:
+            cond = read_conditions('%s/0' % c)
+            n = len(direcslist(c))
+            row = pd.DataFrame([[c[2:], cond['date'], cond['strain'], cond['exp'], cond['img'], n, cond['misc']]],
+                               columns=['Direc', 'Date', 'Line', 'Experiment', 'Imaging', 'n', 'Misc'])
+            df = df.append(row)
 
-            except IndexError:
-                pass
+        except IndexError:
+            pass
 
     df.to_csv('./db.csv')
 
 
-def composite(data, settings, factor, mag=1):
+def composite(data, coors, settings, factor, mag=1):
     img1 = af_subtraction(data.GFP, data.AF, settings)
-    bg = straighten(data.RFP, offset_coordinates(data.ROI_fitted, 50 * mag), 50 * mag)
+    bg = straighten(data.RFP, offset_coordinates(coors, int(50 * mag)), int(50 * mag))
     img2 = data.RFP - np.nanmean(bg[np.nonzero(bg)])
     img3 = img1 + (factor * img2)
     return img3
 
 
-def rotate_array(array, n):
-    l = list(array)
-    return np.array(l[-n:] + l[:-n])
-
-
-def norm01(array):
-    """
-    Takes array, normalises to range between 0 and 1
-    :param array:
-    :return:
-    """
-
-    a = np.polyfit([min(array), max(array)], [0, 1], 1)
-    return a[0] * array + a[1]
+def run_analysis(direc, d_class, r_class, a_class):
+    a = a_class()
+    data = d_class(direc)
+    coors = np.loadtxt('%s/ROI_fitted.txt' % direc, delimiter='\t')
+    for r in vars(r_class()):
+        f = getattr(a, r)
+        f(data, coors)
+    savedata(a.res, direc)
 
 
 experiment_database()
 
+
+
 ##############################################
 
-# Get rid of redundant functions
-# A coordinates/line data type?
 # Slider template
-# Fewer dependencies
 # Organise code
 # Need a better cherry bg curve
-# Segmentation needs to be more resistant to errors
-# Why is segmentation so much slower in parallel?
-# Function to delete all pkl files from a directory (for tidying up)
-# Also should delete old _straight and _cell files
-# Segmentation so much quicker in optogenetics experiment. Why?
-# Segmentation seems to fail a bit at the posterior pole
