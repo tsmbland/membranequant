@@ -118,13 +118,13 @@ class Analysis:
 
 ################################## SETUP #####################################
 
-d_to_a(name, conds_list_total)
+# d_to_a(name, conds_list_total)
 
 ################################ RUN #########################################
 
 embryos_list_total = embryos_direcslist(d_to_a_2(name, conds_list_total))
 
-Parallel(n_jobs=4, verbose=50)(delayed(segment)(embryo) for embryo in embryos_list_total)
+# Parallel(n_jobs=4, verbose=50)(delayed(segment)(embryo) for embryo in embryos_list_total)
 
 # for embryo in embryos_list_total:
 #     segment(embryo)

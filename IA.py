@@ -19,8 +19,6 @@ import pandas as pd
 import scipy.misc
 import shutil
 
-
-
 """
 From local to server: '../../../../../../../Volumes/lab-goehringn/working/Tom/ModelData'
 
@@ -1015,7 +1013,7 @@ def cross_section(img, coors, thickness, extend):
         yvalues = np.linspace(end1[section, 1], end2[section, 1], num_points)
         zvals[section, :] = map_coordinates(img.T, [xvalues, yvalues])
 
-    return np.flip(np.nanmean(zvals, 0), axis=0)
+    return np.flipud(np.nanmean(zvals, 0))
 
 
 def straighten(img, coors, thickness):
@@ -1133,7 +1131,7 @@ def rotated_embryo(img, coors, l):
         zvals[section, :] = map_coordinates(img.T, [xvalues, yvalues])
 
     # Mirror
-    zvals = np.flip(zvals, 1)
+    zvals = np.fliplr(zvals)
 
     return zvals
 
