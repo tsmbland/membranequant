@@ -2,6 +2,7 @@ from IA import *
 import AFSettings as s
 
 
+
 def bgcurve(img, pole):
     """
 
@@ -54,8 +55,7 @@ def func(direc, settings, pole):
 # bgG1 = func(direc, settings, pole=1)
 # np.savetxt('BackgroundCurves/bgG1', bgG1)
 
-bgG1 = np.loadtxt('BackgroundCurves/bgG1')
-
+bgG1 = np.loadtxt('%s/BackgroundCurves/bgG1' % ddirec)
 
 # ######### PAR-2 mCherry anterior
 #
@@ -94,9 +94,7 @@ bgG1 = np.loadtxt('BackgroundCurves/bgG1')
 # bgC2 = np.mean(np.array(profiles), 0)
 # np.savetxt('BackgroundCurves/bgC2', bgC2)
 
-bgC2 = np.loadtxt('BackgroundCurves/bgC2')
-
-
+bgC2 = np.loadtxt('%s/BackgroundCurves/bgC2' % ddirec)
 
 ############# PAR-2 GFP anterior (PH-cherry)
 
@@ -105,7 +103,7 @@ bgC2 = np.loadtxt('BackgroundCurves/bgC2')
 # bgG2 = func(direc, settings, pole=1)
 # np.savetxt('BackgroundCurves/bgG2', bgG2)
 
-bgG2 = np.loadtxt('BackgroundCurves/bgG2')
+bgG2 = np.loadtxt('%s/BackgroundCurves/bgG2' % ddirec)
 
 ########### PAR-2 GFP anterior
 
@@ -114,8 +112,7 @@ bgG2 = np.loadtxt('BackgroundCurves/bgG2')
 # bgG3 = func(direc, settings, pole=1)
 # np.savetxt('BackgroundCurves/bgG3', bgG3)
 
-bgG3 = np.loadtxt('BackgroundCurves/bgG3')
-
+bgG3 = np.loadtxt('%s/BackgroundCurves/bgG3' % ddirec)
 
 ########### PKC GFP all over, PAR-3 mutant
 
@@ -124,7 +121,7 @@ bgG3 = np.loadtxt('BackgroundCurves/bgG3')
 # bgG4 = func(direc, settings, pole=0)
 # np.savetxt('BackgroundCurves/bgG4', bgG4)
 
-bgG4 = np.loadtxt('BackgroundCurves/bgG4')
+bgG4 = np.loadtxt('%s/BackgroundCurves/bgG4' % ddirec)
 
 ####################################
 

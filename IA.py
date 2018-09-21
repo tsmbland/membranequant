@@ -19,11 +19,23 @@ import pandas as pd
 import scipy.misc
 import shutil
 
-sns.set()
-sns.set_style("ticks")
-sns.despine()
 
-os.chdir(os.path.expanduser('~/Desktop/Data'))
+
+"""
+From local to server: '../../../../../../../Volumes/lab-goehringn/working/Tom/ModelData'
+
+From server to server: '../working/Tom/ModelData'
+
+From local to local: '../../ImageAnalysis', '../../ImagingData/Tidy' 
+"""
+
+# # Server to server
+# ddirec = '../working/Tom/ImagingData/Tidy'
+# adirec = '../working/Tom/ImageAnalysis/Analysis'
+
+# Local to local
+ddirec = '../../../../../Desktop/Data'
+adirec = '../../../../../Analysis'
 
 
 ######################## FILE HANDLING #######################
@@ -198,7 +210,7 @@ def batch_import(adirec, conds, clas):
                 # Will fail for first embryo
                 for key in vars(c):
                     x = np.loadtxt('%s/%s.txt' % (e, key))
-                    setattr(c, key, [x])
+                    setattr(c, key, np.array([x]))
     return c
 
 
@@ -329,9 +341,9 @@ def rolling_ave(img, window, periodic=1):
 
         for x in range(len(img[0, :])):
             if starts[x] < x < ends[x]:
-                ave[:, x] = np.nanmean(img[:, starts[x]:ends[x]], axis=1)
+                ave[:, x] = np.mean(img[:, starts[x]:ends[x]], axis=1)
             else:
-                ave[:, x] = np.nanmean(np.append(img[:, starts[x]:], img[:, :ends[x]], axis=1), axis=1)
+                ave[:, x] = np.mean(np.append(img[:, starts[x]:], img[:, :ends[x]], axis=1), axis=1)
         return ave
 
 
@@ -504,8 +516,8 @@ def gaussian_plus(x, l, a, c):
 
     :param x: background curve, end fits
     :param l: bg curve fit (offset)
-    :param a: gaussian param
-    :param c: gaussian param
+    :param a: gaussian param (height)
+    :param c: gaussian param (width)
     :return: y: bgcurve + gaussian
     """
 
@@ -529,20 +541,19 @@ def fit_background(curve, bgcurve):
     ms = np.zeros([50])
     cs = np.zeros([50])
     for l in range(50):
-        bgcurve2 = bgcurve[250 + 10 * l: 1250 + 10 * l]
+        bgcurve_seg = bgcurve[250 + 10 * l: 1250 + 10 * l]
         line = np.polyfit(
-            [np.nanmean(bgcurve2[:int(len(bgcurve2) * 0.2)]), np.nanmean(bgcurve2[int(len(bgcurve2) * 0.8):])],
-            [np.nanmean(curve[:int(len(curve) * 0.2)]), np.nanmean(curve[int(len(curve) * 0.8):])], 1)
+            [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * 0.2)]),
+             np.mean(bgcurve_seg[int(len(bgcurve_seg) * 0.8):])],
+            [np.mean(curve[:int(len(curve) * 0.2)]), np.mean(curve[int(len(curve) * 0.8):])], 1)
         ms[l] = line[0]
         cs[l] = line[1]
 
     # Interpolate
-    ms = np.interp(np.linspace(0, 50, 500), np.array(range(50)), ms)
-    cs = np.interp(np.linspace(0, 50, 500), np.array(range(50)), cs)
     msfull = np.zeros([2000])
-    msfull[250:750] = ms
+    msfull[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), ms)
     csfull = np.zeros([2000])
-    csfull[250:750] = cs
+    csfull[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), cs)
 
     x = np.stack((bgcurve, msfull, csfull), axis=0)
 
@@ -615,11 +626,144 @@ def fit_coordinates_alg(img, coors, bgcurve, iterations, mag=1):
         # # Adjust range
         line = np.polyfit([np.percentile(straight.flatten(), 5), np.percentile(straight.flatten(), 95)], [0, 1], 1)
         straight = straight * line[0] + line[1]
-        # plt.imshow(straight)
-        # plt.show()
 
         # Calculate offsets
         offsets = calc_offsets(straight, bgcurve)
+        coors = offset_coordinates(coors, offsets)
+
+        # Filter
+        coors = np.vstack(
+            (savgol_filter(coors[:, 0], 19, 1, mode='wrap'), savgol_filter(coors[:, 1], 19, 1, mode='wrap'))).T
+
+    # Rotate
+    coors = rotate_coors(coors)
+    return coors
+
+
+############### 2 COLOUR SEGMENTATION ################
+
+def gaussian_plus_2col(x, l, a_g, c_g, a_r, c_r):
+    """
+
+    """
+
+    y = np.zeros([2000])
+
+    bg1 = x[1, int(l)] * x[0, int(l):int(l) + 1000] + x[2, int(l)]
+    gaus1 = a_g * np.e ** (-((np.array(range(1000)) - (1000 - l)) ** 2) / (2 * (c_g ** 2)))
+    y[:1000] = bg1 + gaus1
+
+    bg2 = x[3, int(l)] * x[0, 2000 + int(l):int(l) + 3000] + x[4, int(l)]
+    gaus2 = a_r * np.e ** (-((np.array(range(1000)) - (1000 - l)) ** 2) / (2 * (c_r ** 2)))
+    y[1000:2000] = bg2 + gaus2
+
+    return y
+
+
+def fit_background_2col(curve_g, curve_r, bgcurve_g, bgcurve_r):
+    """
+
+    """
+
+    # GREEN #
+    ms = np.zeros([50])
+    cs = np.zeros([50])
+    for l in range(50):
+        bgcurve_seg = bgcurve_g[250 + 10 * l: 1250 + 10 * l]
+        line = np.polyfit(
+            [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * 0.2)]),
+             np.mean(bgcurve_seg[int(len(bgcurve_seg) * 0.8):])],
+            [np.mean(curve_g[:int(len(curve_g) * 0.2)]), np.mean(curve_g[int(len(curve_g) * 0.8):])], 1)
+        ms[l] = line[0]
+        cs[l] = line[1]
+    msfull_g = np.zeros([4000])
+    msfull_g[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), ms)
+    csfull_g = np.zeros([4000])
+    csfull_g[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), cs)
+
+    # RED #
+    ms = np.zeros([50])
+    cs = np.zeros([50])
+    for l in range(50):
+        bgcurve_seg = bgcurve_r[250 + 10 * l: 1250 + 10 * l]
+        line = np.polyfit(
+            [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * 0.2)]),
+             np.mean(bgcurve_seg[int(len(bgcurve_seg) * 0.8):])],
+            [np.mean(curve_r[:int(len(curve_r) * 0.2)]), np.mean(curve_r[int(len(curve_r) * 0.8):])], 1)
+        ms[l] = line[0]
+        cs[l] = line[1]
+    msfull_r = np.zeros([4000])
+    msfull_r[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), ms)
+    csfull_r = np.zeros([4000])
+    csfull_r[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), cs)
+
+    x = np.stack((np.append(bgcurve_g, bgcurve_r), msfull_g, csfull_g, msfull_r, csfull_r), axis=0)
+
+    # Fit gaussian to find offset
+    popt, pcov = curve_fit(gaussian_plus_2col, x, np.append(curve_g, curve_r),
+                           bounds=([250, 0, 50, 0, 50], [750, np.inf, 80, np.inf, 80]),
+                           p0=[500, 0, 65, 0, 65])
+
+    return popt
+
+
+def calc_offsets_2col(img_g, img_r, bgcurve_g, bgcurve_r):
+    """
+
+    """
+
+    l = len(img_g[0, :])
+
+    # GREEN #
+    img_g = interp(img_g, 1000)
+    img_g = rolling_ave(img_g, 50)
+    img_g = savitsky_golay(img_g, 251, 5)
+    bgcurve_g = np.interp(np.linspace(0, len(bgcurve_g), 2000), range(len(bgcurve_g)), bgcurve_g)
+
+    # RED #
+    img_r = interp(img_r, 1000)
+    img_r = rolling_ave(img_r, 50)
+    img_r = savitsky_golay(img_r, 251, 5)
+    bgcurve_r = np.interp(np.linspace(0, len(bgcurve_r), 2000), range(len(bgcurve_r)), bgcurve_r)
+
+    # Calculate offsets
+    offsets = np.zeros(l // 5)
+    for x in range(len(offsets)):
+        try:
+            a = fit_background_2col(img_g[:, x * 5], img_r[:, x * 5], bgcurve_g, bgcurve_r)
+            offsets[x] = (a[0] - 500) / 20
+        except RuntimeError:
+            offsets[x] = np.nan
+
+    # Interpolate nans
+    nans, x = np.isnan(offsets), lambda z: z.nonzero()[0]
+    offsets[nans] = np.interp(x(nans), x(~nans), offsets[~nans])
+
+    # Interpolate
+    offsets = np.interp(np.linspace(0, len(offsets), l), range(len(offsets)), offsets)
+
+    return offsets
+
+
+def fit_coordinates_alg_2col(img_g, img_r, coors, bgcurve_g, bgcurve_r, iterations, mag=1):
+    """
+
+
+    """
+
+    for i in range(iterations):
+        # GREEN #
+        straight = interp(straighten(img_g, coors, int(50 * mag)), 50)
+        line = np.polyfit([np.percentile(straight.flatten(), 5), np.percentile(straight.flatten(), 95)], [0, 1], 1)
+        straight_g = straight * line[0] + line[1]
+
+        # RED #
+        straight = interp(straighten(img_r, coors, int(50 * mag)), 50)
+        line = np.polyfit([np.percentile(straight.flatten(), 5), np.percentile(straight.flatten(), 95)], [0, 1], 1)
+        straight_r = straight * line[0] + line[1]
+
+        # Calculate offsets
+        offsets = calc_offsets_2col(straight_g, straight_r, bgcurve_g, bgcurve_r)
         coors = offset_coordinates(coors, offsets)
 
         # Filter
@@ -646,8 +790,8 @@ def fix_ends(curve, bgcurve):
 
     # Fix ends
     line = np.polyfit(
-        [np.nanmean(bgcurve[:int(len(bgcurve) * 0.2)]), np.nanmean(bgcurve[int(len(bgcurve) * 0.8):])],
-        [np.nanmean(curve[:int(len(curve) * 0.2)]), np.nanmean(curve[int(len(curve) * 0.8):])], 1)
+        [np.mean(bgcurve[:int(len(bgcurve) * 0.2)]), np.mean(bgcurve[int(len(bgcurve) * 0.8):])],
+        [np.mean(curve[:int(len(curve) * 0.2)]), np.mean(curve[int(len(curve) * 0.8):])], 1)
 
     # Create new bgcurve
     curve2 = bgcurve * line[0] + line[1]
@@ -664,9 +808,9 @@ def cortical_signal_g(data, coors, bg, settings, bounds, mag=1):
 
     # Average
     if bounds[0] < bounds[1]:
-        profile = np.nanmean(img[:, int(len(img[0, :]) * bounds[0]): int(len(img[0, :]) * bounds[1] + 1)], 1)
+        profile = np.mean(img[:, int(len(img[0, :]) * bounds[0]): int(len(img[0, :]) * bounds[1] + 1)], 1)
     else:
-        profile = np.nanmean(
+        profile = np.mean(
             np.hstack((img[:, :int(len(img[0, :]) * bounds[1] + 1)], img[:, int(len(img[0, :]) * bounds[0]):])), 1)
 
     # Adjust for magnification (e.g. if 2x multiplier is used)
@@ -685,9 +829,9 @@ def cortical_signal_r(data, coors, bg, bounds, mag=1):
 
     # Average
     if bounds[0] < bounds[1]:
-        profile = np.nanmean(img[:, int(len(img[0, :]) * bounds[0]): int(len(img[0, :]) * bounds[1] + 1)], 1)
+        profile = np.mean(img[:, int(len(img[0, :]) * bounds[0]): int(len(img[0, :]) * bounds[1] + 1)], 1)
     else:
-        profile = np.nanmean(
+        profile = np.mean(
             np.hstack((img[:, :int(len(img[0, :]) * bounds[1] + 1)], img[:, int(len(img[0, :]) * bounds[0]):])), 1)
 
     # Adjust for magnification (e.g. if 2x multiplier is used)
@@ -741,9 +885,9 @@ def spatial_signal_r(data, coors, bg, mag=1):
 
 def bounded_mean(array, bounds):
     if bounds[0] < bounds[1]:
-        mean = np.nanmean(array[int(len(array) * bounds[0]): int(len(array) * bounds[1] + 1)])
+        mean = np.mean(array[int(len(array) * bounds[0]): int(len(array) * bounds[1] + 1)])
     else:
-        mean = np.nanmean(
+        mean = np.mean(
             np.hstack((array[:int(len(array) * bounds[1] + 1)], array[int(len(array) * bounds[0]):])))
     return mean
 
@@ -888,7 +1032,9 @@ def straighten(img, coors, thickness):
     offsets = np.linspace(thickness / 2, -thickness / 2, thickness)
     for section in range(thickness):
         sectioncoors = offset_coordinates(coors, offsets[section])
-        img2[section, :] = map_coordinates(img.T, [sectioncoors[:, 0], sectioncoors[:, 1]])
+        a = map_coordinates(img.T, [sectioncoors[:, 0], sectioncoors[:, 1]])
+        a[a == 0] = np.mean(a)
+        img2[section, :] = a
     return img2
 
 
@@ -995,7 +1141,7 @@ def rotated_embryo(img, coors, l):
 def experiment_database():
     df = pd.DataFrame(columns=['Direc', 'Date', 'Line', 'Experiment', 'Imaging', 'n', 'Misc'])
 
-    for c in direcslist('.'):
+    for c in direcslist(datadirec):
         try:
             cond = read_conditions('%s/0' % c)
             n = len(direcslist(c))
@@ -1009,14 +1155,6 @@ def experiment_database():
     df.to_csv('./db.csv')
 
 
-def composite(data, coors, settings, factor, mag=1):
-    img1 = af_subtraction(data.GFP, data.AF, settings)
-    bg = straighten(data.RFP, offset_coordinates(coors, int(50 * mag)), int(50 * mag))
-    img2 = data.RFP - np.nanmean(bg[np.nonzero(bg)])
-    img3 = img1 + (factor * img2)
-    return img3
-
-
 def run_analysis(direc, d_class, r_class, a_class):
     a = a_class()
     data = d_class(direc)
@@ -1027,7 +1165,20 @@ def run_analysis(direc, d_class, r_class, a_class):
     savedata(a.res, direc)
 
 
-experiment_database()
+def d_to_a(name, conds_list_total):
+    for cond in conds_list_total:
+        if os.path.exists('%s/%s/%s' % (adirec, name, cond)):
+            shutil.rmtree('%s/%s/%s' % (adirec, name, cond))
+        shutil.copytree('%s/%s' % (ddirec, cond), '%s/%s/%s' % (adirec, name, cond))
+
+
+def d_to_a_2(name, conds_list_total):
+    a = [None] * len(conds_list_total)
+    for i, c in enumerate(conds_list_total):
+        a[i] = '%s/%s/%s' % (adirec, name, c)
+    return a
+
+# experiment_database()
 
 
 
@@ -1036,3 +1187,6 @@ experiment_database()
 # Slider template
 # Organise code
 # Need a better cherry bg curve
+# Analysis is v wasteful because straightening images for every function
+# Mean much quicker than nanmean
+# Polyfit: must be quicker way

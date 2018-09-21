@@ -1,10 +1,9 @@
+from IA import *
 import BgCurves as b
 import AFSettings as s
-from IA import *
 
 """
 Nelio's PAR-6 rundown data with NWG26 line (Jan-Feb 2018)
-
 
 """
 
@@ -25,7 +24,7 @@ conds_list_total = [
 # Global variables
 settings = s.N2s5
 bgcurve = b.bgG4
-adirec = '../Analysis/%s' % os.path.basename(__file__)[:-3]
+name = os.path.basename(__file__)[:-3]
 mag = 1
 
 
@@ -47,8 +46,10 @@ class Data:
 def segment(direc):
     try:
         data = Data(direc)
-        img = composite(data, settings=settings, factor=3, coors=data.ROI)
-        coors = fit_coordinates_alg(img, data.ROI, bgcurve, 2, mag=mag)
+        # img = composite(data, settings=settings, factor=3, coors=data.ROI)
+        # coors = fit_coordinates_alg(img, data.ROI, bgcurve, 2, mag=mag)
+        img = af_subtraction(data.GFP, data.AF, settings)
+        coors = fit_coordinates_alg_2col(img, data.RFP, data.ROI, bgcurve, bgcurve, 2)
         np.savetxt('%s/ROI_fitted.txt' % direc, coors, fmt='%.4f', delimiter='\t')
     except np.linalg.linalg.LinAlgError:
         print(direc)
@@ -115,21 +116,23 @@ class Analysis:
             bg[np.nonzero(bg)])
 
 
-
-
-
 ################################## SETUP #####################################
 
-# if os.path.exists(adirec):
-#     shutil.rmtree(adirec)
-# for cond in conds_list_total:
-#     shutil.copytree(cond, '%s/%s' % (adirec, cond))
+d_to_a(name, conds_list_total)
 
 ################################ RUN #########################################
 
-embryos_list_total = embryos_direcslist(direcslist(adirec))
-# Parallel(n_jobs=4, verbose=50)(delayed(segment)(embryo) for embryo in embryos_list_total)
-# Parallel(n_jobs=4, verbose=50)(delayed(run_analysis)(embryo, Data, Res, Analysis) for embryo in embryos_list_total)
+embryos_list_total = embryos_direcslist(d_to_a_2(name, conds_list_total))
+
+Parallel(n_jobs=4, verbose=50)(delayed(segment)(embryo) for embryo in embryos_list_total)
+
+# for embryo in embryos_list_total:
+#     segment(embryo)
+
+Parallel(n_jobs=4, verbose=50)(delayed(run_analysis)(embryo, Data, Res, Analysis) for embryo in embryos_list_total)
+
+# for embryo in embryos_list_total:
+#     run_analysis(embryo, Data, Res, Analysis)
 
 ################################ IMPORT ######################################
 
