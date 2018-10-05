@@ -1046,3 +1046,91 @@ class Results:
 # def pklsave(direc, object, name):
 #     file = open('%s/%s.pkl' % (direc, name), 'wb')
 #     pickle.dump(object, file)
+
+
+def composite(data, coors, settings, factor, mag=1):
+    img1 = af_subtraction(data.GFP, data.AF, settings)
+    bg = straighten(data.RFP, offset_coordinates(coors, int(50 * mag)), int(50 * mag))
+    img2 = data.RFP - np.nanmean(bg[np.nonzero(bg)])
+    img3 = img1 + (factor * img2)
+    return img3
+
+
+
+# def geometry(coors):
+#     """
+#     Returns surface area and volume estimates given coordinates
+#
+#     :param coors:
+#     :return:
+#     """
+#
+#     # PCA
+#     M = (coors - np.mean(coors.T, axis=1)).T
+#     [latent, coeff] = np.linalg.eig(np.cov(M))
+#     score = np.dot(coeff.T, M)
+#
+#     # Find long  axis
+#     len = max([max(score[0, :]) - min(score[0, :]), max(score[1, :]) - min(score[1, :])])
+#     width = max([max(score[0, :]) - min(score[0, :]), max(score[1, :]) - min(score[1, :])])
+#
+#     volume = (4 / 3) * np.pi * (len / 2) * (width / 2) ** 2
+#     sa = 4 * np.pi * ((2 * (((len / 2) * (width / 2)) ** 1.6) + (((width / 2) * (width / 2)) ** 1.6)) / 3) ** (1 / 1.6)
+#
+#     return sa, volume
+
+
+
+
+# def join(instances, objects):
+#     """
+#     Joins instances of a class to create one class
+#
+#     :param instances:
+#     :param objects:
+#     :return:
+#     """
+#
+#     joined = copy.deepcopy(instances[0])
+#     for i in range(1, len(instances)):
+#         for o in objects:
+#             setattr(joined, o, np.append(getattr(joined, o), getattr(instances[i], o)))
+#     return joined
+
+
+
+
+
+
+# def experiment_database():
+#     df = pd.DataFrame(columns=['Direc', 'Date', 'Line', 'Experiment', 'Imaging', 'n', 'Misc'])
+#
+#     for c in direcslist(datadirec):
+#         try:
+#             cond = read_conditions('%s/0' % c)
+#             n = len(direcslist(c))
+#             row = pd.DataFrame([[c[2:], cond['date'], cond['strain'], cond['exp'], cond['img'], n, cond['misc']]],
+#                                columns=['Direc', 'Date', 'Line', 'Experiment', 'Imaging', 'n', 'Misc'])
+#             df = df.append(row)
+#
+#         except IndexError:
+#             pass
+#
+#     df.to_csv('./db.csv')
+
+
+
+# def savitsky_golay(img, window=9, order=2):
+#     """
+#     Smoothens profile across the y dimension for each x
+#     Intended for rolling averaged profiles
+#     Not fully tested (need to refine parameters)
+#
+#     :param img:
+#     :return:
+#     """
+#
+#     savgos = np.zeros([len(img[:, 0]), len(img[0, :])])
+#     for x in range(len(img[0, :])):
+#         savgos[:, x] = savgol_filter(img[:, x], window, order, mode='mirror')
+#     return savgos

@@ -42,7 +42,7 @@ y = func1(x)
 ax1.plot(x, y, c='k')
 
 # x = np.linspace(0, 1, 100)
-# y = func3(x)
+# y = func(x)
 # ax1.plot(x, y, linestyle='--')
 #
 # x = np.linspace(0, 1, 100)
@@ -85,7 +85,7 @@ y = func2(x)
 ax2.plot(x, y, c='k')
 
 # x = np.linspace(0, 1, 100)
-# y = func3(x)
+# y = func(x)
 # ax2.plot(x, y, linestyle='--')
 #
 # x = np.linspace(0, 1, 100)

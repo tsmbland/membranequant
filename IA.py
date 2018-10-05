@@ -4,16 +4,13 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 import os
 import glob
-import sys
-from matplotlib.widgets import Slider
+# from matplotlib.widgets import Slider
 from scipy.signal import savgol_filter
 from scipy.optimize import curve_fit
 import cv2
-from matplotlib import animation
 from scipy.ndimage.interpolation import map_coordinates
 from joblib import Parallel, delayed
 import multiprocessing
-import pickle
 import copy
 import pandas as pd
 import scipy.misc
@@ -32,8 +29,12 @@ From local to local: '../../ImageAnalysis', '../../ImagingData/Tidy'
 # adirec = '../working/Tom/ImageAnalysis/Analysis'
 
 # Local to local
-ddirec = '../../../../../Desktop/Data'
-adirec = '../../../../../Analysis'
+# ddirec = '../../../../../Desktop/Data'
+# adirec = '../../../../../Desktop/Analysis'
+# fdirec = '../../../../../Desktop/Figures'
+ddirec = '/Users/blandt/Desktop/Data'
+adirec = '/Users/blandt/Desktop/Analysis'
+fdirec = '/Users/blandt/Desktop/Figures'
 
 
 ######################## FILE HANDLING #######################
@@ -186,32 +187,6 @@ def read_conditions(direc):
     return cond
 
 
-def loaddata(direc, c):
-    # Create data class
-    s = c()
-
-    # Loop through objects, fill in class
-    for key in vars(s):
-        x = np.loadtxt('%s/%s.txt' % (direc, key))
-        setattr(s, key, x)
-
-    return s
-
-
-def batch_import(adirec, conds, clas):
-    c = clas()
-    for cond in conds:
-        for e in direcslist('%s/%s' % (adirec, cond)):
-            try:
-                c = join2(c, loaddata(e, clas))
-            except ValueError:
-                # Will fail for first embryo
-                for key in vars(c):
-                    x = np.loadtxt('%s/%s.txt' % (e, key))
-                    setattr(c, key, np.array([x]))
-    return c
-
-
 ######################## DATA EXPORT #######################
 
 def savedata(res, direc):
@@ -236,82 +211,1045 @@ class Settings:
     """
     Structure to hold acquisition-specific settings (e.g. AF correction settings)
 
+    m
+    c
+
     """
 
-    def __init__(self, m=0., c=0., x=0., y=0., m2=0., c2=0.):
+    def __init__(self, m=0., c=0., x=0., y=0.):
         self.m = m
         self.c = c
-        self.x = x
-        self.y = y
-        self.m2 = m2
-        self.c2 = c2
 
 
-# def n2_analysis(direcs, plot=0):
-#     """
-#     Cytoplasmic mean correlation between the two channels for N2 embryos
-#
-#     :param direcs:
-#     :param plot:
-#     :return:
-#     """
-#
-#     xdata = []
-#     ydata = []
-#     cdata = []
-#     bdata = []
-#
-#     for direc in direcs:
-#         embryos = direcslist(direc)
-#
-#         for embryo in range(len(embryos)):
-#             data = Data(embryos[embryo])
-#
-#             # Cytoplasmic means
-#             xdata.extend([cytoconc(data.AF, data.ROI_fitted)])
-#             ydata.extend([cytoconc(data.GFP, data.ROI_fitted)])
-#             cdata.extend([cytoconc(data.RFP, data.ROI_fitted)])
-#
-#             # Background
-#             bg = straighten(data.RFP, offset_coordinates(data.ROI_fitted, 50 * 1), int(50 * 1))
-#             mean1 = np.nanmean(bg[np.nonzero(bg)])
-#             bdata.extend([mean1])
-#
-#     xdata = np.array(xdata)
-#     ydata = np.array(ydata)
-#     bdata = np.array(bdata)
-#     cdata = np.array(cdata)
-#
-#     a = np.polyfit(xdata, ydata, 1)
-#     print(a)
-#     print(np.mean(xdata, 0))
-#     print(np.mean(ydata, 0))
-#
-#     if plot == 1:
-#         x = np.array([0.9 * min(xdata.flatten()), 1.1 * max(xdata.flatten())])
-#         y = (a[0] * x) + a[1]
-#         plt.plot(x, y, c='b')
-#         plt.scatter(xdata, ydata)
-#
-#     a2 = np.polyfit(bdata, cdata, 1)
-#     print(a2)
-#     print(np.mean(bdata, 0))
-#     print(np.mean(cdata, 0))
-#
-#     if plot == 2:
-#         x = np.array([0.9 * min(bdata.flatten()), 1.1 * max(bdata.flatten())])
-#         y = (a[0] * x) + a[1]
-#         plt.plot(x, y, c='b')
-#         plt.scatter(bdata, cdata)
+def n2_analysis(direcs, plot=0):
+    """
+    Cytoplasmic mean correlation between the two channels for N2 embryos
+
+    :param direcs:
+    :param plot:
+    :return:
+    """
+
+    xdata = []
+    ydata = []
+    cdata = []
+    bdata = []
+
+    for direc in direcs:
+        embryos = direcslist(direc)
+
+        for embryo in range(len(embryos)):
+            data = Data(embryos[embryo])
+
+            # Cytoplasmic means
+            xdata.extend([cytoconc(data.AF, data.ROI_fitted)])
+            ydata.extend([cytoconc(data.GFP, data.ROI_fitted)])
+            cdata.extend([cytoconc(data.RFP, data.ROI_fitted)])
+
+            # Background
+            bg = straighten(data.RFP, offset_coordinates(data.ROI_fitted, 50 * 1), int(50 * 1))
+            mean1 = np.nanmean(bg[np.nonzero(bg)])
+            bdata.extend([mean1])
+
+    xdata = np.array(xdata)
+    ydata = np.array(ydata)
+    bdata = np.array(bdata)
+    cdata = np.array(cdata)
+
+    a = np.polyfit(xdata, ydata, 1)
+    print(a)
+    print(np.mean(xdata, 0))
+    print(np.mean(ydata, 0))
+
+    if plot == 1:
+        x = np.array([0.9 * min(xdata.flatten()), 1.1 * max(xdata.flatten())])
+        y = (a[0] * x) + a[1]
+        plt.plot(x, y, c='b')
+        plt.scatter(xdata, ydata)
+
+    a2 = np.polyfit(bdata, cdata, 1)
+    print(a2)
+    print(np.mean(bdata, 0))
+    print(np.mean(cdata, 0))
+
+    if plot == 2:
+        x = np.array([0.9 * min(bdata.flatten()), 1.1 * max(bdata.flatten())])
+        y = (a[0] * x) + a[1]
+        plt.plot(x, y, c='b')
+        plt.scatter(bdata, cdata)
 
 
-def af_subtraction(ch1, ch2, settings):
-    af = settings.m * ch2 + settings.c
-    signal = ch1 - af
-    return signal
+def N2Analysis(r, r_base=None, show=False):
+    xdata = r.a.cyt
+    ydata = r.g.cyt
+    plt.scatter(xdata, ydata)
+    a = np.polyfit(xdata, ydata, 1)
+    print(a)
+    x = np.array([0.9 * min(xdata.flatten()), 1.1 * max(xdata.flatten())])
+    y = (a[0] * x) + a[1]
+    plt.plot(x, y, c='b')
+    if show:
+        plt.show()
+
+        # # Red shift
+        # a = np.polyfit(r_base.a.cyt, r_base.g.cyt, 1)
+        # offset = r.a.cyt - (r.g.cyt - a[1]) / a[0]
+        # plt.scatter(r.r.cyt - r.r.ext, offset)
+        # plt.show()
 
 
-#################### IMAGE PROCESSING ####################
+############### SEGMENTATION ################
+
+
+class Segmenter:
+    """
+
+   Input data:
+   img_g           image
+   bgcurve_g       background curve. Must be 2* wider than the eventual profile for img
+   coors           original coordinates
+
+   Input parameters:
+   mag             magnification (1 = 60x)
+   iterations      number of times to run algorithm
+   parallel        True: preform segmentation in parallel
+   resolution      will perform fitting algorithm at gaps set by this, interpolating between
+   freedom         0 = no freedom, 1 = max freedom
+
+   Misc parameters:
+   it              Interpolation of profiles/bgcurves
+   thickness       thickness of straightened images
+   rol_ave         sets the degree of image smoothening
+   end_region      for end fitting
+   n_end_fits      number of end fits to perform, will interpolate
+
+
+
+   To to:
+   - Removing outliers better than smoothening coordinates at end
+
+   """
+
+    def __init__(self, img, bgcurve, coors, mag=1, iterations=2, parallel=True, resolution=5, freedom=0.3, save=False,
+                 direc=None, plot=False):
+
+        # Inputs
+        self.img = img
+        self.bgcurve = bgcurve
+        self.coors = coors
+        self.mag = mag
+        self.iterations = iterations
+        self.parallel = parallel
+        self.resolution = resolution
+        self.freedom = freedom
+        self.save = save
+        self.direc = direc
+        self.plot = plot
+        self.itp = 1000
+        self.thickness = 50
+        self.rol_ave = 50
+        self.end_region = 0.2
+        self.n_end_fits = 50
+
+        self.newcoors = coors
+        self.resids = np.zeros(len(coors))
+
+        # Warnings
+        if self.save and self.direc is None:
+            raise Exception('Must specify directory')
+
+    def run(self):
+        """
+        Performs segmentation algorithm
+
+        """
+
+        for i in range(self.iterations):
+
+            # Straighten
+            straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+
+            # Filter/smoothen/interpolate images
+            straight = rolling_ave(interp(straight, self.itp), self.rol_ave)
+
+            # Interpolate bgcurves
+            bgcurve = interp_1d_array(self.bgcurve, 2 * self.itp)
+
+            # Calculate offsets
+            if self.parallel:
+                offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                    delayed(self.fit_background)(straight[:, x * self.resolution], bgcurve)
+                    for x in range(len(straight[0, :]) // self.resolution)))
+            else:
+                offsets = np.zeros(len(straight[0, :]) // self.resolution)
+                for x in range(len(straight[0, :]) // self.resolution):
+                    offsets[x] = self.fit_background(straight[:, x * self.resolution], bgcurve)
+
+            # Interpolate nans
+            nans, x = np.isnan(offsets), lambda z: z.nonzero()[0]
+            offsets[nans] = np.interp(x(nans), x(~nans), offsets[~nans])
+
+            # Interpolate
+            offsets = interp_1d_array(offsets, len(self.newcoors))
+
+            # Offset coordinates
+            self.newcoors = offset_coordinates(self.newcoors, offsets)
+
+            # Filter
+            self.newcoors = np.vstack(
+                (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
+                 savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+
+        # Rotate
+        self.newcoors = rotate_coors(self.newcoors)
+
+        # Save
+        if self.save:
+            np.savetxt('%s/ROI_fitted.txt' % self.direc, self.newcoors, fmt='%.4f', delimiter='\t')
+
+        # Plot
+        if self.plot:
+            plt.imshow(straighten(self.img, self.newcoors, self.thickness * self.mag), cmap='gray')
+            plt.show()
+
+    def fit_background(self, curve, bgcurve):
+        """
+        Takes cross sections from images and finds optimal offset for alignment
+
+        :param curve: signal curve from cross section of straightened img_g
+        :param bgcurve:
+        :return: o: offset value for this section
+        """
+
+        # Fix ends, interpolate: Green
+        ms, cs = self.fix_ends(curve, bgcurve)
+        msfull = np.zeros([2 * self.itp])
+        msfull[int((self.itp / 2) * (1 - self.freedom)):int((self.itp / 2) * (1 + self.freedom))] = interp_1d_array(ms,
+                                                                                                                    self.itp * self.freedom)
+        csfull = np.zeros([2 * self.itp])
+        csfull[int((self.itp / 2) * (1 - self.freedom)):int((self.itp / 2) * (1 + self.freedom))] = interp_1d_array(cs,
+                                                                                                                    self.itp * self.freedom)
+
+        # Input for curve fitter
+        x = np.stack((bgcurve, msfull, csfull), axis=0)
+
+        # Fit gaussian to find offset
+        try:
+            popt, pcov = curve_fit(self.gaussian_plus, x, curve,
+                                   bounds=([(self.itp / 2) * (1 - self.freedom), 0, 20],
+                                           [(self.itp / 2) * (1 + self.freedom), np.inf, 200]),
+                                   p0=[self.itp / 2, 0, 100])
+
+            o = (popt[0] - self.itp / 2) / (self.itp / self.thickness)
+        except RuntimeError:
+            o = np.nan
+
+        return o
+
+    def fix_ends(self, curve, bgcurve):
+        """
+        Calculates parameters to fit the ends of curve to bgcurve, across different alignments
+
+        :param curve: signal curve
+        :param bgcurve: background curve
+        :return: ms, cs: end fitting parameters
+        """
+
+        x = (self.itp * self.freedom) / self.n_end_fits
+        ms = np.zeros([self.n_end_fits])
+        cs = np.zeros([self.n_end_fits])
+        for l in range(self.n_end_fits):
+            bgcurve_seg = bgcurve[
+                          int(((self.itp / 2) * (1 - self.freedom)) + (x * l)): int(
+                              (self.itp + (self.itp / 2) * (1 - self.freedom)) + (x * l))]
+            line = np.polyfit(
+                [np.mean(curve[:int(len(curve) * self.end_region)]),
+                 np.mean(curve[int(len(curve) * (1 - self.end_region)):])],
+                [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * self.end_region)]),
+                 np.mean(bgcurve_seg[int(len(bgcurve_seg) * (1 - self.end_region)):])], 1)
+            ms[l] = line[0]
+            cs[l] = line[1]
+        return ms, cs
+
+    def gaussian_plus(self, x, l, a, c):
+        """
+        Function used for fitting algorithm
+
+        :param x: input 5 column array containing bgcurve and end fit parameters
+        :param l: offset parameter
+        :param a: gaussian height
+        :param c: gaussian width
+        :return: y: curve
+        """
+
+        g0 = a * np.e ** ((np.array(range(0, (self.itp - int(l)))) - (self.itp - l)) / c)
+        g1 = a * np.e ** (-((np.array(range((self.itp - int(l)), self.itp)) - (self.itp - l)) / c))
+        g = np.append(g0, g1)
+        y = (x[0, int(l):int(l) + self.itp] + g - x[2, int(l)]) / x[1, int(l)]
+
+        return y
+
+
+class Segmenter2:
+    """
+
+    Input data:
+    img_g           green channel image
+    img_r           red channel image
+    bgcurve_g       green background curve. Must be 2* wider than the eventual profile for img_r
+    bgcurve_r       red background curve. Must be 2* wider than the eventual profile for img_r
+    coors           original coordinates
+
+    Input parameters:
+    mag             magnification (1 = 60x)
+    iterations      number of times to run algorithm
+    parallel        True: preform segmentation in parallel
+    resolution      will perform fitting algorithm at gaps set by this, interpolating between
+    freedom         0 = no freedom, 1 = max freedom
+
+    Misc parameters:
+    it              Interpolation of profiles/bgcurves
+    thickness       thickness of straightened images
+    rol_ave         sets the degree of image smoothening
+    end_region      for end fitting
+    n_end_fits      number of end fits to perform, will interpolate
+
+    Outputs:
+    newcoors
+    resids
+
+    To to:
+    - Removing outliers better than smoothening coordinates at end
+
+    """
+
+    def __init__(self, img_g, img_r, bg_g, bg_r, coors, mag=1, iterations=2, parallel=True, resolution=5,
+                 freedom=0.3, save=False, direc=None, plot=False):
+
+        self.img_g = img_g
+        self.img_r = img_r
+        self.bg_g = bg_g
+        self.bg_r = bg_r
+        self.coors = coors
+        self.mag = mag
+        self.iterations = iterations
+        self.parallel = parallel
+        self.resolution = resolution
+        self.freedom = freedom
+        self.save = save
+        self.direc = direc
+        self.plot = plot
+        self.itp = 1000
+        self.thickness = 50
+        self.rol_ave = 50
+        self.end_region = 0.2
+        self.n_end_fits = 20
+
+        self.newcoors = coors
+        self.resids = np.zeros(len(coors))
+
+        # Warnings
+        if self.save and self.direc is None:
+            raise Exception('Must specify directory')
+
+    def run(self):
+        """
+        Performs segmentation algorithm
+
+        """
+
+        for i in range(self.iterations):
+
+            # Straighten
+            straight_g = straighten(self.img_g, self.newcoors, int(self.thickness * self.mag))
+            straight_r = straighten(self.img_r, self.newcoors, int(self.thickness * self.mag))
+
+            # Smoothen/interpolate images
+            straight_g = rolling_ave(interp(straight_g, self.itp), self.rol_ave)
+            straight_r = rolling_ave(interp(straight_r, self.itp), self.rol_ave)
+
+            # Interpolate bgcurves
+            bgcurve_g = interp_1d_array(self.bg_g, 2 * self.itp)
+            bgcurve_r = interp_1d_array(self.bg_r, 2 * self.itp)
+
+            # Calculate offsets
+            if self.parallel:
+                offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                    delayed(self.fit_background_2col)(straight_g[:, x * self.resolution],
+                                                      straight_r[:, x * self.resolution], bgcurve_g, bgcurve_r)
+                    for x in range(len(straight_g[0, :]) // self.resolution)))
+            else:
+                offsets = np.zeros(len(straight_g[0, :]) // self.resolution)
+                for x in range(len(straight_g[0, :]) // self.resolution):
+                    offsets[x] = self.fit_background_2col(straight_g[:, x * self.resolution],
+                                                          straight_r[:, x * self.resolution], bgcurve_g, bgcurve_r)
+
+            # Interpolate nans
+            nans, x = np.isnan(offsets), lambda z: z.nonzero()[0]
+            offsets[nans] = np.interp(x(nans), x(~nans), offsets[~nans])
+
+            # Interpolate
+            offsets = interp_1d_array(offsets, len(self.newcoors))
+
+            # Offset coordinates
+            self.newcoors = offset_coordinates(self.newcoors, offsets)
+
+            # Filter
+            self.newcoors = np.vstack(
+                (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
+                 savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+
+            # Interpolate nans
+            nans, x = np.isnan(self.newcoors), lambda z: z.nonzero()[0]
+            self.newcoors[nans] = np.interp(x(nans), x(~nans), self.newcoors[~nans])
+
+        # Rotate
+        self.newcoors = rotate_coors(self.newcoors)
+
+        # Save
+        if self.save:
+            np.savetxt('%s/ROI_fitted.txt' % self.direc, self.newcoors, fmt='%.4f', delimiter='\t')
+
+        # Plot
+        if self.plot:
+            plt.imshow(straighten(self.img_g, self.newcoors, self.thickness * self.mag), cmap='gray')
+            plt.show()
+            plt.imshow(straighten(self.img_r, self.newcoors, self.thickness * self.mag), cmap='gray')
+            plt.show()
+
+    def fit_background_2col(self, curve_g, curve_r, bgcurve_g, bgcurve_r):
+        """
+        Takes cross sections from images and finds optimal offset for alignment
+
+        :param curve_g: signal curve from cross section of straightened img_g
+        :param curve_r: signal curve from cross section of straightened img_r
+        :param bgcurve_g:
+        :param bgcurve_r:
+        :return: o: offset value for this section
+        """
+
+        # Fix ends, interpolate: Green
+        ms_g, cs_g = self.fix_ends(curve_g, bgcurve_g)
+        msfull_g = np.zeros([4 * self.itp])
+        msfull_g[int((self.itp / 2) * (1 - self.freedom)):int((self.itp / 2) * (1 + self.freedom))] = interp_1d_array(
+            ms_g,
+            self.itp * self.freedom)
+        csfull_g = np.zeros([4 * self.itp])
+        csfull_g[int((self.itp / 2) * (1 - self.freedom)):int((self.itp / 2) * (1 + self.freedom))] = interp_1d_array(
+            cs_g,
+            self.itp * self.freedom)
+
+        # Fix ends, interpolate: Red
+        ms_r, cs_r = self.fix_ends(curve_r, bgcurve_r)
+        msfull_r = np.zeros([4 * self.itp])
+        msfull_r[int((self.itp / 2) * (1 - self.freedom)):int((self.itp / 2) * (1 + self.freedom))] = interp_1d_array(
+            ms_r,
+            self.itp * self.freedom)
+        csfull_r = np.zeros([4 * self.itp])
+        csfull_r[int((self.itp / 2) * (1 - self.freedom)):int((self.itp / 2) * (1 + self.freedom))] = interp_1d_array(
+            cs_r,
+            self.itp * self.freedom)
+
+        # Input for curve fitter
+        x = np.stack((np.append(bgcurve_g, bgcurve_r), msfull_g, csfull_g, msfull_r, csfull_r), axis=0)
+
+        # Fit gaussian to find offset
+        try:
+            popt, pcov = curve_fit(self.gaussian_plus_2col, x, np.append(curve_g, curve_r),
+                                   bounds=([(self.itp / 2) * (1 - self.freedom), 0, 20, 0, 20],
+                                           [(self.itp / 2) * (1 + self.freedom), np.inf, 200, np.inf, 200]),
+                                   p0=[self.itp / 2, 0, 100, 0, 100])
+
+            o = (popt[0] - self.itp / 2) / (self.itp / self.thickness)
+        except RuntimeError:
+            o = np.nan
+
+        return o
+
+    def fix_ends(self, curve, bgcurve):
+        """
+        Calculates parameters to fit the ends of curve to bgcurve, across different alignments
+
+        :param curve: signal curve
+        :param bgcurve: background curve
+        :return: ms, cs: end fitting parameters
+        """
+
+        x = (self.itp * self.freedom) / self.n_end_fits
+        ms = np.zeros([self.n_end_fits])
+        cs = np.zeros([self.n_end_fits])
+        for l in range(self.n_end_fits):
+            bgcurve_seg = bgcurve[
+                          int(((self.itp / 2) * (1 - self.freedom)) + (x * l)): int(
+                              (self.itp + (self.itp / 2) * (1 - self.freedom)) + (x * l))]
+            line = np.polyfit(
+                [np.mean(curve[:int(len(curve) * self.end_region)]),
+                 np.mean(curve[int(len(curve) * (1 - self.end_region)):])],
+                [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * self.end_region)]),
+                 np.mean(bgcurve_seg[int(len(bgcurve_seg) * (1 - self.end_region)):])], 1)
+            ms[l] = line[0]
+            cs[l] = line[1]
+        return ms, cs
+
+    def gaussian_plus_2col(self, x, l, a_g, c_g, a_r, c_r):
+        """
+        Function used for fitting algorithm
+
+        :param x: input 5 column array containing bgcurves (end on end) and end fit parameters
+        :param l: offset parameter
+        :param a_g: green gaussian height
+        :param c_g: green gaussian width
+        :param a_r: red gaussian height
+        :param c_r: red gaussian width
+        :return: y: curves (end on end)
+        """
+
+        y = np.zeros([2 * self.itp])
+
+        # Green region
+        g0 = a_g * np.e ** ((np.array(range(0, (self.itp - int(l)))) - (self.itp - l)) / c_g)
+        g1 = a_g * np.e ** (-((np.array(range((self.itp - int(l)), self.itp)) - (self.itp - l)) / c_g))
+        g = np.append(g0, g1)
+        y[:self.itp] = (x[0, int(l):int(l) + self.itp] + g - x[2, int(l)]) / x[1, int(l)]
+
+        # Red region
+        g0 = a_r * np.e ** ((np.array(range(0, (self.itp - int(l)))) - (self.itp - l)) / c_r)
+        g1 = a_r * np.e ** (-((np.array(range((self.itp - int(l)), self.itp)) - (self.itp - l)) / c_r))
+        g = np.append(g0, g1)
+        y[self.itp:2 * self.itp] = (x[0, (2 * self.itp) + int(l):int(l) + 3 * self.itp] + g - x[
+            4, int(l)]) / x[3, int(l)]
+
+        return y
+
+
+class Segmenter3:
+    def __init__(self, img, coors, mag=1, iterations=2, parallel=False, resolution=5, save=False,
+                 direc=None, plot=False):
+
+        # Inputs
+        self.img = img
+        self.coors = coors
+        self.mag = mag
+        self.iterations = iterations
+        self.parallel = parallel
+        self.resolution = resolution
+        self.save = save
+        self.direc = direc
+        self.plot = plot
+        self.itp = 1000
+        self.thickness = 50
+        self.rol_ave = 50
+        self.end_region = 0.2
+        self.n_end_fits = 50
+
+        self.newcoors = coors
+
+        # Warnings
+        if self.save and self.direc is None:
+            raise Exception('Must specify directory')
+
+    def run(self):
+        """
+        Performs segmentation algorithm
+
+        """
+
+        for i in range(self.iterations):
+
+            # Straighten
+            straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+
+            # Filter/smoothen/interpolate images
+            straight = rolling_ave(interp(straight, self.itp), self.rol_ave)
+
+            # Calculate offsets
+            if self.parallel:
+                offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                    delayed(self.func)(straight, x) for x in range(len(straight[0, :]))))
+            else:
+                offsets = np.zeros(len(straight[0, :]))
+                for x in range(len(straight[0, :])):
+                    offsets[x] = self.func(straight, x)
+
+            # Interpolate
+            offsets = interp_1d_array(offsets, len(self.newcoors))
+
+            # Offset coordinates
+            self.newcoors = offset_coordinates(self.newcoors, offsets)
+
+            # Filter
+            self.newcoors = np.vstack(
+                (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
+                 savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+
+        # Rotate
+        self.newcoors = rotate_coors(self.newcoors)
+
+        # Save
+        if self.save:
+            np.savetxt('%s/ROI_fitted.txt' % self.direc, self.newcoors, fmt='%.4f', delimiter='\t')
+
+        # Plot
+        if self.plot:
+            plt.imshow(straighten(self.img, self.newcoors, self.thickness * self.mag), cmap='gray')
+            plt.show()
+
+    def func(self, straight, x):
+        return ((self.itp / 2) - np.argmin(
+            np.absolute(straight[:, x] - np.mean(
+                [np.mean(straight[int(0.9 * self.itp):, x]), np.mean(straight[:int(0.1 * self.itp), x])]))) * (
+                    len(straight[:, 0]) / self.itp)) / (self.itp / self.thickness)
+
+
+################## ANALYSIS #################
+
+
+class Analyser:
+    """
+
+    """
+
+    def __init__(self, img, coors, direc, name, bg=None, mag=1, funcs='all', bounds=(0, 1), thickness=50):
+        self.img = img
+        self.coors = coors
+        self.bg = bg
+        self.direc = direc
+        self.name = name
+        self.mag = mag
+        self.funcs = funcs
+        self.bounds = bounds
+        self.thickness = thickness
+        self.img_straight = None
+        self.res = self.Res()
+
+    class Res:
+        """
+
+        """
+
+        def __init__(self):
+            self.mem = None
+            self.spa = None
+            self.cyt = None
+            self.tot = None
+            self.cse = None
+            self.asi = None
+            self.pro = None
+            self.fbc = None
+            self.ext = None
+
+    def run(self):
+        """
+
+        """
+        # Straighten image
+        self.img_straight = straighten(self.img, self.coors, int(50 * self.mag))
+
+        # Perform analysis
+        if self.funcs is None:
+            pass
+        else:
+            if self.funcs == 'all':
+                self.funcs = ['mem', 'spa', 'cyt', 'tot', 'cse', 'asi', 'pro', 'fbc', 'ext']
+            for func in self.funcs:
+                getattr(self, func)()
+
+        # Save results
+        self.savedata()
+
+    def mem(self):
+        """
+
+        """
+
+        # Average
+        profile = bounded_mean_2d(self.img_straight, self.bounds)
+        profile = interp_1d_array(profile, 50)
+
+        # Get cortical signal
+        bg = fix_ends(profile, self.bg[25:75])
+        self.res.mem = [np.trapz(profile - bg)]
+
+    def spa(self):
+        """
+        Should add interpolation
+
+        """
+
+        # Smoothen
+        img_straight = rolling_ave(self.img_straight, int(20 * self.mag))
+
+        # Get cortical signals
+        sigs = np.zeros([100])
+        for x in range(100):
+            profile = img_straight[:, int(np.linspace(0, len(img_straight[0, :]), 100)[x] - 1)]
+            profile = interp_1d_array(profile, 50)
+            bg2 = fix_ends(profile, self.bg[25:75])
+            sigs[x] = np.trapz(profile - bg2)
+        self.res.spa = sigs
+
+    def cyt(self):
+        """
+
+        """
+        img2 = polycrop(self.img, self.coors, -20 * self.mag)
+        self.res.cyt = [np.nanmean(img2[np.nonzero(img2)])]
+
+    def tot(self):
+        """
+
+        """
+
+        img2 = polycrop(self.img, self.coors, 5 * self.mag)
+        self.res.tot = [np.nanmean(img2[np.nonzero(img2)])]
+
+    def cse(self, thickness=10, extend=1.5):
+        """
+        Returns cross section across the long axis of the embryo
+
+        :param thickness:
+        :param extend:
+        """
+
+        # PCA
+        M = (self.coors - np.mean(self.coors.T, axis=1)).T
+        [latent, coeff] = np.linalg.eig(np.cov(M))
+        score = np.dot(coeff.T, M)
+
+        # Find ends
+        a = np.argmin(np.minimum(score[0, :], score[1, :]))
+        b = np.argmax(np.maximum(score[0, :], score[1, :]))
+
+        # Find posterior end
+        dista = np.hypot((self.coors[0, 0] - self.coors[a, 0]), (self.coors[0, 1] - self.coors[a, 1]))
+        distb = np.hypot((self.coors[0, 0] - self.coors[b, 0]), (self.coors[0, 1] - self.coors[b, 1]))
+
+        if dista < distb:
+            line0 = np.array([self.coors[a, :], self.coors[b, :]])
+        else:
+            line0 = np.array([self.coors[b, :], self.coors[a, :]])
+
+        # Extend line
+        line0 = extend_line(line0, extend)
+
+        # Thicken line
+        line1 = offset_line(line0, thickness / 2)
+        line2 = offset_line(line0, -thickness / 2)
+        end1 = np.array(
+            [np.linspace(line1[0, 0], line2[0, 0], thickness), np.linspace(line1[0, 1], line2[0, 1], thickness)]).T
+        end2 = np.array(
+            [np.linspace(line1[1, 0], line2[1, 0], thickness), np.linspace(line1[1, 1], line2[1, 1], thickness)]).T
+
+        # Get cross section
+        num_points = 100
+        zvals = np.zeros([thickness, num_points])
+        for section in range(thickness):
+            xvalues = np.linspace(end1[section, 0], end2[section, 0], num_points)
+            yvalues = np.linspace(end1[section, 1], end2[section, 1], num_points)
+            zvals[section, :] = map_coordinates(self.img.T, [xvalues, yvalues])
+
+        self.res.cse = np.flipud(np.nanmean(zvals, 0))
+
+    def asi(self):
+        """
+
+        """
+        ant = bounded_mean(self.res.spa, (0.25, 0.75))
+        post = bounded_mean(self.res.spa, (0.75, 0.25))
+        self.res.asi = [(ant - post) / (2 * (ant + post))]
+
+    def pro(self):
+        """
+
+        """
+        if self.thickness != 50:
+            img_straight = straighten(self.img, self.coors, int(self.thickness * self.mag))
+            self.res.pro = bounded_mean_2d(img_straight, self.bounds)
+        else:
+            self.res.pro = bounded_mean_2d(self.img_straight, self.bounds)
+
+    def fbc(self):
+        """
+
+        """
+        profile = bounded_mean_2d(self.img_straight, self.bounds)
+        profile = interp_1d_array(profile, 50)
+        self.res.fbc = fix_ends(profile, self.bg[25:75])
+
+    def ext(self):
+        """
+
+        """
+        img = polycrop(self.img, offset_coordinates(self.coors, 60 * self.mag)) - polycrop(self.img,
+                                                                                           offset_coordinates(
+                                                                                               self.coors,
+                                                                                               10 * self.mag))
+        self.res.ext = [np.nanmean(img[np.nonzero(img)])]
+
+    def savedata(self):
+        """
+
+        """
+        d = vars(self.res)
+        for key, value in d.items():
+            if value is not None:
+                np.savetxt('%s/%s_%s.txt' % (self.direc, self.name, key), value, fmt='%.4f', delimiter='\t')
+
+
+class ImportAll:
+    """
+    g_      green channel
+    ga      green channel, af corrected
+    gb      green channel, bg subtracted
+
+    a_      af channel
+    ab      af channel, bg subtracted
+
+    r_      red channel
+    rb      red channel, bg subtracted
+
+    """
+
+    def __init__(self, direc):
+        self.g = Analyser.Res()
+        self.a = Analyser.Res()
+        self.r = Analyser.Res()
+        self.c = Analyser.Res()
+        self.b = Analyser.Res()
+
+        a = glob.glob('%s/*.txt' % direc)
+        for b in a:
+            c = os.path.basename(os.path.normpath(b))[:-4]
+            c = c.split('_')
+            if hasattr(self, c[0]):
+                setattr(getattr(self, c[0]), c[1], np.loadtxt(b))
+
+
+class ImportAllBatch:
+    """
+    Imports all the data for a given group of embryos
+
+    """
+
+    def __init__(self, direcs):
+        self.g = Analyser.Res()
+        self.a = Analyser.Res()
+        self.r = Analyser.Res()
+        self.c = Analyser.Res()
+        self.b = Analyser.Res()
+
+        a = glob.glob('%s/*.txt' % direcs[0])
+        for b in a:
+            c = os.path.basename(os.path.normpath(b))[:-4]
+            c = c.split('_')
+            if hasattr(self, c[0]):
+                setattr(getattr(self, c[0]), c[1], np.array([np.loadtxt(b)]))
+
+        for d in direcs[1:]:
+            a = glob.glob('%s/*.txt' % d)
+            for b in a:
+                c = os.path.basename(os.path.normpath(b))[:-4]
+                c = c.split('_')
+                if hasattr(self, c[0]):
+                    setattr(getattr(self, c[0]), c[1],
+                            np.append(getattr(getattr(self, c[0]), c[1]), np.array([np.loadtxt(b)]), axis=0))
+
+                    # self.mean = ImportAll(None)
+                    # for channel in vars(self.mean):
+                    #     for analysis in vars(Analyser.Res()):
+                    #         if getattr(getattr(self, channel), analysis) is not None:
+                    #             setattr(getattr(self.mean, channel), analysis,
+                    #                     np.mean(getattr(getattr(self, channel), analysis), axis=0))
+
+
+def ImportAllBatch2(dest):
+    """
+    Creates dictionary of different groups of embryos
+
+    """
+    dic = {}
+    for d in direcslist(dest):
+        dic[os.path.basename(os.path.normpath(d))] = ImportAllBatch(func2(d))
+    return dic
+
+
+################### IMPORTERS ###################
+
+class Importers:
+    class Data0:
+        def __init__(self, direc):
+            self.direc = direc
+            self.DIC = loadimage(sorted(glob.glob('%s/*DIC SP Camera*' % direc), key=len)[0])
+            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 535-50*' % direc), key=len)[0])
+            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
+            self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
+            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
+
+    class Data1:
+        def __init__(self, direc):
+            self.direc = direc
+            self.DIC = None
+            self.GFP = loadimage(sorted(glob.glob('%s/*GFP*' % direc), key=len)[0])
+            self.AF = loadimage(sorted(glob.glob('%s/*AF*' % direc), key=len)[0])
+            self.RFP = loadimage(sorted(glob.glob('%s/*PAR2*' % direc), key=len)[0])
+            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
+
+    class Data2:
+        def __init__(self, direc):
+            self.direc = direc
+            self.DIC = None
+            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 525-50*' % direc), key=len)[0])
+            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
+            self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
+            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
+
+    class Data3:
+        def __init__(self, direc):
+            self.direc = direc
+            self.DIC = loadimage(sorted(glob.glob('%s/*DIC SP Camera*' % direc), key=len)[0])
+            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 535-50*' % direc), key=len)[0])
+            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
+            self.RFP = None
+            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
+
+    class Data4:
+        def __init__(self, direc):
+            self.direc = direc
+            self.DIC = None
+            self.GFP = loadimage(sorted(glob.glob('%s/*GFP*' % direc), key=len)[0])
+            self.AF = loadimage(sorted(glob.glob('%s/*AF*' % direc), key=len)[0])
+            self.RFP = None
+            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
+
+    class Data5:
+        def __init__(self, direc):
+            self.direc = direc
+            self.DIC = None
+            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 525-50*' % direc), key=len)[0])
+            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
+            self.RFP = None
+            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
+
+
+########################### MISC ############################
+
+
+def fix_ends(curve, bgcurve):
+    """
+    Used for background subtraction. Returns fitted bgcurve which can then be subtracted from the signal curve
+    Bg fitted by fixing ends
+
+    :param curve:
+    :param bgcurve:
+    :return:
+    """
+
+    # Fix ends
+    line = np.polyfit(
+        [np.mean(bgcurve[:int(len(bgcurve) * 0.2)]), np.mean(bgcurve[int(len(bgcurve) * 0.8):])],
+        [np.mean(curve[:int(len(curve) * 0.2)]), np.mean(curve[int(len(curve) * 0.8):])], 1)
+
+    # Create new bgcurve
+    curve2 = bgcurve * line[0] + line[1]
+
+    return curve2
+
+
+def polycrop(img, polyline, enlarge=-10):
+    """
+    Crops image according to polyline coordinates
+
+    :param img:
+    :param polyline:
+    :param enlarge:
+    :return:
+    """
+
+    newcoors = np.int32(offset_coordinates(polyline, enlarge * np.ones([len(polyline[:, 0])])))
+    mask = np.zeros(img.shape)
+    mask = cv2.fillPoly(mask, [newcoors], 1)
+    newimg = img * mask
+    return newimg
+
+
+def interp_1d_array(arr, n):
+    return np.interp(np.linspace(0, len(arr), n), np.array(range(len(arr))), arr)
+
+
+def straighten(img, coors, thickness):
+    """
+    Creates straightened image based on coordinates. Should be 1 pixel length apart in a loop
+
+    :param img:
+    :param coors:
+    :param thickness:
+    :return:
+    """
+
+    img2 = np.zeros([thickness, len(coors[:, 0])])
+    offsets = np.linspace(thickness / 2, -thickness / 2, thickness)
+    for section in range(thickness):
+        sectioncoors = offset_coordinates(coors, offsets[section])
+        a = map_coordinates(img.T, [sectioncoors[:, 0], sectioncoors[:, 1]])
+        a[a == 0] = np.mean(a)
+        img2[section, :] = a
+    return img2
+
+
+def offset_coordinates(coors, offsets):
+    """
+    Reads in coordinates, adjusts according to offsets
+
+    :param coors: two column array containing x and y coordinates. e.g. coors = np.loadtxt(filename)
+    :param offsets: array the same length as coors. Direction?
+    :return: array in same format as coors containing new coordinates
+
+    To save this in a fiji readable format run:
+    np.savetxt(filename, newcoors, fmt='%.4f', delimiter='\t')
+
+    """
+
+    xcoors = coors[:, 0]
+    ycoors = coors[:, 1]
+
+    if not hasattr(offsets, '__len__'):
+        offsets = np.ones([len(xcoors)]) * offsets
+
+    # Create new spline coordinates
+    newxs = np.zeros([len(offsets)])
+    newys = np.zeros([len(offsets)])
+    forward = np.append(np.array(range(1, len(offsets))), [0])  # periodic boundaries
+    back = np.append([len(offsets) - 1], np.array(range(len(offsets) - 1)))
+
+    for i in range(len(offsets)):
+        rise = ycoors[forward[i]] - ycoors[back[i]]
+        run = xcoors[forward[i]] - xcoors[back[i]]
+        bisectorgrad = rise / run
+        tangentgrad = -1 / bisectorgrad
+
+        xchange = ((offsets[i] ** 2) / (1 + tangentgrad ** 2)) ** 0.5
+        ychange = xchange / abs(bisectorgrad)
+        newxs[i] = xcoors[i] + np.sign(rise) * np.sign(offsets[i]) * xchange
+        newys[i] = ycoors[i] - np.sign(run) * np.sign(offsets[i]) * ychange
+
+    newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
+
+    return newcoors
+
+
+def interp(img, n):
+    """
+    Interpolates values along y axis for each x value
+    :param img:
+    :param n:
+    :return:
+    """
+
+    interped = np.zeros([n, len(img[0, :])])
+    for x in range(len(img[0, :])):
+        interped[:, x] = interp_1d_array(img[:, x], n)
+
+    return interped
 
 
 def rolling_ave(img, window, periodic=1):
@@ -345,38 +1283,51 @@ def rolling_ave(img, window, periodic=1):
         return ave
 
 
-def savitsky_golay(img, window=9, order=2):
-    """
-    Smoothens profile across the y dimension for each x
-    Intended for rolling averaged profiles
-    Not fully tested (need to refine parameters)
+def bounded_mean(array, bounds):
+    if bounds[0] < bounds[1]:
+        mean = np.mean(array[int(len(array) * bounds[0]): int(len(array) * bounds[1] + 1)])
+    else:
+        mean = np.mean(np.hstack((array[:int(len(array) * bounds[1] + 1)], array[int(len(array) * bounds[0]):])))
+    return mean
 
-    :param img:
+
+def bounded_mean_2d(array, bounds):
+    if bounds[0] < bounds[1]:
+        mean = np.mean(array[:, int(len(array[0, :]) * bounds[0]): int(len(array[0, :]) * bounds[1])], 1)
+    else:
+        mean = np.mean(
+            np.hstack((array[:, :int(len(array[0, :]) * bounds[1])], array[:, int(len(array[0, :]) * bounds[0]):])), 1)
+    return mean
+
+
+def rotate_coors(coors):
+    """
+    Rotates coordinate array so that most posterior point is at the beginning
+
+    :param coors:
     :return:
     """
 
-    savgos = np.zeros([len(img[:, 0]), len(img[0, :])])
-    for x in range(len(img[0, :])):
-        savgos[:, x] = savgol_filter(img[:, x], window, order, mode='mirror')
-    return savgos
+    # PCA to find long axis
+    M = (coors - np.mean(coors.T, axis=1)).T
+    [latent, coeff] = np.linalg.eig(np.cov(M))
+    score = np.dot(coeff.T, M)
 
+    # Find most extreme points
+    a = np.argmin(np.minimum(score[0, :], score[1, :]))
+    b = np.argmax(np.maximum(score[0, :], score[1, :]))
 
-def interp(img, n):
-    """
-    Interpolates values along y axis for each x value
-    :param img:
-    :param n:
-    :return:
-    """
+    # Find the one closest to user defined posterior
+    dista = np.hypot((coors[0, 0] - coors[a, 0]), (coors[0, 1] - coors[a, 1]))
+    distb = np.hypot((coors[0, 0] - coors[b, 0]), (coors[0, 1] - coors[b, 1]))
 
-    interped = np.zeros([n, len(img[0, :])])
-    for x in range(len(img[0, :])):
-        interped[:, x] = np.interp(np.linspace(0, len(img[:, x]), n), range(len(img[:, x])), img[:, x])
+    # Rotate coordinates
+    if dista < distb:
+        newcoors = np.roll(coors, len(coors[:, 0]) - a, 0)
+    else:
+        newcoors = np.roll(coors, len(coors[:, 0]) - b, 0)
 
-    return interped
-
-
-################# COORDINATE HANDLING ################
+    return newcoors
 
 
 def offset_line(line, offset):
@@ -433,607 +1384,23 @@ def extend_line(line, extend):
     return newcoors
 
 
-def rotate_coors(coors):
-    """
-    Rotates coordinate array so that most posterior point is at the beginning
+#################### Used in scripts only#######################
 
-    :param coors:
-    :return:
-    """
 
-    # PCA to find long axis
-    M = (coors - np.mean(coors.T, axis=1)).T
-    [latent, coeff] = np.linalg.eig(np.cov(M))
-    score = np.dot(coeff.T, M)
+def af_subtraction(ch1, ch2, settings):
+    af = settings.m * ch2 + settings.c
+    signal = ch1 - af
+    return signal
 
-    # Find most extreme points
-    a = np.argmin(np.minimum(score[0, :], score[1, :]))
-    b = np.argmax(np.maximum(score[0, :], score[1, :]))
 
-    # Find the one closest to user defined posterior
-    dista = np.hypot((coors[0, 0] - coors[a, 0]), (coors[0, 1] - coors[a, 1]))
-    distb = np.hypot((coors[0, 0] - coors[b, 0]), (coors[0, 1] - coors[b, 1]))
+def bg_subtraction(img, coors, mag):
+    bg = np.mean(straighten(img, offset_coordinates(coors, 50 * mag), int(50 * mag)))
+    return img - bg
 
-    # Rotate coordinates
-    if dista < distb:
-        newcoors = np.roll(coors, len(coors[:, 0]) - a, 0)
-    else:
-        newcoors = np.roll(coors, len(coors[:, 0]) - b, 0)
 
-    return newcoors
-
-
-def offset_coordinates(coors, offsets):
-    """
-    Reads in coordinates, adjusts according to offsets
-
-    :param coors: two column array containing x and y coordinates. e.g. coors = np.loadtxt(filename)
-    :param offsets: array the same length as coors. Direction?
-    :return: array in same format as coors containing new coordinates
-
-    To save this in a fiji readable format run:
-    np.savetxt(filename, newcoors, fmt='%.4f', delimiter='\t')
-
-    """
-
-    xcoors = coors[:, 0]
-    ycoors = coors[:, 1]
-
-    if not hasattr(offsets, '__len__'):
-        offsets = np.ones([len(xcoors)]) * offsets
-
-    # Create new spline coordinates
-    newxs = np.zeros([len(offsets)])
-    newys = np.zeros([len(offsets)])
-    forward = np.append(np.array(range(1, len(offsets))), [0])  # periodic boundaries
-    back = np.append([len(offsets) - 1], np.array(range(len(offsets) - 1)))
-
-    for i in range(len(offsets)):
-        rise = ycoors[forward[i]] - ycoors[back[i]]
-        run = xcoors[forward[i]] - xcoors[back[i]]
-        bisectorgrad = rise / run
-        tangentgrad = -1 / bisectorgrad
-
-        xchange = ((offsets[i] ** 2) / (1 + tangentgrad ** 2)) ** 0.5
-        ychange = xchange / abs(bisectorgrad)
-        newxs[i] = xcoors[i] + np.sign(rise) * np.sign(offsets[i]) * xchange
-        newys[i] = ycoors[i] - np.sign(run) * np.sign(offsets[i]) * ychange
-
-    newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
-
-    return newcoors
-
-
-############### SEGMENTATION ################
-
-
-def gaussian_plus(x, l, a, c):
-    """
-    For fitting signal curve to background curve + gaussian. Interpolated curves, sliding permitted
-    (Used for segmentation)
-
-    :param x: background curve, end fits
-    :param l: bg curve fit (offset)
-    :param a: gaussian param (height)
-    :param c: gaussian param (width)
-    :return: y: bgcurve + gaussian
-    """
-
-    y = (x[1, int(l)] * x[0, int(l):int(l) + 1000] + x[2, int(l)]) + (
-        a * np.e ** (-((np.array(range(1000)) - (1000 - l)) ** 2) / (2 * (c ** 2))))
-
-    return y
-
-
-def fit_background(curve, bgcurve):
-    """
-    Used in segmentation. Takes interpolated curves, returns optimal fitting parameters.
-    (popt[2] then used to adjust coordinates)
-
-    :param curve:
-    :param bgcurve:
-    :return:
-    """
-
-    # Fix ends
-    ms = np.zeros([50])
-    cs = np.zeros([50])
-    for l in range(50):
-        bgcurve_seg = bgcurve[250 + 10 * l: 1250 + 10 * l]
-        line = np.polyfit(
-            [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * 0.2)]),
-             np.mean(bgcurve_seg[int(len(bgcurve_seg) * 0.8):])],
-            [np.mean(curve[:int(len(curve) * 0.2)]), np.mean(curve[int(len(curve) * 0.8):])], 1)
-        ms[l] = line[0]
-        cs[l] = line[1]
-
-    # Interpolate
-    msfull = np.zeros([2000])
-    msfull[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), ms)
-    csfull = np.zeros([2000])
-    csfull[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), cs)
-
-    x = np.stack((bgcurve, msfull, csfull), axis=0)
-
-    # Fit gaussian to find offset
-    popt, pcov = curve_fit(gaussian_plus, x, curve, bounds=([250, 0, 50], [750, np.inf, 80]), p0=[500, 0, 65])
-
-    return popt
-
-
-def calc_offsets(img, bgcurve):
-    """
-    Calculates coordinate offset required, by fitting straightened image to background curve
-
-    What if img has zeros? (i.e. too close to the edge, or straightening error)
-    Do I need to interpolate this much?
-
-    :param img: straightened image
-    :param bgcurve: background curve
-    :return: offsets
-    """
-
-    # Smoothen/interpolate image
-    img2 = interp(img, 1000)
-    img3 = rolling_ave(img2, 50)
-    img4 = savitsky_golay(img3, 251, 5)
-
-    # Interpolate bg curve
-    bgcurve2 = np.interp(np.linspace(0, len(bgcurve), 2000), range(len(bgcurve)), bgcurve)
-
-    # Calculate offsets
-    offsets = np.zeros(len(img[0, :]) // 5)
-    for x in range(len(offsets)):
-        try:
-            a = fit_background(img4[:, x * 5], bgcurve2)
-            offsets[x] = (a[0] - 500) / 20
-        except RuntimeError:
-            offsets[x] = np.nan
-
-    # Interpolate nans
-    nans, x = np.isnan(offsets), lambda z: z.nonzero()[0]
-    offsets[nans] = np.interp(x(nans), x(~nans), offsets[~nans])
-
-    # Interpolate
-    offsets = np.interp(np.linspace(0, len(offsets), len(img[0, :])), range(len(offsets)), offsets)
-
-    return offsets
-
-
-def fit_coordinates_alg(img, coors, bgcurve, iterations, mag=1):
-    """
-    Segmentation algorithm. Segments by fitting rolling average profiles to background curve, and offsetting original
-    coordinates. Followed by smoothing
-
-    :param img: af corrected embryo image
-    :param coors: initial coordinates
-    :param bgcurve: background curve
-    :param iterations:
-    :return: new coordinates
-
-    Coors can be saved to txt file by e.g.
-    np.savetxt('%s/ROI_fitted.txt' % data.direc, coors, fmt='%.4f', delimiter='\t')
-
-    """
-
-    for i in range(iterations):
-        # Straighten
-        straight = straighten(img, coors, int(50 * mag))
-        straight = interp(straight, 50)
-
-        # # Adjust range
-        line = np.polyfit([np.percentile(straight.flatten(), 5), np.percentile(straight.flatten(), 95)], [0, 1], 1)
-        straight = straight * line[0] + line[1]
-
-        # Calculate offsets
-        offsets = calc_offsets(straight, bgcurve)
-        coors = offset_coordinates(coors, offsets)
-
-        # Filter
-        coors = np.vstack(
-            (savgol_filter(coors[:, 0], 19, 1, mode='wrap'), savgol_filter(coors[:, 1], 19, 1, mode='wrap'))).T
-
-    # Rotate
-    coors = rotate_coors(coors)
-    return coors
-
-
-############### 2 COLOUR SEGMENTATION ################
-
-def gaussian_plus_2col(x, l, a_g, c_g, a_r, c_r):
-    """
-
-    """
-
-    y = np.zeros([2000])
-
-    bg1 = x[1, int(l)] * x[0, int(l):int(l) + 1000] + x[2, int(l)]
-    gaus1 = a_g * np.e ** (-((np.array(range(1000)) - (1000 - l)) ** 2) / (2 * (c_g ** 2)))
-    y[:1000] = bg1 + gaus1
-
-    bg2 = x[3, int(l)] * x[0, 2000 + int(l):int(l) + 3000] + x[4, int(l)]
-    gaus2 = a_r * np.e ** (-((np.array(range(1000)) - (1000 - l)) ** 2) / (2 * (c_r ** 2)))
-    y[1000:2000] = bg2 + gaus2
-
-    return y
-
-
-def fit_background_2col(curve_g, curve_r, bgcurve_g, bgcurve_r):
-    """
-
-    """
-
-    # GREEN #
-    ms = np.zeros([50])
-    cs = np.zeros([50])
-    for l in range(50):
-        bgcurve_seg = bgcurve_g[250 + 10 * l: 1250 + 10 * l]
-        line = np.polyfit(
-            [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * 0.2)]),
-             np.mean(bgcurve_seg[int(len(bgcurve_seg) * 0.8):])],
-            [np.mean(curve_g[:int(len(curve_g) * 0.2)]), np.mean(curve_g[int(len(curve_g) * 0.8):])], 1)
-        ms[l] = line[0]
-        cs[l] = line[1]
-    msfull_g = np.zeros([4000])
-    msfull_g[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), ms)
-    csfull_g = np.zeros([4000])
-    csfull_g[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), cs)
-
-    # RED #
-    ms = np.zeros([50])
-    cs = np.zeros([50])
-    for l in range(50):
-        bgcurve_seg = bgcurve_r[250 + 10 * l: 1250 + 10 * l]
-        line = np.polyfit(
-            [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * 0.2)]),
-             np.mean(bgcurve_seg[int(len(bgcurve_seg) * 0.8):])],
-            [np.mean(curve_r[:int(len(curve_r) * 0.2)]), np.mean(curve_r[int(len(curve_r) * 0.8):])], 1)
-        ms[l] = line[0]
-        cs[l] = line[1]
-    msfull_r = np.zeros([4000])
-    msfull_r[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), ms)
-    csfull_r = np.zeros([4000])
-    csfull_r[250:750] = np.interp(np.linspace(0, 50, 500), np.array(range(50)), cs)
-
-    x = np.stack((np.append(bgcurve_g, bgcurve_r), msfull_g, csfull_g, msfull_r, csfull_r), axis=0)
-
-    # Fit gaussian to find offset
-    popt, pcov = curve_fit(gaussian_plus_2col, x, np.append(curve_g, curve_r),
-                           bounds=([250, 0, 50, 0, 50], [750, np.inf, 80, np.inf, 80]),
-                           p0=[500, 0, 65, 0, 65])
-
-    return popt
-
-
-def calc_offsets_2col(img_g, img_r, bgcurve_g, bgcurve_r):
-    """
-
-    """
-
-    l = len(img_g[0, :])
-
-    # GREEN #
-    img_g = interp(img_g, 1000)
-    img_g = rolling_ave(img_g, 50)
-    img_g = savitsky_golay(img_g, 251, 5)
-    bgcurve_g = np.interp(np.linspace(0, len(bgcurve_g), 2000), range(len(bgcurve_g)), bgcurve_g)
-
-    # RED #
-    img_r = interp(img_r, 1000)
-    img_r = rolling_ave(img_r, 50)
-    img_r = savitsky_golay(img_r, 251, 5)
-    bgcurve_r = np.interp(np.linspace(0, len(bgcurve_r), 2000), range(len(bgcurve_r)), bgcurve_r)
-
-    # Calculate offsets
-    offsets = np.zeros(l // 5)
-    for x in range(len(offsets)):
-        try:
-            a = fit_background_2col(img_g[:, x * 5], img_r[:, x * 5], bgcurve_g, bgcurve_r)
-            offsets[x] = (a[0] - 500) / 20
-        except RuntimeError:
-            offsets[x] = np.nan
-
-    # Interpolate nans
-    nans, x = np.isnan(offsets), lambda z: z.nonzero()[0]
-    offsets[nans] = np.interp(x(nans), x(~nans), offsets[~nans])
-
-    # Interpolate
-    offsets = np.interp(np.linspace(0, len(offsets), l), range(len(offsets)), offsets)
-
-    return offsets
-
-
-def fit_coordinates_alg_2col(img_g, img_r, coors, bgcurve_g, bgcurve_r, iterations, mag=1):
-    """
-
-
-    """
-
-    for i in range(iterations):
-        # GREEN #
-        straight = interp(straighten(img_g, coors, int(50 * mag)), 50)
-        line = np.polyfit([np.percentile(straight.flatten(), 5), np.percentile(straight.flatten(), 95)], [0, 1], 1)
-        straight_g = straight * line[0] + line[1]
-
-        # RED #
-        straight = interp(straighten(img_r, coors, int(50 * mag)), 50)
-        line = np.polyfit([np.percentile(straight.flatten(), 5), np.percentile(straight.flatten(), 95)], [0, 1], 1)
-        straight_r = straight * line[0] + line[1]
-
-        # Calculate offsets
-        offsets = calc_offsets_2col(straight_g, straight_r, bgcurve_g, bgcurve_r)
-        coors = offset_coordinates(coors, offsets)
-
-        # Filter
-        coors = np.vstack(
-            (savgol_filter(coors[:, 0], 19, 1, mode='wrap'), savgol_filter(coors[:, 1], 19, 1, mode='wrap'))).T
-
-    # Rotate
-    coors = rotate_coors(coors)
-    return coors
-
-
-############## CORTICAL SIGNAL ###############
-
-
-def fix_ends(curve, bgcurve):
-    """
-    Used for background subtraction. Returns fitted bgcurve which can then be subtracted from the signal curve
-    Bg fitted by fixing ends
-
-    :param curve:
-    :param bgcurve:
-    :return:
-    """
-
-    # Fix ends
-    line = np.polyfit(
-        [np.mean(bgcurve[:int(len(bgcurve) * 0.2)]), np.mean(bgcurve[int(len(bgcurve) * 0.8):])],
-        [np.mean(curve[:int(len(curve) * 0.2)]), np.mean(curve[int(len(curve) * 0.8):])], 1)
-
-    # Create new bgcurve
-    curve2 = bgcurve * line[0] + line[1]
-
-    return curve2
-
-
-def cortical_signal_g(data, coors, bg, settings, bounds, mag=1):
-    # Correct autofluorescence
-    img = af_subtraction(data.GFP, data.AF, settings=settings)
-
-    # Straighten
-    img = straighten(img, coors, int(50 * mag))
-
-    # Average
-    if bounds[0] < bounds[1]:
-        profile = np.mean(img[:, int(len(img[0, :]) * bounds[0]): int(len(img[0, :]) * bounds[1] + 1)], 1)
-    else:
-        profile = np.mean(
-            np.hstack((img[:, :int(len(img[0, :]) * bounds[1] + 1)], img[:, int(len(img[0, :]) * bounds[0]):])), 1)
-
-    # Adjust for magnification (e.g. if 2x multiplier is used)
-    profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
-
-    # Get cortical signal
-    bg = fix_ends(profile, bg[25:75])
-    cort = np.trapz(profile - bg)
-
-    return cort
-
-
-def cortical_signal_r(data, coors, bg, bounds, mag=1):
-    # Straighten
-    img = straighten(data.RFP, coors, int(50 * mag))
-
-    # Average
-    if bounds[0] < bounds[1]:
-        profile = np.mean(img[:, int(len(img[0, :]) * bounds[0]): int(len(img[0, :]) * bounds[1] + 1)], 1)
-    else:
-        profile = np.mean(
-            np.hstack((img[:, :int(len(img[0, :]) * bounds[1] + 1)], img[:, int(len(img[0, :]) * bounds[0]):])), 1)
-
-    # Adjust for magnification (e.g. if 2x multiplier is used)
-    profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
-
-    # Get cortical signal
-    bg = fix_ends(profile, bg[25:75])
-    cort = np.trapz(profile - bg)
-
-    return cort
-
-
-def spatial_signal_g(data, coors, bg, settings, mag=1):
-    # Correct autofluorescence
-    img = af_subtraction(data.GFP, data.AF, settings)
-
-    # Straighten
-    img_straight = straighten(img, coors, int(50 * mag))
-
-    # Smoothen
-    img_straight = rolling_ave(img_straight, int(20 * mag))
-
-    # Get cortical signals
-    sigs = np.zeros([100])
-    for x in range(100):
-        profile = img_straight[:, int(np.linspace(0, len(img_straight[0, :]), 100)[x] - 1)]
-        profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
-        bg2 = fix_ends(profile, bg[25:75])
-        sigs[x] = np.trapz(profile - bg2)
-
-    return sigs
-
-
-def spatial_signal_r(data, coors, bg, mag=1):
-    # Straighten
-    img_straight = straighten(data.RFP, coors, int(50 * mag))
-
-    # Smoothen
-    img_straight = rolling_ave(img_straight, int(20 * mag))
-
-    # Get cortical signals
-    sigs = np.zeros([100])
-    for x in range(100):
-        profile = img_straight[:, int(np.linspace(0, len(img_straight[0, :]), 100)[x] - 1)]
-        profile = np.interp(np.linspace(0, len(profile), 50), range(len(profile)), profile)
-        bg2 = fix_ends(profile, bg[25:75])
-        sigs[x] = np.trapz(profile - bg2)
-
-    return sigs
-
-
-def bounded_mean(array, bounds):
-    if bounds[0] < bounds[1]:
-        mean = np.mean(array[int(len(array) * bounds[0]): int(len(array) * bounds[1] + 1)])
-    else:
-        mean = np.mean(
-            np.hstack((array[:int(len(array) * bounds[1] + 1)], array[int(len(array) * bounds[0]):])))
-    return mean
-
-
-def asi(array):
-    ant = bounded_mean(array, (0.25, 0.75))
-    post = bounded_mean(array, (0.75, 0.25))
-    return (ant - post) / (2 * (ant + post))
-
-
-################### CYTOPLASMIC SIGNAL #####################
-
-
-def polycrop(img, polyline, enlarge=-10):
-    """
-    Crops image according to polyline coordinates
-
-    :param img:
-    :param polyline:
-    :param enlarge:
-    :return:
-    """
-
-    newcoors = np.int32(offset_coordinates(polyline, enlarge * np.ones([len(polyline[:, 0])])))
-    mask = np.zeros(img.shape)
-    mask = cv2.fillPoly(mask, [newcoors], 1)
-    newimg = img * mask
-    return newimg
-
-
-def cytoplasmic_signal_g(data, coors, settings, mag=1):
-    # Correct autofluorescence
-    img = af_subtraction(data.GFP, data.AF, settings=settings)
-
-    # Get cytoplasmic signal
-    return cytoconc(img, coors, -20 * mag)
-
-
-def cytoplasmic_signal_r(data, coors, mag=1):
-    # Get cytoplasmic signal
-    mean2 = cytoconc(data.RFP, coors, -20 * mag)
-
-    # Subtract background
-    bg = straighten(data.RFP, offset_coordinates(coors, 50 * mag), int(50 * mag))
-    return mean2 - np.nanmean(bg[np.nonzero(bg)])
-
-
-def cytoconc(img, coors, expand=-20):
-    img2 = polycrop(img, coors, expand)
-    mean = np.nanmean(img2[np.nonzero(img2)])
-    return mean
-
-
-########################### MISC ############################
-
-
-def geometry(coors):
-    """
-    Returns surface area and volume estimates given coordinates
-
-    :param coors:
-    :return:
-    """
-
-    # PCA
-    M = (coors - np.mean(coors.T, axis=1)).T
-    [latent, coeff] = np.linalg.eig(np.cov(M))
-    score = np.dot(coeff.T, M)
-
-    # Find long  axis
-    len = max([max(score[0, :]) - min(score[0, :]), max(score[1, :]) - min(score[1, :])])
-    width = max([max(score[0, :]) - min(score[0, :]), max(score[1, :]) - min(score[1, :])])
-
-    volume = (4 / 3) * np.pi * (len / 2) * (width / 2) ** 2
-    sa = 4 * np.pi * ((2 * (((len / 2) * (width / 2)) ** 1.6) + (((width / 2) * (width / 2)) ** 1.6)) / 3) ** (1 / 1.6)
-
-    return sa, volume
-
-
-def cross_section(img, coors, thickness, extend):
-    """
-    Returns cross section across the long axis of the embryo
-
-    :param img:
-    :param coors:
-    :param thickness:
-    :param extend:
-    :return:
-    """
-
-    # PCA
-    M = (coors - np.mean(coors.T, axis=1)).T
-    [latent, coeff] = np.linalg.eig(np.cov(M))
-    score = np.dot(coeff.T, M)
-
-    # Find ends
-    a = np.argmin(np.minimum(score[0, :], score[1, :]))
-    b = np.argmax(np.maximum(score[0, :], score[1, :]))
-
-    # Find the one closest to user defined posterior
-    dista = np.hypot((coors[0, 0] - coors[a, 0]), (coors[0, 1] - coors[a, 1]))
-    distb = np.hypot((coors[0, 0] - coors[b, 0]), (coors[0, 1] - coors[b, 1]))
-
-    if dista < distb:
-        line0 = np.array([coors[a, :], coors[b, :]])
-    else:
-        line0 = np.array([coors[b, :], coors[a, :]])
-
-    # Extend line
-    line0 = extend_line(line0, extend)
-
-    # Thicken line
-    line1 = offset_line(line0, thickness / 2)
-    line2 = offset_line(line0, -thickness / 2)
-    end1 = np.array(
-        [np.linspace(line1[0, 0], line2[0, 0], thickness), np.linspace(line1[0, 1], line2[0, 1], thickness)]).T
-    end2 = np.array(
-        [np.linspace(line1[1, 0], line2[1, 0], thickness), np.linspace(line1[1, 1], line2[1, 1], thickness)]).T
-
-    # Get cross section
-    num_points = 100
-    zvals = np.zeros([thickness, num_points])
-    for section in range(thickness):
-        xvalues = np.linspace(end1[section, 0], end2[section, 0], num_points)
-        yvalues = np.linspace(end1[section, 1], end2[section, 1], num_points)
-        zvals[section, :] = map_coordinates(img.T, [xvalues, yvalues])
-
-    return np.flipud(np.nanmean(zvals, 0))
-
-
-def straighten(img, coors, thickness):
-    """
-    Creates straightened image based on coordinates. Should be 1 pixel length apart in a loop
-
-    :param img:
-    :param coors:
-    :param thickness:
-    :return:
-    """
-
-    img2 = np.zeros([thickness, len(coors[:, 0])])
-    offsets = np.linspace(thickness / 2, -thickness / 2, thickness)
-    for section in range(thickness):
-        sectioncoors = offset_coordinates(coors, offsets[section])
-        a = map_coordinates(img.T, [sectioncoors[:, 0], sectioncoors[:, 1]])
-        a[a == 0] = np.mean(a)
-        img2[section, :] = a
-    return img2
+def bg(img, coors, mag):
+    a = polycrop(img, offset_coordinates(coors, 60 * mag)) - polycrop(img, offset_coordinates(coors, 10 * mag))
+    return np.nanmean(a[np.nonzero(a)])
 
 
 def normalise(instance1, instance2):
@@ -1049,37 +1416,6 @@ def normalise(instance1, instance2):
     for o in vars(instance1):
         setattr(norm, o, getattr(instance1, o) / np.mean(getattr(instance2, o)))
     return norm
-
-
-# def join(instances, objects):
-#     """
-#     Joins instances of a class to create one class
-#
-#     :param instances:
-#     :param objects:
-#     :return:
-#     """
-#
-#     joined = copy.deepcopy(instances[0])
-#     for i in range(1, len(instances)):
-#         for o in objects:
-#             setattr(joined, o, np.append(getattr(joined, o), getattr(instances[i], o)))
-#     return joined
-
-
-def join2(instance0, instance1):
-    joined = copy.deepcopy(instance0)
-    for key in vars(joined):
-        setattr(joined, key, np.append(getattr(instance0, key), [getattr(instance1, key)], axis=0))
-    return joined
-
-
-def join3(instances):
-    joined = copy.deepcopy(instances[0])
-    for i in range(1, len(instances)):
-        for key in vars(joined):
-            setattr(joined, key, np.append(getattr(joined, key), [getattr(instances[i], key)]))
-    return joined
 
 
 def rotated_embryo(img, coors, l):
@@ -1136,55 +1472,62 @@ def rotated_embryo(img, coors, l):
     return zvals
 
 
-def experiment_database():
-    df = pd.DataFrame(columns=['Direc', 'Date', 'Line', 'Experiment', 'Imaging', 'n', 'Misc'])
+def copy_data(list, dest):
+    """
 
-    for c in direcslist(datadirec):
-        try:
-            cond = read_conditions('%s/0' % c)
-            n = len(direcslist(c))
-            row = pd.DataFrame([[c[2:], cond['date'], cond['strain'], cond['exp'], cond['img'], n, cond['misc']]],
-                               columns=['Direc', 'Date', 'Line', 'Experiment', 'Imaging', 'n', 'Misc'])
-            df = df.append(row)
+    """
 
-        except IndexError:
-            pass
-
-    df.to_csv('./db.csv')
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+    os.mkdir(dest)
+    for v in list:
+        shutil.copytree('%s/%s' % (ddirec, v), '%s/%s' % (dest, v))
 
 
-def run_analysis(direc, d_class, r_class, a_class):
-    a = a_class()
-    data = d_class(direc)
-    coors = np.loadtxt('%s/ROI_fitted.txt' % direc, delimiter='\t')
-    for r in vars(r_class()):
-        f = getattr(a, r)
-        f(data, coors)
-    savedata(a.res, direc)
-
-
-def d_to_a(name, conds_list_total):
-    for cond in conds_list_total:
-        if os.path.exists('%s/%s/%s' % (adirec, name, cond)):
-            shutil.rmtree('%s/%s/%s' % (adirec, name, cond))
-        shutil.copytree('%s/%s' % (ddirec, cond), '%s/%s/%s' % (adirec, name, cond))
-
-
-def d_to_a_2(name, conds_list_total):
-    a = [None] * len(conds_list_total)
-    for i, c in enumerate(conds_list_total):
-        a[i] = '%s/%s/%s' % (adirec, name, c)
+def append_batch(prefix, l):
+    a = [None] * len(l)
+    for i, c in enumerate(l):
+        a[i] = '%s%s' % (prefix, c)
     return a
 
-# experiment_database()
 
+def norm_to_bounds(array, bounds=(0, 1), percentile=10):
+    line = np.polyfit([np.percentile(array, percentile), np.percentile(array, 100 - percentile)],
+                      [bounds[0], bounds[1]],
+                      1)
+    return array * line[0] + line[1]
+
+
+def setup(dict, dest):
+    if os.path.exists(dest):
+        shutil.rmtree(dest)
+    os.mkdir(dest)
+    for key, value in dict.items():
+        os.mkdir('%s/%s' % (dest, key))
+        for v in value:
+            shutil.copytree('%s/%s' % (ddirec, v), '%s/%s/%s' % (dest, key, v))
+
+
+def func(dest):
+    dlist = []
+    for i in direcslist(dest):
+        for j in direcslist(i):
+            dlist.extend(direcslist(j))
+    return dlist
+
+
+def func2(dest):
+    dlist = []
+    for j in direcslist(dest):
+        dlist.extend(direcslist(j))
+    return dlist
 
 
 ##############################################
 
-# Slider template
-# Organise code
-# Need a better cherry bg curve
 # Analysis is v wasteful because straightening images for every function
-# Mean much quicker than nanmean
 # Polyfit: must be quicker way
+# Need to refine parameters for straightening alg: may be causing problems
+# A way of specifying in the script which embryos to exclude
+# Adapt code to allow different bgcurves for green and cherry
+# Change structure so you first define the options for all jobs (maybe save as a huge spreadsheet), then loop through this

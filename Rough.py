@@ -1,4 +1,4 @@
-from IA import *
+# from IA import *
 # import BgCurves as b
 # import AFSettings as s
 # import time
@@ -207,3 +207,30 @@ from IA import *
 # plt.rcParams['savefig.dpi'] = 600
 # sns.despine()
 # plt.show()
+
+
+# class B:
+#     def __init__(self):
+#         self.g = None
+#
+# class C:
+#     def __init__(self):
+#         self.b = B()
+#
+# c = C()
+# setattr(getattr(c, 'b'), 'g', 1)
+#
+# print(vars(c))
+#
+#
+# from multiprocessing import Pool, cpu_count
+#
+# print(cpu_count())
+#
+#
+# def f(x):
+#     print(x * x)
+#
+#
+# p = Pool()
+# p.map(f, range(1000))
