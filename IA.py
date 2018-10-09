@@ -15,6 +15,7 @@ import copy
 import pandas as pd
 import scipy.misc
 import shutil
+import pickle
 
 """
 From local to server: '../../../../../../../Volumes/lab-goehringn/working/Tom/ModelData'
@@ -24,17 +25,19 @@ From server to server: '../working/Tom/ModelData'
 From local to local: '../../ImageAnalysis', '../../ImagingData/Tidy' 
 """
 
+
 # # Server to server
 # ddirec = '../working/Tom/ImagingData/Tidy'
 # adirec = '../working/Tom/ImageAnalysis/Analysis'
 
 # Local to local
-# ddirec = '../../../../../Desktop/Data'
-# adirec = '../../../../../Desktop/Analysis'
-# fdirec = '../../../../../Desktop/Figures'
-ddirec = '/Users/blandt/Desktop/Data'
-adirec = '/Users/blandt/Desktop/Analysis'
-fdirec = '/Users/blandt/Desktop/Figures'
+# ddirec = '/Users/blandt/Desktop/Data'
+# adirec = '/Users/blandt/Desktop/Analysis'
+# fdirec = '/Users/blandt/Desktop/Figures'
+
+# ddirec = None
+# adirec = None
+# fdirec = None
 
 
 ######################## FILE HANDLING #######################
@@ -216,67 +219,9 @@ class Settings:
 
     """
 
-    def __init__(self, m=0., c=0., x=0., y=0.):
+    def __init__(self, m=0., c=0.):
         self.m = m
         self.c = c
-
-
-def n2_analysis(direcs, plot=0):
-    """
-    Cytoplasmic mean correlation between the two channels for N2 embryos
-
-    :param direcs:
-    :param plot:
-    :return:
-    """
-
-    xdata = []
-    ydata = []
-    cdata = []
-    bdata = []
-
-    for direc in direcs:
-        embryos = direcslist(direc)
-
-        for embryo in range(len(embryos)):
-            data = Data(embryos[embryo])
-
-            # Cytoplasmic means
-            xdata.extend([cytoconc(data.AF, data.ROI_fitted)])
-            ydata.extend([cytoconc(data.GFP, data.ROI_fitted)])
-            cdata.extend([cytoconc(data.RFP, data.ROI_fitted)])
-
-            # Background
-            bg = straighten(data.RFP, offset_coordinates(data.ROI_fitted, 50 * 1), int(50 * 1))
-            mean1 = np.nanmean(bg[np.nonzero(bg)])
-            bdata.extend([mean1])
-
-    xdata = np.array(xdata)
-    ydata = np.array(ydata)
-    bdata = np.array(bdata)
-    cdata = np.array(cdata)
-
-    a = np.polyfit(xdata, ydata, 1)
-    print(a)
-    print(np.mean(xdata, 0))
-    print(np.mean(ydata, 0))
-
-    if plot == 1:
-        x = np.array([0.9 * min(xdata.flatten()), 1.1 * max(xdata.flatten())])
-        y = (a[0] * x) + a[1]
-        plt.plot(x, y, c='b')
-        plt.scatter(xdata, ydata)
-
-    a2 = np.polyfit(bdata, cdata, 1)
-    print(a2)
-    print(np.mean(bdata, 0))
-    print(np.mean(cdata, 0))
-
-    if plot == 2:
-        x = np.array([0.9 * min(bdata.flatten()), 1.1 * max(bdata.flatten())])
-        y = (a[0] * x) + a[1]
-        plt.plot(x, y, c='b')
-        plt.scatter(bdata, cdata)
 
 
 def N2Analysis(r, r_base=None, show=False):
@@ -723,6 +668,13 @@ class Segmenter2:
 
 
 class Segmenter3:
+    """
+
+    Used to segment embryos without a background curve
+    e.g. for generating background curves
+
+    """
+
     def __init__(self, img, coors, mag=1, iterations=2, parallel=False, resolution=5, save=False,
                  direc=None, plot=False):
 
@@ -996,83 +948,6 @@ class Analyser:
                 np.savetxt('%s/%s_%s.txt' % (self.direc, self.name, key), value, fmt='%.4f', delimiter='\t')
 
 
-class ImportAll:
-    """
-    g_      green channel
-    ga      green channel, af corrected
-    gb      green channel, bg subtracted
-
-    a_      af channel
-    ab      af channel, bg subtracted
-
-    r_      red channel
-    rb      red channel, bg subtracted
-
-    """
-
-    def __init__(self, direc):
-        self.g = Analyser.Res()
-        self.a = Analyser.Res()
-        self.r = Analyser.Res()
-        self.c = Analyser.Res()
-        self.b = Analyser.Res()
-
-        a = glob.glob('%s/*.txt' % direc)
-        for b in a:
-            c = os.path.basename(os.path.normpath(b))[:-4]
-            c = c.split('_')
-            if hasattr(self, c[0]):
-                setattr(getattr(self, c[0]), c[1], np.loadtxt(b))
-
-
-class ImportAllBatch:
-    """
-    Imports all the data for a given group of embryos
-
-    """
-
-    def __init__(self, direcs):
-        self.g = Analyser.Res()
-        self.a = Analyser.Res()
-        self.r = Analyser.Res()
-        self.c = Analyser.Res()
-        self.b = Analyser.Res()
-
-        a = glob.glob('%s/*.txt' % direcs[0])
-        for b in a:
-            c = os.path.basename(os.path.normpath(b))[:-4]
-            c = c.split('_')
-            if hasattr(self, c[0]):
-                setattr(getattr(self, c[0]), c[1], np.array([np.loadtxt(b)]))
-
-        for d in direcs[1:]:
-            a = glob.glob('%s/*.txt' % d)
-            for b in a:
-                c = os.path.basename(os.path.normpath(b))[:-4]
-                c = c.split('_')
-                if hasattr(self, c[0]):
-                    setattr(getattr(self, c[0]), c[1],
-                            np.append(getattr(getattr(self, c[0]), c[1]), np.array([np.loadtxt(b)]), axis=0))
-
-                    # self.mean = ImportAll(None)
-                    # for channel in vars(self.mean):
-                    #     for analysis in vars(Analyser.Res()):
-                    #         if getattr(getattr(self, channel), analysis) is not None:
-                    #             setattr(getattr(self.mean, channel), analysis,
-                    #                     np.mean(getattr(getattr(self, channel), analysis), axis=0))
-
-
-def ImportAllBatch2(dest):
-    """
-    Creates dictionary of different groups of embryos
-
-    """
-    dic = {}
-    for d in direcslist(dest):
-        dic[os.path.basename(os.path.normpath(d))] = ImportAllBatch(func2(d))
-    return dic
-
-
 ################### IMPORTERS ###################
 
 class Importers:
@@ -1131,7 +1006,77 @@ class Importers:
             self.ROI = np.loadtxt('%s/ROI.txt' % direc)
 
 
-########################### MISC ############################
+class ImportAll:
+    """
+    g_      green channel
+    ga      green channel, af corrected
+    gb      green channel, bg subtracted
+
+    a_      af channel
+    ab      af channel, bg subtracted
+
+    r_      red channel
+    rb      red channel, bg subtracted
+
+    """
+
+    def __init__(self, direc):
+        self.g = Analyser.Res()
+        self.a = Analyser.Res()
+        self.r = Analyser.Res()
+        self.c = Analyser.Res()
+        self.b = Analyser.Res()
+
+        a = glob.glob('%s/*.txt' % direc)
+        for b in a:
+            c = os.path.basename(os.path.normpath(b))[:-4]
+            c = c.split('_')
+            if hasattr(self, c[0]):
+                setattr(getattr(self, c[0]), c[1], np.loadtxt(b))
+
+
+class ImportAllBatch:
+    """
+    Imports all the data for a given group of embryos
+
+    """
+
+    def __init__(self, direcs):
+        self.g = Analyser.Res()
+        self.a = Analyser.Res()
+        self.r = Analyser.Res()
+        self.c = Analyser.Res()
+        self.b = Analyser.Res()
+
+        a = glob.glob('%s/*.txt' % direcs[0])
+        for b in a:
+            c = os.path.basename(os.path.normpath(b))[:-4]
+            c = c.split('_')
+            if hasattr(self, c[0]):
+                setattr(getattr(self, c[0]), c[1], np.array([np.loadtxt(b)]))
+
+        for d in direcs[1:]:
+            a = glob.glob('%s/*.txt' % d)
+            for b in a:
+                c = os.path.basename(os.path.normpath(b))[:-4]
+                c = c.split('_')
+                if hasattr(self, c[0]):
+                    setattr(getattr(self, c[0]), c[1],
+                            np.append(getattr(getattr(self, c[0]), c[1]), np.array([np.loadtxt(b)]), axis=0))
+
+
+def ImportAllBatch2(dest):
+    """
+    Creates dictionary of different groups of embryos
+
+    """
+    dic = {}
+    for d in direcslist(dest):
+        dic[os.path.basename(os.path.normpath(d))] = ImportAllBatch(func2(d))
+    return dic
+
+
+########################### Used in segmenters of analyser ############################
 
 
 def fix_ends(curve, bgcurve):
@@ -1398,24 +1343,24 @@ def bg_subtraction(img, coors, mag):
     return img - bg
 
 
-def bg(img, coors, mag):
-    a = polycrop(img, offset_coordinates(coors, 60 * mag)) - polycrop(img, offset_coordinates(coors, 10 * mag))
-    return np.nanmean(a[np.nonzero(a)])
+# def bg(img, coors, mag):
+#     a = polycrop(img, offset_coordinates(coors, 60 * mag)) - polycrop(img, offset_coordinates(coors, 10 * mag))
+#     return np.nanmean(a[np.nonzero(a)])
 
 
-def normalise(instance1, instance2):
-    """
-    Creates new class, by dividing objects in class instance 1 by objects in class instance 2
-
-    :param instance1:
-    :param instance2:
-    :return:
-    """
-
-    norm = copy.deepcopy(instance1)
-    for o in vars(instance1):
-        setattr(norm, o, getattr(instance1, o) / np.mean(getattr(instance2, o)))
-    return norm
+# def normalise(instance1, instance2):
+#     """
+#     Creates new class, by dividing objects in class instance 1 by objects in class instance 2
+#
+#     :param instance1:
+#     :param instance2:
+#     :return:
+#     """
+#
+#     norm = copy.deepcopy(instance1)
+#     for o in vars(instance1):
+#         setattr(norm, o, getattr(instance1, o) / np.mean(getattr(instance2, o)))
+#     return norm
 
 
 def rotated_embryo(img, coors, l):
@@ -1472,48 +1417,11 @@ def rotated_embryo(img, coors, l):
     return zvals
 
 
-def copy_data(list, dest):
-    """
-
-    """
-
-    if os.path.exists(dest):
-        shutil.rmtree(dest)
-    os.mkdir(dest)
-    for v in list:
-        shutil.copytree('%s/%s' % (ddirec, v), '%s/%s' % (dest, v))
-
-
-def append_batch(prefix, l):
-    a = [None] * len(l)
-    for i, c in enumerate(l):
-        a[i] = '%s%s' % (prefix, c)
-    return a
-
-
 def norm_to_bounds(array, bounds=(0, 1), percentile=10):
     line = np.polyfit([np.percentile(array, percentile), np.percentile(array, 100 - percentile)],
                       [bounds[0], bounds[1]],
                       1)
     return array * line[0] + line[1]
-
-
-def setup(dict, dest):
-    if os.path.exists(dest):
-        shutil.rmtree(dest)
-    os.mkdir(dest)
-    for key, value in dict.items():
-        os.mkdir('%s/%s' % (dest, key))
-        for v in value:
-            shutil.copytree('%s/%s' % (ddirec, v), '%s/%s/%s' % (dest, key, v))
-
-
-def func(dest):
-    dlist = []
-    for i in direcslist(dest):
-        for j in direcslist(i):
-            dlist.extend(direcslist(j))
-    return dlist
 
 
 def func2(dest):
@@ -1523,11 +1431,73 @@ def func2(dest):
     return dlist
 
 
-##############################################
+def direcslist2(dest, levels):
+    lis = direcslist(dest)
+    for level in range(levels):
+        newlis = []
+        for e in lis:
+            newlis.extend(direcslist(e))
+        lis = newlis
+    return lis
 
-# Analysis is v wasteful because straightening images for every function
-# Polyfit: must be quicker way
-# Need to refine parameters for straightening alg: may be causing problems
-# A way of specifying in the script which embryos to exclude
-# Adapt code to allow different bgcurves for green and cherry
-# Change structure so you first define the options for all jobs (maybe save as a huge spreadsheet), then loop through this
+
+def save_params(dest, cl):
+    """
+    direcs is  dictionary of directories
+    cl is instance of Params class
+
+    """
+    for d in direcslist2(dest, 1):
+        print(d)
+        with open('%s/params.pkl' % d, 'wb') as f:
+            pickle.dump(cl, f)
+
+
+            #################### REDUNDANT #######################
+
+            # def setup(dict, dest):
+            #     if os.path.exists(dest):
+            #         shutil.rmtree(dest)
+            #     os.mkdir(dest)
+            #     for key, value in dict.items():
+            #         os.mkdir('%s/%s' % (dest, key))
+            #         for v in value:
+            #             shutil.copytree('%s/%s' % (ddirec, v), '%s/%s/%s' % (dest, key, v))
+
+
+            # def func(dest):
+            #     dlist = []
+            #     for i in direcslist(dest):
+            #         for j in direcslist(i):
+            #             dlist.extend(direcslist(j))
+            #     return dlist
+
+
+            # def copy_data(list, dest):
+            #     """
+            #
+            #     """
+            #
+            #     if os.path.exists(dest):
+            #         shutil.rmtree(dest)
+            #     os.mkdir(dest)
+            #     for v in list:
+            #         shutil.copytree('%s/%s' % (ddirec, v), '%s/%s' % (dest, v))
+
+
+            # def append_batch(prefix, l):
+            #     a = [None] * len(l)
+            #     for i, c in enumerate(l):
+            #         a[i] = '%s%s' % (prefix, c)
+            #     return a
+
+
+
+            ##############################################
+
+            # Analysis is v wasteful because straightening images for every function
+            # Polyfit: must be quicker way
+            # Need to refine parameters for straightening alg: may be causing problems
+            # A way of specifying in the script which embryos to exclude
+            # Adapt code to allow different bgcurves for green and cherry
+            # Change structure so you first define the options for all jobs (maybe save as a huge spreadsheet), then loop through this

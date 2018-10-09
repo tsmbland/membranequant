@@ -1,16 +1,19 @@
-from IA import *
+import IA as x
+import numpy as np
+import os
+import glob
 
 # Save all
-r = ImportAllBatch2(adirec + '/BgCurves/')
+r = x.ImportAllBatch2('/Users/blandt/Desktop/Analysis/BgCurves/')
 for d in r:
     for e in vars(r[d]):
         if getattr(getattr(r[d], e), 'pro') is not None:
-            profile = norm_to_bounds(getattr(getattr(r[d], e), 'pro').mean(axis=0), (0, 1), 10)
-            np.savetxt(adirec + '/BackgroundCurves/' + '%s_%s.txt' % (d, e), profile)
+            profile = x.norm_to_bounds(getattr(getattr(r[d], e), 'pro').mean(axis=0), (0, 1), 10)
+            np.savetxt('/Users/blandt/Desktop/Analysis/BackgroundCurves/' + '%s_%s.txt' % (d, e), profile)
 
 # Import all
 d = {}
-for f in glob.glob(adirec + '/BackgroundCurves/*.txt'):
+for f in glob.glob('/Users/blandt/Desktop/Analysis/BackgroundCurves/*.txt'):
     d[os.path.basename(os.path.normpath(f))[:-4]] = np.loadtxt(f)
 
 ####
