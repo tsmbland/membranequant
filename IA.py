@@ -1,246 +1,18 @@
 from PIL import Image
 import numpy as np
-import seaborn as sns
 import matplotlib.pyplot as plt
-import os
-import glob
-# from matplotlib.widgets import Slider
 from scipy.signal import savgol_filter
 from scipy.optimize import curve_fit
+from scipy.misc import toimage
 import cv2
 from scipy.ndimage.interpolation import map_coordinates
 from joblib import Parallel, delayed
 import multiprocessing
-import copy
-import pandas as pd
-import scipy.misc
-import shutil
-import pickle
 
 """
-From local to server: '../../../../../../../Volumes/lab-goehringn/working/Tom/ModelData'
+Functions for segmentation and quantification of images
 
-From server to server: '../working/Tom/ModelData'
-
-From local to local: '../../ImageAnalysis', '../../ImagingData/Tidy' 
 """
-
-
-# # Server to server
-# ddirec = '../working/Tom/ImagingData/Tidy'
-# adirec = '../working/Tom/ImageAnalysis/Analysis'
-
-# Local to local
-# ddirec = '/Users/blandt/Desktop/Data'
-# adirec = '/Users/blandt/Desktop/Analysis'
-# fdirec = '/Users/blandt/Desktop/Figures'
-
-# ddirec = None
-# adirec = None
-# fdirec = None
-
-
-######################## FILE HANDLING #######################
-
-
-def embryofiles(direc, num):
-    """
-    Returns a list of files containing the prefix corresponding to the embryo number specified
-
-    :param direc:
-    :param num:
-    :return:
-    """
-
-    embryofileslist = [os.path.basename(x) for x in glob.glob('%s/*_%s_*' % (direc, int(num)))]
-    embryofileslist.extend(os.path.basename(x) for x in glob.glob('%s/*_%s.nd' % (direc, int(num))))
-    return embryofileslist
-
-
-def stagefiles(direc, num):
-    """
-    Returns a list of files containing the suffix corresponding to the stage number specified
-
-    :param direc:
-    :param num:
-    :return:
-    """
-
-    stagefileslist = [os.path.basename(x) for x in glob.glob('%s/*_s%s_*' % (direc, int(num)))]
-    stagefileslist.extend(os.path.basename(x) for x in glob.glob('%s/*_s%s.TIF' % (direc, int(num))))
-    return stagefileslist
-
-
-def timefiles(direc, num):
-    """
-    Returns a list of files containing the suffix corresponding to the timepoint specified
-
-    :param direc:
-    :param num:
-    :return:
-    """
-
-    timefileslist = [os.path.basename(x) for x in glob.glob('%s/*_t%s.TIF' % (direc, int(num)))]
-    return timefileslist
-
-
-def direcslist(direc):
-    """
-
-    Gives a list of directories in a given directory (full path)
-    Excludes directories that contain !
-
-    :param direc:
-    :return:
-    """
-
-    dlist = glob.glob('%s/*/' % direc)
-    dlist = [x[:-1] for x in dlist if '!' not in x]
-    return dlist
-
-
-def embryos_direcslist(conds):
-    dlist = []
-    for i in conds:
-        dlist.extend(glob.glob('%s/*/' % i))
-    dlist = [x[:-1] for x in dlist if '!' not in x]
-    return dlist
-
-
-def organise(direc, start=0):
-    """
-    Better way of creating embryo folders
-    Works for >10 embryos, but doesn't work if there are gaps in the numbering
-
-    :param direc:
-    :return:
-    """
-
-    embryo = start
-    while len(embryofiles(direc, embryo)) != 0:
-        os.makedirs('%s/%s' % (direc, embryo))
-        embyrofileslist = embryofiles(direc, embryo)
-
-        for file in embyrofileslist:
-            os.rename('%s/%s' % (direc, file), '%s/%s/%s' % (direc, embryo, file))
-        embryo += 1
-
-
-def split_stage_positions(direc, start=0):
-    stage = start
-    while len(stagefiles(direc, stage)) != 0:
-        os.makedirs('%s/%s' % (direc, stage))
-        stagefileslist = stagefiles(direc, stage)
-
-        for file in stagefileslist:
-            os.rename('%s/%s' % (direc, file), '%s/%s/%s' % (direc, stage, file))
-        stage += 1
-
-
-def split_timepoints(direc, start=0):
-    time = start
-    while len(timefiles(direc, time)) != 0:
-        os.makedirs('%s/%s' % (direc, time))
-        timefileslist = timefiles(direc, time)
-
-        for file in timefileslist:
-            os.rename('%s/%s' % (direc, file), '%s/%s/%s' % (direc, time, file))
-        time += 1
-
-
-######################## DATA IMPORT #######################
-
-
-def loadimage(filename):
-    """
-    Given the filename of a TIFF, creates numpy array with pixel intensities
-
-    :param filename:
-    :return:
-    """
-
-    img = np.array(Image.open(filename), dtype=np.float64)
-    img[img == 0] = np.nan
-    return img
-
-
-def readnd(direc):
-    """
-
-    :param direc: directory to embryo folder containing nd file
-    :return: dictionary containing data from nd file
-    """
-
-    nd = {}
-    nddirec = glob.glob('%s/_*.nd' % (direc))[0]
-    f = open(nddirec, 'r').readlines()
-    for line in f[:-1]:
-        nd[line.split(', ')[0].replace('"', '')] = line.split(', ')[1].strip().replace('"', '')
-    return nd
-
-
-def read_conditions(direc):
-    cond = {}
-    a = os.path.basename(os.path.dirname(direc))
-    cond['date'] = a.split('_')[0]
-    cond['strain'] = a.split('_')[1]
-    cond['exp'] = a.split('_')[2]
-    cond['img'] = a.split('_')[3]
-    cond['misc'] = a.split('_')[4:]
-    return cond
-
-
-######################## DATA EXPORT #######################
-
-def savedata(res, direc):
-    d = vars(res)
-    for key, value in d.items():
-        np.savetxt('%s/%s.txt' % (direc, key), value, fmt='%.4f', delimiter='\t')
-
-
-def saveimg(img, direc):
-    im = Image.fromarray(img)
-    im.save(direc)
-
-
-def saveimg_jpeg(img, direc, min, max):
-    a = scipy.misc.toimage(img, cmin=min, cmax=max)
-    a.save(direc)
-
-
-####################### AF CORRECTION ######################
-
-class Settings:
-    """
-    Structure to hold acquisition-specific settings (e.g. AF correction settings)
-
-    m
-    c
-
-    """
-
-    def __init__(self, m=0., c=0.):
-        self.m = m
-        self.c = c
-
-
-def N2Analysis(r, r_base=None, show=False):
-    xdata = r.a.cyt
-    ydata = r.g.cyt
-    plt.scatter(xdata, ydata)
-    a = np.polyfit(xdata, ydata, 1)
-    print(a)
-    x = np.array([0.9 * min(xdata.flatten()), 1.1 * max(xdata.flatten())])
-    y = (a[0] * x) + a[1]
-    plt.plot(x, y, c='b')
-    if show:
-        plt.show()
-
-        # # Red shift
-        # a = np.polyfit(r_base.a.cyt, r_base.g.cyt, 1)
-        # offset = r.a.cyt - (r.g.cyt - a[1]) / a[0]
-        # plt.scatter(r.r.cyt - r.r.ext, offset)
-        # plt.show()
 
 
 ############### SEGMENTATION ################
@@ -249,33 +21,32 @@ def N2Analysis(r, r_base=None, show=False):
 class Segmenter:
     """
 
-   Input data:
-   img_g           image
-   bgcurve_g       background curve. Must be 2* wider than the eventual profile for img
-   coors           original coordinates
+    Input data:
+    img_g           image
+    bgcurve_g       background curve. Must be 2* wider than the eventual profile for img
+    coors           original coordinates
 
-   Input parameters:
-   mag             magnification (1 = 60x)
-   iterations      number of times to run algorithm
-   parallel        True: preform segmentation in parallel
-   resolution      will perform fitting algorithm at gaps set by this, interpolating between
-   freedom         0 = no freedom, 1 = max freedom
+    Input parameters:
+    mag             magnification (1 = 60x)
+    iterations      number of times to run algorithm
+    parallel        True: preform segmentation in parallel
+    resolution      will perform fitting algorithm at gaps set by this, interpolating between
+    freedom         0 = no freedom, 1 = max freedom
 
-   Misc parameters:
-   it              Interpolation of profiles/bgcurves
-   thickness       thickness of straightened images
-   rol_ave         sets the degree of image smoothening
-   end_region      for end fitting
-   n_end_fits      number of end fits to perform, will interpolate
+    Misc parameters (change with caution):
+    it              Interpolation of profiles/bgcurves
+    thickness       thickness of straightened images
+    rol_ave         sets the degree of image smoothening
+    end_region      for end fitting
+    n_end_fits      number of end fits to perform, will interpolate
 
 
+    To to:
+    - Removing outliers better than smoothening coordinates at end
 
-   To to:
-   - Removing outliers better than smoothening coordinates at end
+    """
 
-   """
-
-    def __init__(self, img, bgcurve, coors, mag=1, iterations=2, parallel=True, resolution=5, freedom=0.3, save=False,
+    def __init__(self, img, bgcurve, coors, mag=1, iterations=2, parallel=False, resolution=5, freedom=0.3, save=False,
                  direc=None, plot=False):
 
         # Inputs
@@ -362,7 +133,7 @@ class Segmenter:
         Takes cross sections from images and finds optimal offset for alignment
 
         :param curve: signal curve from cross section of straightened img_g
-        :param bgcurve:
+        :param bgcurve: background curve
         :return: o: offset value for this section
         """
 
@@ -419,11 +190,12 @@ class Segmenter:
     def gaussian_plus(self, x, l, a, c):
         """
         Function used for fitting algorithm
+        Finds optimal offset (l) by fitting signal curve to background curve plus mirrored exponential
 
         :param x: input 5 column array containing bgcurve and end fit parameters
         :param l: offset parameter
-        :param a: gaussian height
-        :param c: gaussian width
+        :param a: exponential height
+        :param c: exponential width
         :return: y: curve
         """
 
@@ -452,7 +224,7 @@ class Segmenter2:
     resolution      will perform fitting algorithm at gaps set by this, interpolating between
     freedom         0 = no freedom, 1 = max freedom
 
-    Misc parameters:
+    Misc parameters (change with caution):
     it              Interpolation of profiles/bgcurves
     thickness       thickness of straightened images
     rol_ave         sets the degree of image smoothening
@@ -461,14 +233,13 @@ class Segmenter2:
 
     Outputs:
     newcoors
-    resids
 
     To to:
     - Removing outliers better than smoothening coordinates at end
 
     """
 
-    def __init__(self, img_g, img_r, bg_g, bg_r, coors, mag=1, iterations=2, parallel=True, resolution=5,
+    def __init__(self, img_g, img_r, bg_g, bg_r, coors, mag=1, iterations=2, parallel=False, resolution=5,
                  freedom=0.3, save=False, direc=None, plot=False):
 
         self.img_g = img_g
@@ -642,10 +413,10 @@ class Segmenter2:
 
         :param x: input 5 column array containing bgcurves (end on end) and end fit parameters
         :param l: offset parameter
-        :param a_g: green gaussian height
-        :param c_g: green gaussian width
-        :param a_r: red gaussian height
-        :param c_r: red gaussian width
+        :param a_g: green exponential height
+        :param c_g: green exponential width
+        :param a_r: red exponential height
+        :param c_r: red exponential width
         :return: y: curves (end on end)
         """
 
@@ -672,6 +443,7 @@ class Segmenter3:
 
     Used to segment embryos without a background curve
     e.g. for generating background curves
+
 
     """
 
@@ -756,8 +528,24 @@ class Segmenter3:
 ################## ANALYSIS #################
 
 
-class Analyser:
+class Quantifier:
     """
+    Performs quantification on an image
+    Functions to perform specified by funcs argument
+    Results saved as individual .txt files for each quantification
+
+    Input data:
+    img                image (as array)
+    coors              coordinates specifying the location of the cortex
+    bg                 background curve
+
+    Arguments:
+    direc              directory to save results
+    name               name tag for results files (e.g. g -> g_mem.txt)
+    mag                magnification of the image (1 = 60x)
+    funcs              functions to perform
+    bounds             limits some quantifications to specific region of cortex
+
 
     """
 
@@ -770,12 +558,14 @@ class Analyser:
         self.mag = mag
         self.funcs = funcs
         self.bounds = bounds
+
         self.thickness = thickness
         self.img_straight = None
         self.res = self.Res()
 
     class Res:
         """
+        Holds the results from quantifications
 
         """
 
@@ -811,6 +601,7 @@ class Analyser:
 
     def mem(self):
         """
+        Average of the cortical intensity in region specified by bounds
 
         """
 
@@ -824,7 +615,8 @@ class Analyser:
 
     def spa(self):
         """
-        Should add interpolation
+        Spatial profile of intensity around the cortex
+        - Should add interpolation
 
         """
 
@@ -842,6 +634,7 @@ class Analyser:
 
     def cyt(self):
         """
+        Average cytoplasmic concentration
 
         """
         img2 = polycrop(self.img, self.coors, -20 * self.mag)
@@ -849,6 +642,7 @@ class Analyser:
 
     def tot(self):
         """
+        Total signal over entire embryo
 
         """
 
@@ -859,8 +653,8 @@ class Analyser:
         """
         Returns cross section across the long axis of the embryo
 
-        :param thickness:
-        :param extend:
+        :param thickness: thickness of cross section to average over
+        :param extend: how much to extend line over length of embryo (1 = no extension)
         """
 
         # PCA
@@ -904,6 +698,7 @@ class Analyser:
 
     def asi(self):
         """
+        Asymmetry index
 
         """
         ant = bounded_mean(self.res.spa, (0.25, 0.75))
@@ -912,6 +707,7 @@ class Analyser:
 
     def pro(self):
         """
+        Profile perpendicular to cortex, from cytoplasm to outside the cell
 
         """
         if self.thickness != 50:
@@ -922,6 +718,7 @@ class Analyser:
 
     def fbc(self):
         """
+        Fitted background curve
 
         """
         profile = bounded_mean_2d(self.img_straight, self.bounds)
@@ -930,16 +727,15 @@ class Analyser:
 
     def ext(self):
         """
+        Mean concentration in a 50 pixel thick region surrounding the embryo
 
         """
-        img = polycrop(self.img, offset_coordinates(self.coors, 60 * self.mag)) - polycrop(self.img,
-                                                                                           offset_coordinates(
-                                                                                               self.coors,
-                                                                                               10 * self.mag))
+        img = polycrop(self.img, self.coors, 60 * self.mag) - polycrop(self.img, self.coors, 10 * self.mag)
         self.res.ext = [np.nanmean(img[np.nonzero(img)])]
 
     def savedata(self):
         """
+        Saves results to .txt files
 
         """
         d = vars(self.res)
@@ -948,135 +744,7 @@ class Analyser:
                 np.savetxt('%s/%s_%s.txt' % (self.direc, self.name, key), value, fmt='%.4f', delimiter='\t')
 
 
-################### IMPORTERS ###################
-
-class Importers:
-    class Data0:
-        def __init__(self, direc):
-            self.direc = direc
-            self.DIC = loadimage(sorted(glob.glob('%s/*DIC SP Camera*' % direc), key=len)[0])
-            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 535-50*' % direc), key=len)[0])
-            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
-            self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
-            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
-
-    class Data1:
-        def __init__(self, direc):
-            self.direc = direc
-            self.DIC = None
-            self.GFP = loadimage(sorted(glob.glob('%s/*GFP*' % direc), key=len)[0])
-            self.AF = loadimage(sorted(glob.glob('%s/*AF*' % direc), key=len)[0])
-            self.RFP = loadimage(sorted(glob.glob('%s/*PAR2*' % direc), key=len)[0])
-            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
-
-    class Data2:
-        def __init__(self, direc):
-            self.direc = direc
-            self.DIC = None
-            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 525-50*' % direc), key=len)[0])
-            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
-            self.RFP = loadimage(sorted(glob.glob('%s/*561 SP 630-75*' % direc), key=len)[0])
-            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
-
-    class Data3:
-        def __init__(self, direc):
-            self.direc = direc
-            self.DIC = loadimage(sorted(glob.glob('%s/*DIC SP Camera*' % direc), key=len)[0])
-            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 535-50*' % direc), key=len)[0])
-            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
-            self.RFP = None
-            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
-
-    class Data4:
-        def __init__(self, direc):
-            self.direc = direc
-            self.DIC = None
-            self.GFP = loadimage(sorted(glob.glob('%s/*GFP*' % direc), key=len)[0])
-            self.AF = loadimage(sorted(glob.glob('%s/*AF*' % direc), key=len)[0])
-            self.RFP = None
-            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
-
-    class Data5:
-        def __init__(self, direc):
-            self.direc = direc
-            self.DIC = None
-            self.GFP = loadimage(sorted(glob.glob('%s/*488 SP 525-50*' % direc), key=len)[0])
-            self.AF = loadimage(sorted(glob.glob('%s/*488 SP 630-75*' % direc), key=len)[0])
-            self.RFP = None
-            self.ROI = np.loadtxt('%s/ROI.txt' % direc)
-
-
-class ImportAll:
-    """
-    g_      green channel
-    ga      green channel, af corrected
-    gb      green channel, bg subtracted
-
-    a_      af channel
-    ab      af channel, bg subtracted
-
-    r_      red channel
-    rb      red channel, bg subtracted
-
-    """
-
-    def __init__(self, direc):
-        self.g = Analyser.Res()
-        self.a = Analyser.Res()
-        self.r = Analyser.Res()
-        self.c = Analyser.Res()
-        self.b = Analyser.Res()
-
-        a = glob.glob('%s/*.txt' % direc)
-        for b in a:
-            c = os.path.basename(os.path.normpath(b))[:-4]
-            c = c.split('_')
-            if hasattr(self, c[0]):
-                setattr(getattr(self, c[0]), c[1], np.loadtxt(b))
-
-
-class ImportAllBatch:
-    """
-    Imports all the data for a given group of embryos
-
-    """
-
-    def __init__(self, direcs):
-        self.g = Analyser.Res()
-        self.a = Analyser.Res()
-        self.r = Analyser.Res()
-        self.c = Analyser.Res()
-        self.b = Analyser.Res()
-
-        a = glob.glob('%s/*.txt' % direcs[0])
-        for b in a:
-            c = os.path.basename(os.path.normpath(b))[:-4]
-            c = c.split('_')
-            if hasattr(self, c[0]):
-                setattr(getattr(self, c[0]), c[1], np.array([np.loadtxt(b)]))
-
-        for d in direcs[1:]:
-            a = glob.glob('%s/*.txt' % d)
-            for b in a:
-                c = os.path.basename(os.path.normpath(b))[:-4]
-                c = c.split('_')
-                if hasattr(self, c[0]):
-                    setattr(getattr(self, c[0]), c[1],
-                            np.append(getattr(getattr(self, c[0]), c[1]), np.array([np.loadtxt(b)]), axis=0))
-
-
-def ImportAllBatch2(dest):
-    """
-    Creates dictionary of different groups of embryos
-
-    """
-    dic = {}
-    for d in direcslist(dest):
-        dic[os.path.basename(os.path.normpath(d))] = ImportAllBatch(func2(d))
-    return dic
-
-
-########################### Used in segmenters of analyser ############################
+############### MISC FUNCTIONS ##############
 
 
 def fix_ends(curve, bgcurve):
@@ -1100,9 +768,10 @@ def fix_ends(curve, bgcurve):
     return curve2
 
 
-def polycrop(img, polyline, enlarge=-10):
+def polycrop(img, polyline, enlarge):
     """
     Crops image according to polyline coordinates
+    Expand or contract selection with enlarge parameter
 
     :param img:
     :param polyline:
@@ -1118,15 +787,23 @@ def polycrop(img, polyline, enlarge=-10):
 
 
 def interp_1d_array(arr, n):
+    """
+    Interpolates a one dimensional array into n points
+
+    :param arr:
+    :param n:
+    :return:
+    """
+
     return np.interp(np.linspace(0, len(arr), n), np.array(range(len(arr))), arr)
 
 
 def straighten(img, coors, thickness):
     """
-    Creates straightened image based on coordinates. Should be 1 pixel length apart in a loop
+    Creates straightened image based on coordinates
 
     :param img:
-    :param coors:
+    :param coors: Coordinates. Should be 1 pixel length apart in a loop
     :param thickness:
     :return:
     """
@@ -1184,7 +861,7 @@ def offset_coordinates(coors, offsets):
 
 def interp(img, n):
     """
-    Interpolates values along y axis for each x value
+    Interpolates values along y axis into n points, for each x value
     :param img:
     :param n:
     :return:
@@ -1229,6 +906,14 @@ def rolling_ave(img, window, periodic=1):
 
 
 def bounded_mean(array, bounds):
+    """
+    Averages 1D array over region specified by bounds
+
+    :param array:
+    :param bounds:
+    :return:
+    """
+
     if bounds[0] < bounds[1]:
         mean = np.mean(array[int(len(array) * bounds[0]): int(len(array) * bounds[1] + 1)])
     else:
@@ -1237,6 +922,16 @@ def bounded_mean(array, bounds):
 
 
 def bounded_mean_2d(array, bounds):
+    """
+    Averages 2D array in y dimension over region specified by bounds
+
+    Should add axis parameter
+
+    :param array:
+    :param bounds:
+    :return:
+    """
+
     if bounds[0] < bounds[1]:
         mean = np.mean(array[:, int(len(array[0, :]) * bounds[0]): int(len(array[0, :]) * bounds[1])], 1)
     else:
@@ -1277,8 +972,9 @@ def rotate_coors(coors):
 
 def offset_line(line, offset):
     """
+    Moves a straight line of coordinates perpendicular to itself
 
-    :param line: in the form [[x,y],[x,y]]
+    :param line:
     :param offset:
     :return:
     """
@@ -1303,9 +999,10 @@ def offset_line(line, offset):
 
 def extend_line(line, extend):
     """
+    Extends a straight line of coordinates along itself
 
-
-    :param line: in the form [[x,y],[x,y]]
+    Should adjust to allow shrinking
+    :param line:
     :param extend: e.g. 1.1 = 10% longer
     :return:
     """
@@ -1329,38 +1026,36 @@ def extend_line(line, extend):
     return newcoors
 
 
-#################### Used in scripts only#######################
+def af_subtraction(ch1, ch2, m, c):
+    """
+    Subtract ch2 from ch1
+    ch2 is first adjusted to m * ch2 + c
 
+    :param ch1:
+    :param ch2:
+    :param m:
+    :param c:
+    :return:
+    """
 
-def af_subtraction(ch1, ch2, settings):
-    af = settings.m * ch2 + settings.c
+    af = m * ch2 + c
     signal = ch1 - af
     return signal
 
 
 def bg_subtraction(img, coors, mag):
-    bg = np.mean(straighten(img, offset_coordinates(coors, 50 * mag), int(50 * mag)))
-    return img - bg
+    """
+    Subtracts the background from an image
 
+    :param img:
+    :param coors:
+    :param mag:
+    :return:
+    """
 
-# def bg(img, coors, mag):
-#     a = polycrop(img, offset_coordinates(coors, 60 * mag)) - polycrop(img, offset_coordinates(coors, 10 * mag))
-#     return np.nanmean(a[np.nonzero(a)])
-
-
-# def normalise(instance1, instance2):
-#     """
-#     Creates new class, by dividing objects in class instance 1 by objects in class instance 2
-#
-#     :param instance1:
-#     :param instance2:
-#     :return:
-#     """
-#
-#     norm = copy.deepcopy(instance1)
-#     for o in vars(instance1):
-#         setattr(norm, o, getattr(instance1, o) / np.mean(getattr(instance2, o)))
-#     return norm
+    a = polycrop(img, coors, 60 * mag) - polycrop(img, coors, 10 * mag)
+    a = [np.nanmean(a[np.nonzero(a)])]
+    return img - a
 
 
 def rotated_embryo(img, coors, l):
@@ -1417,87 +1112,58 @@ def rotated_embryo(img, coors, l):
     return zvals
 
 
+def load_image(filename):
+    """
+    Given the filename of a TIFF, creates numpy array with pixel intensities
+
+    :param filename:
+    :return:
+    """
+
+    img = np.array(Image.open(filename), dtype=np.float64)
+    img[img == 0] = np.nan
+    return img
+
+
+def saveimg(img, direc):
+    """
+    Saves 2D array as .tif file
+
+    :param img:
+    :param direc:
+    :return:
+    """
+
+    im = Image.fromarray(img)
+    im.save(direc)
+
+
+def saveimg_jpeg(img, direc, min, max):
+    """
+    Saves 2D array as jpeg, according to min and max pixel intensities
+
+    :param img:
+    :param direc:
+    :param min:
+    :param max:
+    :return:
+    """
+
+    a = toimage(img, cmin=min, cmax=max)
+    a.save(direc)
+
+
 def norm_to_bounds(array, bounds=(0, 1), percentile=10):
+    """
+    Normalise array to lie between two bounds
+
+    :param array:
+    :param bounds:
+    :param percentile:
+    :return:
+    """
+
     line = np.polyfit([np.percentile(array, percentile), np.percentile(array, 100 - percentile)],
                       [bounds[0], bounds[1]],
                       1)
     return array * line[0] + line[1]
-
-
-def func2(dest):
-    dlist = []
-    for j in direcslist(dest):
-        dlist.extend(direcslist(j))
-    return dlist
-
-
-def direcslist2(dest, levels):
-    lis = direcslist(dest)
-    for level in range(levels):
-        newlis = []
-        for e in lis:
-            newlis.extend(direcslist(e))
-        lis = newlis
-    return lis
-
-
-def save_params(dest, cl):
-    """
-    direcs is  dictionary of directories
-    cl is instance of Params class
-
-    """
-    for d in direcslist2(dest, 1):
-        print(d)
-        with open('%s/params.pkl' % d, 'wb') as f:
-            pickle.dump(cl, f)
-
-
-            #################### REDUNDANT #######################
-
-            # def setup(dict, dest):
-            #     if os.path.exists(dest):
-            #         shutil.rmtree(dest)
-            #     os.mkdir(dest)
-            #     for key, value in dict.items():
-            #         os.mkdir('%s/%s' % (dest, key))
-            #         for v in value:
-            #             shutil.copytree('%s/%s' % (ddirec, v), '%s/%s/%s' % (dest, key, v))
-
-
-            # def func(dest):
-            #     dlist = []
-            #     for i in direcslist(dest):
-            #         for j in direcslist(i):
-            #             dlist.extend(direcslist(j))
-            #     return dlist
-
-
-            # def copy_data(list, dest):
-            #     """
-            #
-            #     """
-            #
-            #     if os.path.exists(dest):
-            #         shutil.rmtree(dest)
-            #     os.mkdir(dest)
-            #     for v in list:
-            #         shutil.copytree('%s/%s' % (ddirec, v), '%s/%s' % (dest, v))
-
-
-            # def append_batch(prefix, l):
-            #     a = [None] * len(l)
-            #     for i, c in enumerate(l):
-            #         a[i] = '%s%s' % (prefix, c)
-            #     return a
-
-
-
-            ##############################################
-
-            # Analysis is v wasteful because straightening images for every function
-            # Polyfit: must be quicker way
-            # Need to refine parameters for straightening alg: may be causing problems
-            # A way of specifying in the script which embryos to exclude
-            # Adapt code to allow different bgcurves for green and cherry
-            # Change structure so you first define the options for all jobs (maybe save as a huge spreadsheet), then loop through this
