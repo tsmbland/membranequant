@@ -8,6 +8,7 @@ import cv2
 from scipy.ndimage.interpolation import map_coordinates
 from joblib import Parallel, delayed
 import multiprocessing
+import math
 
 """
 Functions for segmentation and quantification of images
@@ -43,10 +44,13 @@ class Segmenter:
 
     To to:
     - Removing outliers better than smoothening coordinates at end
+    - Adapt to deal with unclosed ROI
+    - Change to sliding of signal curve rather than bgcurve
 
     """
 
-    def __init__(self, img, bgcurve, coors, mag=1, iterations=2, parallel=False, resolution=5, freedom=0.3, save=False,
+    def __init__(self, img, bgcurve, coors, mag=1, iterations=3, parallel=False, resolution=5, freedom=0.3,
+                 periodic=True, save=False,
                  direc=None, plot=False):
 
         # Inputs
@@ -58,6 +62,7 @@ class Segmenter:
         self.parallel = parallel
         self.resolution = resolution
         self.freedom = freedom
+        self.periodic = periodic
         self.save = save
         self.direc = direc
         self.plot = plot
@@ -86,7 +91,7 @@ class Segmenter:
             straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
 
             # Filter/smoothen/interpolate images
-            straight = rolling_ave(interp(straight, self.itp), self.rol_ave)
+            straight = rolling_ave(interp(straight, self.itp), self.rol_ave, self.periodic)
 
             # Interpolate bgcurves
             bgcurve = interp_1d_array(self.bgcurve, 2 * self.itp)
@@ -112,12 +117,18 @@ class Segmenter:
             self.newcoors = offset_coordinates(self.newcoors, offsets)
 
             # Filter
-            self.newcoors = np.vstack(
-                (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
-                 savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+            if self.periodic:
+                self.newcoors = np.vstack(
+                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
+                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+            elif not self.periodic:
+                self.newcoors = np.vstack(
+                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='nearest'),
+                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='nearest'))).T
 
         # Rotate
-        self.newcoors = rotate_coors(self.newcoors)
+        if self.periodic:
+            self.newcoors = rotate_coors(self.newcoors)
 
         # Save
         if self.save:
@@ -156,7 +167,11 @@ class Segmenter:
                                            [(self.itp / 2) * (1 + self.freedom), np.inf, 200]),
                                    p0=[self.itp / 2, 0, 100])
 
-            o = (popt[0] - self.itp / 2) / (self.itp / self.thickness)
+            if math.isclose(popt[0], (self.itp / 2) * (1 - self.freedom)) or math.isclose(popt[0], (self.itp / 2) * (
+                        1 + self.freedom)):
+                o = np.nan
+            else:
+                o = (popt[0] - self.itp / 2) / (self.itp / self.thickness)
         except RuntimeError:
             o = np.nan
 
@@ -239,8 +254,8 @@ class Segmenter2:
 
     """
 
-    def __init__(self, img_g, img_r, bg_g, bg_r, coors, mag=1, iterations=2, parallel=False, resolution=5,
-                 freedom=0.3, save=False, direc=None, plot=False):
+    def __init__(self, img_g, img_r, bg_g, bg_r, coors, mag=1, iterations=3, parallel=False, resolution=5,
+                 freedom=0.3, periodic=True, save=False, direc=None, plot=False):
 
         self.img_g = img_g
         self.img_r = img_r
@@ -252,6 +267,7 @@ class Segmenter2:
         self.parallel = parallel
         self.resolution = resolution
         self.freedom = freedom
+        self.periodic = periodic
         self.save = save
         self.direc = direc
         self.plot = plot
@@ -281,8 +297,8 @@ class Segmenter2:
             straight_r = straighten(self.img_r, self.newcoors, int(self.thickness * self.mag))
 
             # Smoothen/interpolate images
-            straight_g = rolling_ave(interp(straight_g, self.itp), self.rol_ave)
-            straight_r = rolling_ave(interp(straight_r, self.itp), self.rol_ave)
+            straight_g = rolling_ave(interp(straight_g, self.itp), self.rol_ave, self.periodic)
+            straight_r = rolling_ave(interp(straight_r, self.itp), self.rol_ave, self.periodic)
 
             # Interpolate bgcurves
             bgcurve_g = interp_1d_array(self.bg_g, 2 * self.itp)
@@ -311,16 +327,22 @@ class Segmenter2:
             self.newcoors = offset_coordinates(self.newcoors, offsets)
 
             # Filter
-            self.newcoors = np.vstack(
-                (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
-                 savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+            if self.periodic:
+                self.newcoors = np.vstack(
+                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
+                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+            elif not self.periodic:
+                self.newcoors = np.vstack(
+                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='nearest'),
+                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='nearest'))).T
 
             # Interpolate nans
             nans, x = np.isnan(self.newcoors), lambda z: z.nonzero()[0]
             self.newcoors[nans] = np.interp(x(nans), x(~nans), self.newcoors[~nans])
 
         # Rotate
-        self.newcoors = rotate_coors(self.newcoors)
+        if self.periodic:
+            self.newcoors = rotate_coors(self.newcoors)
 
         # Save
         if self.save:
@@ -376,7 +398,11 @@ class Segmenter2:
                                            [(self.itp / 2) * (1 + self.freedom), np.inf, 200, np.inf, 200]),
                                    p0=[self.itp / 2, 0, 100, 0, 100])
 
-            o = (popt[0] - self.itp / 2) / (self.itp / self.thickness)
+            if math.isclose(popt[0], (self.itp / 2) * (1 - self.freedom)) or math.isclose(popt[0], (self.itp / 2) * (
+                        1 + self.freedom)):
+                o = np.nan
+            else:
+                o = (popt[0] - self.itp / 2) / (self.itp / self.thickness)
         except RuntimeError:
             o = np.nan
 
@@ -447,7 +473,7 @@ class Segmenter3:
 
     """
 
-    def __init__(self, img, coors, mag=1, iterations=2, parallel=False, resolution=5, save=False,
+    def __init__(self, img, coors, mag=1, iterations=2, parallel=False, resolution=5, periodic=True, save=False,
                  direc=None, plot=False):
 
         # Inputs
@@ -457,6 +483,7 @@ class Segmenter3:
         self.iterations = iterations
         self.parallel = parallel
         self.resolution = resolution
+        self.periodic = periodic
         self.save = save
         self.direc = direc
         self.plot = plot
@@ -484,7 +511,7 @@ class Segmenter3:
             straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
 
             # Filter/smoothen/interpolate images
-            straight = rolling_ave(interp(straight, self.itp), self.rol_ave)
+            straight = rolling_ave(interp(straight, self.itp), self.rol_ave, self.periodic)
 
             # Calculate offsets
             if self.parallel:
@@ -502,12 +529,18 @@ class Segmenter3:
             self.newcoors = offset_coordinates(self.newcoors, offsets)
 
             # Filter
-            self.newcoors = np.vstack(
-                (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
-                 savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+            if self.periodic:
+                self.newcoors = np.vstack(
+                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
+                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+            elif not self.periodic:
+                self.newcoors = np.vstack(
+                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='nearest'),
+                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='nearest'))).T
 
         # Rotate
-        self.newcoors = rotate_coors(self.newcoors)
+        if self.periodic:
+            self.newcoors = rotate_coors(self.newcoors)
 
         # Save
         if self.save:
@@ -747,23 +780,25 @@ class Quantifier:
 ############### MISC FUNCTIONS ##############
 
 
-def fix_ends(curve, bgcurve):
+def fix_ends(curve1, curve2):
     """
     Used for background subtraction. Returns fitted bgcurve which can then be subtracted from the signal curve
     Bg fitted by fixing ends
 
-    :param curve:
-    :param bgcurve:
+    Fixes ends of curve 2 to ends of curve 1
+
+    :param curve1:
+    :param curve2:
     :return:
     """
 
     # Fix ends
     line = np.polyfit(
-        [np.mean(bgcurve[:int(len(bgcurve) * 0.2)]), np.mean(bgcurve[int(len(bgcurve) * 0.8):])],
-        [np.mean(curve[:int(len(curve) * 0.2)]), np.mean(curve[int(len(curve) * 0.8):])], 1)
+        [np.mean(curve2[:int(len(curve2) * 0.2)]), np.mean(curve2[int(len(curve2) * 0.8):])],
+        [np.mean(curve1[:int(len(curve1) * 0.2)]), np.mean(curve1[int(len(curve1) * 0.8):])], 1)
 
     # Create new bgcurve
-    curve2 = bgcurve * line[0] + line[1]
+    curve2 = curve2 * line[0] + line[1]
 
     return curve2
 
@@ -874,23 +909,23 @@ def interp(img, n):
     return interped
 
 
-def rolling_ave(img, window, periodic=1):
+def rolling_ave(img, window, periodic=True):
     """
     Returns rolling average across the x axis of an image (used for straightened profiles)
 
     :param img: image data
     :param window: number of pixels to average over. Odd number is best
-    :param periodic: if 1, rolls over at ends
+    :param periodic: is true, rolls over at ends
     :return: ave
     """
 
-    if periodic == 0:
+    if not periodic:
         ave = np.zeros([len(img[:, 0]), len(img[0, :])])
         for y in range(len(img[:, 0])):
-            ave[y, int(window / 2):-int(window / 2)] = np.convolve(img[y, :], np.ones(window) / window, mode='valid')
+            ave[y, :] = np.convolve(img[y, :], np.ones(window) / window, mode='same')
         return ave
 
-    elif periodic == 1:
+    elif periodic:
         ave = np.zeros([len(img[:, 0]), len(img[0, :])])
         starts = np.append(range(len(img[0, :]) - int(window / 2), len(img[0, :])),
                            range(len(img[0, :]) - int(window / 2)))
@@ -902,6 +937,27 @@ def rolling_ave(img, window, periodic=1):
                 ave[:, x] = np.mean(img[:, starts[x]:ends[x]], axis=1)
             else:
                 ave[:, x] = np.mean(np.append(img[:, starts[x]:], img[:, :ends[x]], axis=1), axis=1)
+        return ave
+
+
+def rolling_ave_1d(array, window, periodic=1):
+    if periodic == 0:
+        ave = np.zeros([len(array)])
+        ave[int(window / 2):-int(window / 2)] = np.convolve(array, np.ones(window) / window, mode='valid')
+        return ave
+
+    elif periodic == 1:
+        ave = np.zeros([len(array)])
+        starts = np.append(range(len(array) - int(window / 2), len(array)),
+                           range(len(array) - int(window / 2)))
+        ends = np.append(np.array(range(int(np.ceil(window / 2)), len(array))),
+                         np.array(range(int(np.ceil(window / 2)))))
+
+        for x in range(len(array)):
+            if starts[x] < x < ends[x]:
+                ave[x] = np.mean(array[starts[x]:ends[x]])
+            else:
+                ave[x] = np.mean(np.append(array[starts[x]:], array[:ends[x]]))
         return ave
 
 
