@@ -2,16 +2,26 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
-from scipy.optimize import curve_fit
+from scipy.optimize import curve_fit, differential_evolution
 from scipy.misc import toimage
 import cv2
 from scipy.ndimage.interpolation import map_coordinates
 from joblib import Parallel, delayed
 import multiprocessing
 import math
+from scipy.interpolate import splprep, splev
 
 """
 Functions for segmentation and quantification of images
+
+To do:
+- ipynbs for segmentation example
+- change mag to 60
+- make more use of norm_coors function
+- commit
+- tidy test datasets (include af-corrected image?), write info file
+- change segmenter 1 and 2 to differential_evolution?
+- write readme
 
 """
 
@@ -19,65 +29,44 @@ Functions for segmentation and quantification of images
 ############### SEGMENTATION ################
 
 
-class Segmenter:
+class SegmenterGeneric:
     """
+    Parent class for segmentation subclasses
+    Subclasses add calc_offsets method
 
     Input data:
-    img_g           image
-    bgcurve_g       background curve. Must be 2* wider than the eventual profile for img
+    img             image to display if plot = TRUE
     coors           original coordinates
 
     Input parameters:
     mag             magnification (1 = 60x)
     iterations      number of times to run algorithm
+    periodic        True if input coordinates form a closed polygon
     parallel        True: preform segmentation in parallel
     resolution      will perform fitting algorithm at gaps set by this, interpolating between
-    freedom         0 = no freedom, 1 = max freedom
+    save            True: will save output coordinates as .txt file
+    direc           Directory to save coordinates to
+    plot            True: will display output coordinates overlaid onto img
 
-    Misc parameters (change with caution):
-    it              Interpolation of profiles/bgcurves
-    thickness       thickness of straightened images
-    rol_ave         sets the degree of image smoothening
-    end_region      for end fitting
-    n_end_fits      number of end fits to perform, will interpolate
-
-
-    To to:
-    - Removing outliers better than smoothening coordinates at end
-    - Adapt to deal with unclosed ROI
-    - Change to sliding of signal curve rather than bgcurve
+    Output:
+    newcoors        New coordinates resulting from segmentation
 
     """
 
-    def __init__(self, img, bgcurve, coors, mag=1, iterations=3, parallel=False, resolution=5, freedom=0.3,
-                 periodic=True, save=False,
-                 direc=None, plot=False):
+    def __init__(self, img, coors=None, mag=1, iterations=3, periodic=True, parallel=False, resolution=5):
 
         # Inputs
         self.img = img
-        self.bgcurve = bgcurve
         self.coors = coors
         self.mag = mag
         self.iterations = iterations
         self.parallel = parallel
         self.resolution = resolution
-        self.freedom = freedom
         self.periodic = periodic
-        self.save = save
-        self.direc = direc
-        self.plot = plot
-        self.itp = 1000
-        self.thickness = 50
-        self.rol_ave = 50
-        self.end_region = 0.2
-        self.n_end_fits = 50
+        self.method = None
 
-        self.newcoors = coors
-        self.resids = np.zeros(len(coors))
-
-        # Warnings
-        if self.save and self.direc is None:
-            raise Exception('Must specify directory')
+        # Outputs
+        self.newcoors = None
 
     def run(self):
         """
@@ -85,26 +74,15 @@ class Segmenter:
 
         """
 
+        self.newcoors = self.coors
+
+        # Interpolate coors to one pixel distance between points
+        self.newcoors = self.interp_coors(self.newcoors)
+
         for i in range(self.iterations):
 
-            # Straighten
-            straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
-
-            # Filter/smoothen/interpolate images
-            straight = rolling_ave(interp(straight, self.itp), self.rol_ave, self.periodic)
-
-            # Interpolate bgcurves
-            bgcurve = interp_1d_array(self.bgcurve, 2 * self.itp)
-
             # Calculate offsets
-            if self.parallel:
-                offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
-                    delayed(self.fit_background)(straight[:, x * self.resolution], bgcurve)
-                    for x in range(len(straight[0, :]) // self.resolution)))
-            else:
-                offsets = np.zeros(len(straight[0, :]) // self.resolution)
-                for x in range(len(straight[0, :]) // self.resolution):
-                    offsets[x] = self.fit_background(straight[:, x * self.resolution], bgcurve)
+            offsets = self.calc_offsets()
 
             # Interpolate nans
             nans, x = np.isnan(offsets), lambda z: z.nonzero()[0]
@@ -126,18 +104,212 @@ class Segmenter:
                     (savgol_filter(self.newcoors[:, 0], 19, 1, mode='nearest'),
                      savgol_filter(self.newcoors[:, 1], 19, 1, mode='nearest'))).T
 
+            # Interpolate to one px distance between points
+            self.newcoors = self.interp_coors(self.newcoors)
+
         # Rotate
         if self.periodic:
-            self.newcoors = rotate_coors(self.newcoors)
+            self.newcoors = self.rotate_coors(self.newcoors)
 
-        # Save
-        if self.save:
-            np.savetxt('%s/ROI_fitted.txt' % self.direc, self.newcoors, fmt='%.4f', delimiter='\t')
+    def save(self, direc):
+        np.savetxt(direc, self.newcoors, fmt='%.4f', delimiter='\t')
 
-        # Plot
-        if self.plot:
-            plt.imshow(straighten(self.img, self.newcoors, self.thickness * self.mag), cmap='gray')
+    def plot(self):
+        """
+
+        """
+        plt.imshow(self.img, cmap='gray', vmin=0)
+        plt.plot(self.newcoors[:, 0], self.newcoors[:, 1], c='r')
+        plt.scatter(self.newcoors[0, 0], self.newcoors[0, 1], c='r')
+        plt.xticks([])
+        plt.yticks([])
+        plt.show()
+
+    @staticmethod
+    def rotate_coors(coors):
+        """
+        Rotates coordinate array so that most posterior point is at the beginning
+
+        """
+
+        # PCA to find long axis
+        M = (coors - np.mean(coors.T, axis=1)).T
+        [latent, coeff] = np.linalg.eig(np.cov(M))
+        score = np.dot(coeff.T, M)
+
+        # Find most extreme points
+        a = np.argmin(np.minimum(score[0, :], score[1, :]))
+        b = np.argmax(np.maximum(score[0, :], score[1, :]))
+
+        # Find the one closest to user defined posterior
+        dista = np.hypot((coors[0, 0] - coors[a, 0]), (coors[0, 1] - coors[a, 1]))
+        distb = np.hypot((coors[0, 0] - coors[b, 0]), (coors[0, 1] - coors[b, 1]))
+
+        # Rotate coordinates
+        if dista < distb:
+            newcoors = np.roll(coors, len(coors[:, 0]) - a, 0)
+        else:
+            newcoors = np.roll(coors, len(coors[:, 0]) - b, 0)
+
+        return newcoors
+
+    @staticmethod
+    def interp_coors(coors):
+        """
+        Interpolates coordinates to one pixel distances (or as close as possible to one pixel)
+        Linear interpolation
+
+        :param coors:
+        :return:
+        """
+
+        c = np.append(coors, [coors[0, :]], axis=0)
+        distances = ((np.diff(c[:, 0]) ** 2) + (np.diff(c[:, 1]) ** 2)) ** 0.5
+        distances_cumsum = np.append([0], np.cumsum(distances))
+        px = sum(distances) / round(sum(distances))  # effective pixel size
+        newpoints = np.zeros((int(round(sum(distances))), 2))
+        newcoors_distances_cumsum = 0
+
+        for d in range(int(round(sum(distances)))):
+            index = sum(distances_cumsum - newcoors_distances_cumsum <= 0) - 1
+            newpoints[d, :] = (
+                coors[index, :] + ((newcoors_distances_cumsum - distances_cumsum[index]) / distances[index]) * (
+                    c[index + 1, :] - c[index, :]))
+            newcoors_distances_cumsum += px
+
+        return newpoints
+
+    def fit_spline(self, coors):
+        """
+        Fits a spline to points specifying the coordinates of the cortex, then interpolates to pixel distances
+
+        :param coors:
+        :return:
+        """
+
+        # Append the starting x,y coordinates
+        x = np.r_[coors[:, 0], coors[0, 0]]
+        y = np.r_[coors[:, 1], coors[0, 1]]
+
+        # Fit spline
+        tck, u = splprep([x, y], s=0, per=True)
+
+        # Evaluate spline
+        xi, yi = splev(np.linspace(0, 1, 1000), tck)
+
+        # Interpolate
+        return self.interp_coors(np.vstack((xi, yi)).T)
+
+    class ROI:
+        def __init__(self):
+            self.xpoints = []
+            self.ypoints = []
+            self.fig = plt.gcf()
+            self.ax = plt.gca()
+            self.point0 = None
+            self.points = None
+
+            self.fig.canvas.mpl_connect('button_press_event', self.button_press_callback)
+            self.fig.canvas.mpl_connect('key_press_event', self.key_press_callback)
             plt.show()
+
+        def button_press_callback(self, event):
+            self.xpoints.extend([event.xdata])
+            self.ypoints.extend([event.ydata])
+            self.display_points()
+            self.fig.canvas.draw()
+
+        def key_press_callback(self, event):
+            if event.key == 'backspace':
+                if len(self.xpoints) != 0:
+                    self.xpoints = self.xpoints[:-1]
+                    self.ypoints = self.ypoints[:-1]
+                self.display_points()
+                self.fig.canvas.draw()
+            if event.key == 'enter':
+                plt.close()
+
+        def display_points(self):
+            try:
+                self.point0.remove()
+                self.points.remove()
+            except (ValueError, AttributeError) as error:
+                pass
+            if len(self.xpoints) != 0:
+                self.points = self.ax.scatter(self.xpoints, self.ypoints, c='b')
+                self.point0 = self.ax.scatter(self.xpoints[0], self.ypoints[0], c='r')
+
+    def def_ROI(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.imshow(self.img, cmap='gray', vmin=0)
+        ax.text(0.03, 0.88,
+                'Specify ROI clockwise from the posterior (4 points minimum)'
+                '\nBACKSPACE to remove last point'
+                '\nPress ENTER when done',
+                color='white',
+                transform=ax.transAxes, fontsize=8)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        roi = self.ROI()
+        self.coors = self.fit_spline(np.vstack((roi.xpoints, roi.ypoints)).T)
+
+
+class Segmenter1(SegmenterGeneric):
+    """
+
+    Single channel segmentation, based on background cytoplasmic curves
+
+
+    Input data:
+    img             image
+    bgcurve         background curve. Must be 2* wider than the eventual profile for img
+    coors           original coordinates
+
+    Parameters:
+    freedom         0 = no freedom, 1 = max freedom
+    it              Interpolation of profiles/bgcurves
+    thickness       thickness of straightened images
+    rol_ave         sets the degree of image smoothening
+    end_region      for end fitting
+    n_end_fits      number of end fits to perform, will interpolate
+
+    """
+
+    def __init__(self, img, bgcurve, coors=None, mag=1, iterations=3, parallel=False, resolution=5, freedom=0.3,
+                 periodic=True):
+
+        super().__init__(img, coors, mag, iterations, periodic, parallel, resolution)
+
+        # Inputs
+        self.bgcurve = bgcurve
+        self.freedom = freedom
+        self.itp = 1000
+        self.thickness = 50
+        self.rol_ave = 50
+        self.end_region = 0.2
+        self.n_end_fits = 50
+
+    def calc_offsets(self):
+        # Straighten
+        straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+
+        # Filter/smoothen/interpolate images
+        straight = rolling_ave_2d(interp_2d_array(straight, self.itp), int(self.rol_ave * self.mag), self.periodic)
+
+        # Interpolate bgcurves
+        bgcurve = interp_1d_array(self.bgcurve, 2 * self.itp)
+
+        # Calculate offsets
+        if self.parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_background)(straight[:, x * int(self.mag * self.resolution)], bgcurve)
+                for x in range(len(straight[0, :]) // int(self.mag * self.resolution))))
+        else:
+            offsets = np.zeros(len(straight[0, :]) // int(self.mag * self.resolution))
+            for x in range(len(straight[0, :]) // int(self.mag * self.resolution)):
+                offsets[x] = self.fit_background(straight[:, x * int(self.mag * self.resolution)], bgcurve)
+        return offsets
 
     def fit_background(self, curve, bgcurve):
         """
@@ -148,21 +320,12 @@ class Segmenter:
         :return: o: offset value for this section
         """
 
-        # Fix ends, interpolate: Green
-        ms, cs = self.fix_ends(curve, bgcurve)
-        msfull = np.zeros([2 * self.itp])
-        msfull[int((self.itp / 2) * (1 - self.freedom)):int((self.itp / 2) * (1 + self.freedom))] = interp_1d_array(ms,
-                                                                                                                    self.itp * self.freedom)
-        csfull = np.zeros([2 * self.itp])
-        csfull[int((self.itp / 2) * (1 - self.freedom)):int((self.itp / 2) * (1 + self.freedom))] = interp_1d_array(cs,
-                                                                                                                    self.itp * self.freedom)
-
         # Input for curve fitter
-        x = np.stack((bgcurve, msfull, csfull), axis=0)
+        x = np.stack((bgcurve, (np.hstack((curve, np.zeros([self.itp]))))), axis=0)
 
         # Fit gaussian to find offset
         try:
-            popt, pcov = curve_fit(self.gaussian_plus, x, curve,
+            popt, pcov = curve_fit(self.func, x, curve,
                                    bounds=([(self.itp / 2) * (1 - self.freedom), 0, 20],
                                            [(self.itp / 2) * (1 + self.freedom), np.inf, 200]),
                                    p0=[self.itp / 2, 0, 100])
@@ -177,53 +340,36 @@ class Segmenter:
 
         return o
 
-    def fix_ends(self, curve, bgcurve):
+    def func(self, x, l, a, c):
         """
-        Calculates parameters to fit the ends of curve to bgcurve, across different alignments
+        Fits profile to bgcurve + gaussian
 
-        :param curve: signal curve
-        :param bgcurve: background curve
-        :return: ms, cs: end fitting parameters
         """
 
-        x = (self.itp * self.freedom) / self.n_end_fits
-        ms = np.zeros([self.n_end_fits])
-        cs = np.zeros([self.n_end_fits])
-        for l in range(self.n_end_fits):
-            bgcurve_seg = bgcurve[
-                          int(((self.itp / 2) * (1 - self.freedom)) + (x * l)): int(
-                              (self.itp + (self.itp / 2) * (1 - self.freedom)) + (x * l))]
-            line = np.polyfit(
-                [np.mean(curve[:int(len(curve) * self.end_region)]),
-                 np.mean(curve[int(len(curve) * (1 - self.end_region)):])],
-                [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * self.end_region)]),
-                 np.mean(bgcurve_seg[int(len(bgcurve_seg) * (1 - self.end_region)):])], 1)
-            ms[l] = line[0]
-            cs[l] = line[1]
-        return ms, cs
+        profile = x[1, :self.itp]
+        bgcurve_seg = x[0, int(l):int(l) + self.itp]
 
-    def gaussian_plus(self, x, l, a, c):
-        """
-        Function used for fitting algorithm
-        Finds optimal offset (l) by fitting signal curve to background curve plus mirrored exponential
+        line = np.polyfit(
+            [np.mean(bgcurve_seg[:int(len(bgcurve_seg) * self.end_region)]),
+             np.mean(bgcurve_seg[int(len(bgcurve_seg) * (1 - self.end_region)):])],
+            [np.mean(profile[:int(len(profile) * self.end_region)]),
+             np.mean(profile[int(len(profile) * (1 - self.end_region)):])], 1)
 
-        :param x: input 5 column array containing bgcurve and end fit parameters
-        :param l: offset parameter
-        :param a: exponential height
-        :param c: exponential width
-        :return: y: curve
-        """
+        p0 = line[0]
+        p1 = line[1]
 
         g0 = a * np.e ** ((np.array(range(0, (self.itp - int(l)))) - (self.itp - l)) / c)
         g1 = a * np.e ** (-((np.array(range((self.itp - int(l)), self.itp)) - (self.itp - l)) / c))
         g = np.append(g0, g1)
-        y = (x[0, int(l):int(l) + self.itp] + g - x[2, int(l)]) / x[1, int(l)]
+        y = p0 * (x[0, int(l):int(l) + self.itp] + g) + p1
 
         return y
 
 
-class Segmenter2:
+class Segmenter2(SegmenterGeneric):
     """
+
+    Two-channel segmentation, using two background curves
 
     Input data:
     img_g           green channel image
@@ -233,127 +379,61 @@ class Segmenter2:
     coors           original coordinates
 
     Input parameters:
-    mag             magnification (1 = 60x)
-    iterations      number of times to run algorithm
-    parallel        True: preform segmentation in parallel
-    resolution      will perform fitting algorithm at gaps set by this, interpolating between
     freedom         0 = no freedom, 1 = max freedom
-
-    Misc parameters (change with caution):
     it              Interpolation of profiles/bgcurves
     thickness       thickness of straightened images
     rol_ave         sets the degree of image smoothening
     end_region      for end fitting
     n_end_fits      number of end fits to perform, will interpolate
 
-    Outputs:
-    newcoors
-
-    To to:
-    - Removing outliers better than smoothening coordinates at end
-
     """
 
-    def __init__(self, img_g, img_r, bg_g, bg_r, coors, mag=1, iterations=3, parallel=False, resolution=5,
-                 freedom=0.3, periodic=True, save=False, direc=None, plot=False):
+    def __init__(self, img_g, img_r, bg_g, bg_r, coors=None, mag=1, iterations=3, parallel=False, resolution=5,
+                 freedom=0.3, periodic=True):
+
+        super().__init__(img_g, coors, mag, iterations, periodic, parallel, resolution)
 
         self.img_g = img_g
         self.img_r = img_r
         self.bg_g = bg_g
         self.bg_r = bg_r
-        self.coors = coors
-        self.mag = mag
-        self.iterations = iterations
-        self.parallel = parallel
-        self.resolution = resolution
         self.freedom = freedom
-        self.periodic = periodic
-        self.save = save
-        self.direc = direc
-        self.plot = plot
         self.itp = 1000
         self.thickness = 50
         self.rol_ave = 50
         self.end_region = 0.2
         self.n_end_fits = 20
 
-        self.newcoors = coors
-        self.resids = np.zeros(len(coors))
-
-        # Warnings
-        if self.save and self.direc is None:
-            raise Exception('Must specify directory')
-
-    def run(self):
-        """
-        Performs segmentation algorithm
-
+    def calc_offsets(self):
         """
 
-        for i in range(self.iterations):
+        """
+        # Straighten
+        straight_g = straighten(self.img_g, self.newcoors, int(self.thickness * self.mag))
+        straight_r = straighten(self.img_r, self.newcoors, int(self.thickness * self.mag))
 
-            # Straighten
-            straight_g = straighten(self.img_g, self.newcoors, int(self.thickness * self.mag))
-            straight_r = straighten(self.img_r, self.newcoors, int(self.thickness * self.mag))
+        # Smoothen/interpolate images
+        straight_g = rolling_ave_2d(interp_2d_array(straight_g, self.itp), int(self.rol_ave * self.mag), self.periodic)
+        straight_r = rolling_ave_2d(interp_2d_array(straight_r, self.itp), int(self.rol_ave * self.mag), self.periodic)
 
-            # Smoothen/interpolate images
-            straight_g = rolling_ave(interp(straight_g, self.itp), self.rol_ave, self.periodic)
-            straight_r = rolling_ave(interp(straight_r, self.itp), self.rol_ave, self.periodic)
+        # Interpolate bgcurves
+        bgcurve_g = interp_1d_array(self.bg_g, 2 * self.itp)
+        bgcurve_r = interp_1d_array(self.bg_r, 2 * self.itp)
 
-            # Interpolate bgcurves
-            bgcurve_g = interp_1d_array(self.bg_g, 2 * self.itp)
-            bgcurve_r = interp_1d_array(self.bg_r, 2 * self.itp)
-
-            # Calculate offsets
-            if self.parallel:
-                offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
-                    delayed(self.fit_background_2col)(straight_g[:, x * self.resolution],
-                                                      straight_r[:, x * self.resolution], bgcurve_g, bgcurve_r)
-                    for x in range(len(straight_g[0, :]) // self.resolution)))
-            else:
-                offsets = np.zeros(len(straight_g[0, :]) // self.resolution)
-                for x in range(len(straight_g[0, :]) // self.resolution):
-                    offsets[x] = self.fit_background_2col(straight_g[:, x * self.resolution],
-                                                          straight_r[:, x * self.resolution], bgcurve_g, bgcurve_r)
-
-            # Interpolate nans
-            nans, x = np.isnan(offsets), lambda z: z.nonzero()[0]
-            offsets[nans] = np.interp(x(nans), x(~nans), offsets[~nans])
-
-            # Interpolate
-            offsets = interp_1d_array(offsets, len(self.newcoors))
-
-            # Offset coordinates
-            self.newcoors = offset_coordinates(self.newcoors, offsets)
-
-            # Filter
-            if self.periodic:
-                self.newcoors = np.vstack(
-                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
-                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
-            elif not self.periodic:
-                self.newcoors = np.vstack(
-                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='nearest'),
-                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='nearest'))).T
-
-            # Interpolate nans
-            nans, x = np.isnan(self.newcoors), lambda z: z.nonzero()[0]
-            self.newcoors[nans] = np.interp(x(nans), x(~nans), self.newcoors[~nans])
-
-        # Rotate
-        if self.periodic:
-            self.newcoors = rotate_coors(self.newcoors)
-
-        # Save
-        if self.save:
-            np.savetxt('%s/ROI_fitted.txt' % self.direc, self.newcoors, fmt='%.4f', delimiter='\t')
-
-        # Plot
-        if self.plot:
-            plt.imshow(straighten(self.img_g, self.newcoors, self.thickness * self.mag), cmap='gray')
-            plt.show()
-            plt.imshow(straighten(self.img_r, self.newcoors, self.thickness * self.mag), cmap='gray')
-            plt.show()
+        # Calculate offsets
+        if self.parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_background_2col)(straight_g[:, x * int(self.mag * self.resolution)],
+                                                  straight_r[:, x * int(self.mag * self.resolution)], bgcurve_g,
+                                                  bgcurve_r)
+                for x in range(len(straight_g[0, :]) // int(self.mag * self.resolution))))
+        else:
+            offsets = np.zeros(len(straight_g[0, :]) // int(self.mag * self.resolution))
+            for x in range(len(straight_g[0, :]) // int(self.mag * self.resolution)):
+                offsets[x] = self.fit_background_2col(straight_g[:, x * int(self.mag * self.resolution)],
+                                                      straight_r[:, x * int(self.mag * self.resolution)], bgcurve_g,
+                                                      bgcurve_r)
+        return offsets
 
     def fit_background_2col(self, curve_g, curve_r, bgcurve_g, bgcurve_r):
         """
@@ -464,8 +544,10 @@ class Segmenter2:
         return y
 
 
-class Segmenter3:
+class Segmenter3(SegmenterGeneric):
     """
+
+    Segments embryos to midpoint of decline
 
     Used to segment embryos without a background curve
     e.g. for generating background curves
@@ -473,96 +555,308 @@ class Segmenter3:
 
     """
 
-    def __init__(self, img, coors, mag=1, iterations=2, parallel=False, resolution=5, periodic=True, save=False,
-                 direc=None, plot=False):
+    def __init__(self, img, coors=None, mag=1, iterations=2, parallel=False, resolution=5, periodic=True):
 
-        # Inputs
-        self.img = img
-        self.coors = coors
-        self.mag = mag
-        self.iterations = iterations
-        self.parallel = parallel
-        self.resolution = resolution
-        self.periodic = periodic
-        self.save = save
-        self.direc = direc
-        self.plot = plot
+        super().__init__(img, coors, mag, iterations, periodic, parallel, resolution)
+
         self.itp = 1000
         self.thickness = 50
         self.rol_ave = 50
-        self.end_region = 0.2
-        self.n_end_fits = 50
 
-        self.newcoors = coors
-
-        # Warnings
-        if self.save and self.direc is None:
-            raise Exception('Must specify directory')
-
-    def run(self):
-        """
-        Performs segmentation algorithm
-
+    def calc_offsets(self):
         """
 
-        for i in range(self.iterations):
+        """
+        # Straighten
+        straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
 
-            # Straighten
-            straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+        # Filter/smoothen/interpolate images
+        straight = rolling_ave_2d(interp_2d_array(straight, self.itp), self.rol_ave, self.periodic)
 
-            # Filter/smoothen/interpolate images
-            straight = rolling_ave(interp(straight, self.itp), self.rol_ave, self.periodic)
+        # Calculate offsets
+        if self.parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.func)(straight, x) for x in range(len(straight[0, :]))))
+        else:
+            offsets = np.zeros(len(straight[0, :]))
+            for x in range(len(straight[0, :])):
+                offsets[x] = self.func(straight, x)
 
-            # Calculate offsets
-            if self.parallel:
-                offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
-                    delayed(self.func)(straight, x) for x in range(len(straight[0, :]))))
-            else:
-                offsets = np.zeros(len(straight[0, :]))
-                for x in range(len(straight[0, :])):
-                    offsets[x] = self.func(straight, x)
-
-            # Interpolate
-            offsets = interp_1d_array(offsets, len(self.newcoors))
-
-            # Offset coordinates
-            self.newcoors = offset_coordinates(self.newcoors, offsets)
-
-            # Filter
-            if self.periodic:
-                self.newcoors = np.vstack(
-                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
-                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
-            elif not self.periodic:
-                self.newcoors = np.vstack(
-                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='nearest'),
-                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='nearest'))).T
-
-        # Rotate
-        if self.periodic:
-            self.newcoors = rotate_coors(self.newcoors)
-
-        # Save
-        if self.save:
-            np.savetxt('%s/ROI_fitted.txt' % self.direc, self.newcoors, fmt='%.4f', delimiter='\t')
-
-        # Plot
-        if self.plot:
-            plt.imshow(straighten(self.img, self.newcoors, self.thickness * self.mag), cmap='gray')
-            plt.show()
+        return offsets
 
     def func(self, straight, x):
+        """
+
+        """
         return ((self.itp / 2) - np.argmin(
             np.absolute(straight[:, x] - np.mean(
                 [np.mean(straight[int(0.9 * self.itp):, x]), np.mean(straight[:int(0.1 * self.itp), x])]))) * (
                     len(straight[:, 0]) / self.itp)) / (self.itp / self.thickness)
 
 
+class Segmenter4(SegmenterGeneric):
+    """
+
+    Segments embryos to peak
+
+    Used to segment embryos without a background curve
+    e.g. for generating background curves
+
+
+    """
+
+    def __init__(self, img, coors=None, mag=1, iterations=2, parallel=False, resolution=5, periodic=True):
+
+        super().__init__(img, coors, mag, iterations, periodic, parallel, resolution)
+
+        self.itp = 1000
+        self.thickness = 50
+        self.rol_ave = 50
+
+    def calc_offsets(self):
+        """
+
+        """
+        # Straighten
+        straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+
+        # Filter/smoothen/interpolate images
+        straight = rolling_ave_2d(interp_2d_array(straight, self.itp), self.rol_ave, self.periodic)
+
+        # Calculate offsets
+        if self.parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.func)(straight, x) for x in range(len(straight[0, :]))))
+        else:
+            offsets = np.zeros(len(straight[0, :]))
+            for x in range(len(straight[0, :])):
+                offsets[x] = self.func(straight, x)
+
+        return offsets
+
+    def func(self, straight, x):
+        """
+
+        """
+        return ((self.itp / 2) - np.argmax(straight[:, x]) * (len(straight[:, 0]) / self.itp)) / (
+            self.itp / self.thickness)
+
+
+class Segmenter5(SegmenterGeneric):
+    """
+    Fit profiles to cytoplasmic background + membrane background
+
+    """
+
+    def __init__(self, img, cytbg, membg, coors=None, mag=1, iterations=2, parallel=False, resolution=5, freedom=0.3,
+                 periodic=True):
+        super().__init__(img, coors, mag, iterations, periodic, parallel, resolution)
+
+        self.cytbg = cytbg
+        self.membg = membg
+        self.freedom = freedom
+        self.thickness = 50
+        self.itp = 1000
+        self.rol_ave = 50
+        self.end_region = 0.2
+
+        self._profile = None
+        self._cytbg = None
+        self._membg = None
+
+    def calc_offsets(self):
+        # Straighten
+        straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+
+        # Filter/smoothen/interpolate images
+        straight = rolling_ave_2d(interp_2d_array(straight, self.itp), int(self.rol_ave * self.mag), self.periodic)
+
+        # Interpolate bgcurves
+        cytbg = interp_1d_array(self.cytbg, 2 * self.itp)
+        membg = interp_1d_array(self.membg, 2 * self.itp)
+
+        # Fit
+        if self.parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile)(straight[:, x * int(self.mag * self.resolution)], cytbg, membg)
+                for x in range(len(straight[0, :]) // int(self.mag * self.resolution))))
+        else:
+            offsets = np.zeros(len(straight[0, :]) // int(self.mag * self.resolution))
+            for x in range(len(straight[0, :]) // int(self.mag * self.resolution)):
+                offsets[x] = self.fit_profile(straight[:, x * int(self.mag * self.resolution)], cytbg, membg)
+
+        return offsets
+
+    def fit_profile(self, profile, cytbg, membg):
+        """
+        Takes cross sections from images and finds optimal offset for alignment
+
+        """
+
+        self._profile = profile
+        self._cytbg = cytbg
+        self._membg = membg
+
+        res = differential_evolution(self.mse, bounds=((350, 650), (-1, 5)))
+        o = (res.x[0] - self.itp / 2) / (self.itp / self.thickness)
+
+        return o
+
+    def fix_ends(self, profile, cytbg, membg, a):
+        """
+
+        """
+        pa = np.mean(profile[:int(len(profile) * self.end_region)])
+        px = np.mean(profile[int(len(profile) * (1 - self.end_region)):])
+        b1a = np.mean(cytbg[:int(len(cytbg) * self.end_region)])
+        b1x = np.mean(cytbg[int(len(cytbg) * (1 - self.end_region)):])
+        b2a = np.mean(membg[:int(len(membg) * self.end_region)])
+        b2x = np.mean(membg[int(len(membg) * (1 - self.end_region)):])
+        m1 = (px - pa) / (b1x - b1a + a * (b2x - b2a))
+        c1 = pa - (m1 * b1a)
+        c2 = - m1 * a * b2a
+
+        return m1, c1, c2
+
+    def mse(self, l_a):
+        """
+
+        """
+        y = self.total_curve(l_a)
+        return np.mean((self._profile - y) ** 2)
+
+    def total_curve(self, l_a):
+        """
+
+        """
+
+        l, a = l_a
+        cytbg = self._cytbg[int(l):int(l) + self.itp]
+        membg = self._membg[int(l):int(l) + self.itp]
+        m1, c1, c2 = self.fix_ends(self._profile, cytbg, membg, a)
+
+        # Profile estimate
+        return m1 * (cytbg + a * membg) + c1 + c2
+
+    def cyt_only(self, l_a):
+        """
+
+        """
+        l, a = l_a
+        cytbg = self._cytbg[int(l):int(l) + self.itp]
+        membg = self._membg[int(l):int(l) + self.itp]
+        m1, c1, c2 = self.fix_ends(self._profile, cytbg, membg, a)
+
+        # Profile estimate
+        return m1 * cytbg + c1
+
+
 ################## ANALYSIS #################
+
+
+class MembraneQuant:
+    """
+    Fit profiles to cytoplasmic background + membrane background
+
+    WORK IN PROGRESS
+
+    """
+
+    def __init__(self, img, cytbg, membg, coors=None, mag=1):
+        self.img = img
+        self.coors = coors
+        self.mag = mag
+        self.cytbg = cytbg
+        self.membg = membg
+        self.thickness = 50
+        self.itp = 1000
+        self.rol_ave = 50
+        self.end_region = 0.2
+
+    def run(self):
+        self.img_straight = straighten(self.img, self.coors, int(50 * self.mag))
+
+        # Rolling ave
+        img_straight = rolling_ave_2d(self.img_straight, int(self.mag * 20))
+
+        plt.imshow(img_straight, cmap='gray', vmin=0)
+        plt.show()
+
+        cytbg = self.cytbg[25:75]
+        membg = self.membg[25:75]
+
+        # Get cortical signals
+        fbc_spa = np.zeros(self.img_straight.shape)
+        mem_spa = np.zeros(self.img_straight.shape)
+
+        # fits = np.zeros(len(img_straight[0, :]))
+        for i in range(len(img_straight[0, :])):
+            # Input for curve fitter
+            x = np.stack((membg, cytbg, img_straight[:, i]), axis=0)
+
+            # Fit to find offset
+            popt, pcov = curve_fit(self.func, x, img_straight[:, i], p0=0)
+            m1, c1, c2 = self.fix_ends(popt[0], x)
+
+            fbc_spa[:, i] = m1 * cytbg
+            mem_spa[:, i] = m1 * popt[0] * membg
+
+        plt.imshow(mem_spa + fbc_spa, cmap='gray', vmin=0)
+        plt.show()
+
+        plt.imshow(mem_spa, cmap='gray', vmin=0)
+        plt.show()
+
+        plt.imshow(fbc_spa, cmap='gray', vmin=0)
+        plt.show()
+
+    def fix_ends(self, a, x):
+        """
+        For a given value of a, calculates parameters m1, c1 and c2, which ensure ends fit to profile
+
+        """
+
+        profile = x[2, :]
+        cytbg = x[1, :]
+        membg = x[0, :]
+
+        pa = np.mean(profile[:int(len(profile) * self.end_region)])
+        px = np.mean(profile[int(len(profile) * (1 - self.end_region)):])
+        b1a = np.mean(cytbg[:int(len(cytbg) * self.end_region)])
+        b1x = np.mean(cytbg[int(len(cytbg) * (1 - self.end_region)):])
+        b2a = np.mean(membg[:int(len(membg) * self.end_region)])
+        b2x = np.mean(membg[int(len(membg) * (1 - self.end_region)):])
+
+        g = a
+        m1 = (px - pa) / (b1x - b1a + g * (b2x - b2a))
+        c1 = pa - (m1 * b1a)
+        c2 = - m1 * g * b2a
+
+        return m1, c1, c2
+
+    def func(self, x, a):
+        """
+        Used to fit paramter a, which specifies how much of the profile is made up of membrane contribution
+
+        """
+
+        m1, c1, c2 = self.fix_ends(a, x)
+        y = m1 * (x[1, :] + a * x[0, :]) + c1 + c2
+
+        return y
+
+    def func2(self, x, a):
+        m1, c1, c2 = self.fix_ends(a, x)
+        y = m1 * x[1, :] + c1
+
+        return y
 
 
 class Quantifier:
     """
+
+    WORK IN PROGRESS
+
     Performs quantification on an image
     Functions to perform specified by funcs argument
     Results saved as individual .txt files for each quantification
@@ -577,22 +871,16 @@ class Quantifier:
     name               name tag for results files (e.g. g -> g_mem.txt)
     mag                magnification of the image (1 = 60x)
     funcs              functions to perform
-    bounds             limits some quantifications to specific region of cortex
 
 
     """
 
-    def __init__(self, img, coors, direc, name, bg=None, mag=1, funcs='all', bounds=(0, 1), thickness=50):
+    def __init__(self, img, coors, bg=None, mag=1):
         self.img = img
         self.coors = coors
         self.bg = bg
-        self.direc = direc
-        self.name = name
         self.mag = mag
-        self.funcs = funcs
-        self.bounds = bounds
-
-        self.thickness = thickness
+        self.thickness = 50
         self.img_straight = None
         self.res = self.Res()
 
@@ -603,17 +891,24 @@ class Quantifier:
         """
 
         def __init__(self):
-            self.mem = None
+            self.mema = None
+            self.proa = None
+            self.fbca = None
+            self.memp = None
+            self.prop = None
+            self.fbcp = None
+            self.memw = None
+            self.prow = None
+            self.fbcw = None
             self.spa = None
             self.cyt = None
             self.tot = None
             self.cse = None
             self.asi = None
-            self.pro = None
-            self.fbc = None
             self.ext = None
+            self.mbm = None
 
-    def run(self):
+    def run(self, funcs):
         """
 
         """
@@ -621,49 +916,78 @@ class Quantifier:
         self.img_straight = straighten(self.img, self.coors, int(50 * self.mag))
 
         # Perform analysis
-        if self.funcs is None:
+        if funcs is None:
             pass
         else:
-            if self.funcs == 'all':
-                self.funcs = ['mem', 'spa', 'cyt', 'tot', 'cse', 'asi', 'pro', 'fbc', 'ext']
-            for func in self.funcs:
+            if funcs == 'all':
+                funcs = ['mem', 'spa', 'cyt', 'mbm', 'tot', 'cse', 'asi', 'ext']
+            for func in funcs:
                 getattr(self, func)()
 
-        # Save results
-        self.savedata()
+    def save(self, direc):
+        """
+
+        """
+        d = vars(self.res)
+        for key, value in d.items():
+            if value is not None:
+                np.savetxt('%s/%s.txt' % (direc, key), value, fmt='%.4f', delimiter='\t')
 
     def mem(self):
         """
-        Average of the cortical intensity in region specified by bounds
+        Average of the cortical intensity
+        Performed in anterior, posterior and whole cell
 
         """
 
-        # Average
-        profile = bounded_mean_2d(self.img_straight, self.bounds)
-        profile = interp_1d_array(profile, 50)
+        self.res.proa = bounded_mean_2d(self.img_straight, [0.4, 0.6])
+        self.res.prop = bounded_mean_2d(self.img_straight, [0.9, 0.1])
+        self.res.prow = bounded_mean_2d(self.img_straight, [0, 1])
 
-        # Get cortical signal
-        bg = fix_ends(profile, self.bg[25:75])
-        self.res.mem = [np.trapz(profile - bg)]
+        self.res.fbca = fix_ends(bounded_mean_2d(self.img_straight, [0.4, 0.6]),
+                                 interp_1d_array(self.bg[25:75], int(50 * self.mag)))
+        self.res.fbcp = fix_ends(bounded_mean_2d(self.img_straight, [0.9, 0.1]),
+                                 interp_1d_array(self.bg[25:75], int(50 * self.mag)))
+        self.res.fbcw = fix_ends(bounded_mean_2d(self.img_straight, [0, 1]),
+                                 interp_1d_array(self.bg[25:75], int(50 * self.mag)))
+
+        self.res.mema = [np.trapz(self.res.proa - self.res.fbca)]
+        self.res.memp = [np.trapz(self.res.prop - self.res.fbcp)]
+        self.res.memw = [np.trapz(self.res.prow - self.res.fbcw)]
+
+    # def pro(self):
+    #     """
+    #
+    #     """
+    #     img = straighten(self.img, self.coors, int(self.thickness * self.mag))
+    #     self.res.proa = bounded_mean_2d(img, [0.4, 0.6])
+    #     self.res.prop = bounded_mean_2d(img, [0.9, 0.1])
+    #     self.res.prow = bounded_mean_2d(img, [0, 1])
 
     def spa(self):
         """
         Spatial profile of intensity around the cortex
-        - Should add interpolation
+        Change to 10 pixel patches instead, then interpolate to 1000
 
         """
 
-        # Smoothen
-        img_straight = rolling_ave(self.img_straight, int(20 * self.mag))
+        # Interpolate
+        img_straight = rolling_ave_2d(self.img_straight, int(self.mag * 10))
 
         # Get cortical signals
-        sigs = np.zeros([100])
-        for x in range(100):
-            profile = img_straight[:, int(np.linspace(0, len(img_straight[0, :]), 100)[x] - 1)]
-            profile = interp_1d_array(profile, 50)
-            bg2 = fix_ends(profile, self.bg[25:75])
+        sigs = np.zeros([len(img_straight[0, :])])
+        fbc_spa = np.zeros(self.img_straight.shape)
+        mem_spa = np.zeros(self.img_straight.shape)
+        for x in range(len(img_straight[0, :])):
+            profile = img_straight[:, x]
+            bg2 = fix_ends(profile, interp_1d_array(self.bg[25:75], len(profile)))
+            fbc_spa[:, x] = bg2
+            mem_spa[:, x] = profile - bg2
             sigs[x] = np.trapz(profile - bg2)
-        self.res.spa = sigs
+        self.res._fbc_spa = fbc_spa
+        self.res._mem_spa = mem_spa
+        self.res._spa = sigs
+        self.res.spa = interp_1d_array(sigs, 100)
 
     def cyt(self):
         """
@@ -673,14 +997,40 @@ class Quantifier:
         img2 = polycrop(self.img, self.coors, -20 * self.mag)
         self.res.cyt = [np.nanmean(img2[np.nonzero(img2)])]
 
+    def mbm(self):
+        """
+        Membrane mean signal
+
+        """
+        if not hasattr(getattr(self, 'res'), '_spa'):
+            self.spa()
+        nc = norm_coors(self.coors)
+        self.res.mbm = [np.average(self.res._spa, weights=abs(nc[:, 1]))]
+
     def tot(self):
         """
         Total signal over entire embryo
 
         """
 
-        img2 = polycrop(self.img, self.coors, 5 * self.mag)
-        self.res.tot = [np.nanmean(img2[np.nonzero(img2)])]
+        if self.res.cyt is None:
+            self.cyt()
+        if self.res.mbm is None:
+            self.mbm()
+
+        # Normalise coordinates
+        nc = norm_coors(self.coors)
+
+        # Calculate volume
+        r1 = max(nc[:, 0]) - min(nc[:, 0]) / 2
+        r2 = max(nc[:, 1]) - min(nc[:, 1]) / 2
+        vol = 4 / 3 * np.pi * r2 * r2 * r1
+
+        # Calculate surface area
+        e = (1 - (r2 ** 2) / (r1 ** 2)) ** 0.5
+        sa = 2 * np.pi * r2 * r2 * (1 + (r1 / (r2 * e)) * np.arcsin(e))
+
+        self.res.tot = [self.res.cyt[0] + ((sa / vol) * self.res.mbm[0])]
 
     def cse(self, thickness=10, extend=1.5):
         """
@@ -734,29 +1084,11 @@ class Quantifier:
         Asymmetry index
 
         """
-        ant = bounded_mean(self.res.spa, (0.25, 0.75))
-        post = bounded_mean(self.res.spa, (0.75, 0.25))
+        if self.res.spa is None:
+            self.spa()
+        ant = bounded_mean_1d(self.res.spa, (0.25, 0.75))
+        post = bounded_mean_1d(self.res.spa, (0.75, 0.25))
         self.res.asi = [(ant - post) / (2 * (ant + post))]
-
-    def pro(self):
-        """
-        Profile perpendicular to cortex, from cytoplasm to outside the cell
-
-        """
-        if self.thickness != 50:
-            img_straight = straighten(self.img, self.coors, int(self.thickness * self.mag))
-            self.res.pro = bounded_mean_2d(img_straight, self.bounds)
-        else:
-            self.res.pro = bounded_mean_2d(self.img_straight, self.bounds)
-
-    def fbc(self):
-        """
-        Fitted background curve
-
-        """
-        profile = bounded_mean_2d(self.img_straight, self.bounds)
-        profile = interp_1d_array(profile, 50)
-        self.res.fbc = fix_ends(profile, self.bg[25:75])
 
     def ext(self):
         """
@@ -765,16 +1097,6 @@ class Quantifier:
         """
         img = polycrop(self.img, self.coors, 60 * self.mag) - polycrop(self.img, self.coors, 10 * self.mag)
         self.res.ext = [np.nanmean(img[np.nonzero(img)])]
-
-    def savedata(self):
-        """
-        Saves results to .txt files
-
-        """
-        d = vars(self.res)
-        for key, value in d.items():
-            if value is not None:
-                np.savetxt('%s/%s_%s.txt' % (self.direc, self.name, key), value, fmt='%.4f', delimiter='\t')
 
 
 ############### MISC FUNCTIONS ##############
@@ -819,18 +1141,6 @@ def polycrop(img, polyline, enlarge):
     mask = cv2.fillPoly(mask, [newcoors], 1)
     newimg = img * mask
     return newimg
-
-
-def interp_1d_array(arr, n):
-    """
-    Interpolates a one dimensional array into n points
-
-    :param arr:
-    :param n:
-    :return:
-    """
-
-    return np.interp(np.linspace(0, len(arr), n), np.array(range(len(arr))), arr)
 
 
 def straighten(img, coors, thickness):
@@ -890,138 +1200,6 @@ def offset_coordinates(coors, offsets):
         newys[i] = ycoors[i] - np.sign(run) * np.sign(offsets[i]) * ychange
 
     newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
-
-    return newcoors
-
-
-def interp(img, n):
-    """
-    Interpolates values along y axis into n points, for each x value
-    :param img:
-    :param n:
-    :return:
-    """
-
-    interped = np.zeros([n, len(img[0, :])])
-    for x in range(len(img[0, :])):
-        interped[:, x] = interp_1d_array(img[:, x], n)
-
-    return interped
-
-
-def rolling_ave(img, window, periodic=True):
-    """
-    Returns rolling average across the x axis of an image (used for straightened profiles)
-
-    :param img: image data
-    :param window: number of pixels to average over. Odd number is best
-    :param periodic: is true, rolls over at ends
-    :return: ave
-    """
-
-    if not periodic:
-        ave = np.zeros([len(img[:, 0]), len(img[0, :])])
-        for y in range(len(img[:, 0])):
-            ave[y, :] = np.convolve(img[y, :], np.ones(window) / window, mode='same')
-        return ave
-
-    elif periodic:
-        ave = np.zeros([len(img[:, 0]), len(img[0, :])])
-        starts = np.append(range(len(img[0, :]) - int(window / 2), len(img[0, :])),
-                           range(len(img[0, :]) - int(window / 2)))
-        ends = np.append(np.array(range(int(np.ceil(window / 2)), len(img[0, :]))),
-                         np.array(range(int(np.ceil(window / 2)))))
-
-        for x in range(len(img[0, :])):
-            if starts[x] < x < ends[x]:
-                ave[:, x] = np.mean(img[:, starts[x]:ends[x]], axis=1)
-            else:
-                ave[:, x] = np.mean(np.append(img[:, starts[x]:], img[:, :ends[x]], axis=1), axis=1)
-        return ave
-
-
-def rolling_ave_1d(array, window, periodic=1):
-    if periodic == 0:
-        ave = np.zeros([len(array)])
-        ave[int(window / 2):-int(window / 2)] = np.convolve(array, np.ones(window) / window, mode='valid')
-        return ave
-
-    elif periodic == 1:
-        ave = np.zeros([len(array)])
-        starts = np.append(range(len(array) - int(window / 2), len(array)),
-                           range(len(array) - int(window / 2)))
-        ends = np.append(np.array(range(int(np.ceil(window / 2)), len(array))),
-                         np.array(range(int(np.ceil(window / 2)))))
-
-        for x in range(len(array)):
-            if starts[x] < x < ends[x]:
-                ave[x] = np.mean(array[starts[x]:ends[x]])
-            else:
-                ave[x] = np.mean(np.append(array[starts[x]:], array[:ends[x]]))
-        return ave
-
-
-def bounded_mean(array, bounds):
-    """
-    Averages 1D array over region specified by bounds
-
-    :param array:
-    :param bounds:
-    :return:
-    """
-
-    if bounds[0] < bounds[1]:
-        mean = np.mean(array[int(len(array) * bounds[0]): int(len(array) * bounds[1] + 1)])
-    else:
-        mean = np.mean(np.hstack((array[:int(len(array) * bounds[1] + 1)], array[int(len(array) * bounds[0]):])))
-    return mean
-
-
-def bounded_mean_2d(array, bounds):
-    """
-    Averages 2D array in y dimension over region specified by bounds
-
-    Should add axis parameter
-
-    :param array:
-    :param bounds:
-    :return:
-    """
-
-    if bounds[0] < bounds[1]:
-        mean = np.mean(array[:, int(len(array[0, :]) * bounds[0]): int(len(array[0, :]) * bounds[1])], 1)
-    else:
-        mean = np.mean(
-            np.hstack((array[:, :int(len(array[0, :]) * bounds[1])], array[:, int(len(array[0, :]) * bounds[0]):])), 1)
-    return mean
-
-
-def rotate_coors(coors):
-    """
-    Rotates coordinate array so that most posterior point is at the beginning
-
-    :param coors:
-    :return:
-    """
-
-    # PCA to find long axis
-    M = (coors - np.mean(coors.T, axis=1)).T
-    [latent, coeff] = np.linalg.eig(np.cov(M))
-    score = np.dot(coeff.T, M)
-
-    # Find most extreme points
-    a = np.argmin(np.minimum(score[0, :], score[1, :]))
-    b = np.argmax(np.maximum(score[0, :], score[1, :]))
-
-    # Find the one closest to user defined posterior
-    dista = np.hypot((coors[0, 0] - coors[a, 0]), (coors[0, 1] - coors[a, 1]))
-    distb = np.hypot((coors[0, 0] - coors[b, 0]), (coors[0, 1] - coors[b, 1]))
-
-    # Rotate coordinates
-    if dista < distb:
-        newcoors = np.roll(coors, len(coors[:, 0]) - a, 0)
-    else:
-        newcoors = np.roll(coors, len(coors[:, 0]) - b, 0)
 
     return newcoors
 
@@ -1114,58 +1292,158 @@ def bg_subtraction(img, coors, mag):
     return img - a
 
 
-def rotated_embryo(img, coors, l):
+def norm_coors(coors):
     """
-    Takes an image and rotates according to coordinates so that anterior is on left, posterior on right
+    Aligns coordinates to their long axis
 
-    :param img:
     :param coors:
-    :param l: length of each side in returned image
     :return:
     """
 
     # PCA
     M = (coors - np.mean(coors.T, axis=1)).T
     [latent, coeff] = np.linalg.eig(np.cov(M))
-    score = np.dot(coeff.T, M)
+    score = np.dot(coeff.T, M).T
 
-    # Find ends
-    a = np.argmin(np.minimum(score[0, :], score[1, :]))
-    b = np.argmax(np.maximum(score[0, :], score[1, :]))
+    # Find long axis
+    if (max(score[0, :]) - min(score[0, :])) < (max(score[1, :]) - min(score[1, :])):
+        score = np.fliplr(score)
 
-    # Find the one closest to user defined posterior
-    dista = np.hypot((coors[0, 0] - coors[a, 0]), (coors[0, 1] - coors[a, 1]))
-    distb = np.hypot((coors[0, 0] - coors[b, 0]), (coors[0, 1] - coors[b, 1]))
+    return score
 
-    if dista < distb:
-        line0 = np.array([coors[a, :], coors[b, :]])
+
+# General functions
+
+def interp_1d_array(array, n):
+    """
+    Interpolates a one dimensional array into n points
+
+    :param array:
+    :param n:
+    :return:
+    """
+
+    return np.interp(np.linspace(0, len(array) - 1, n), np.array(range(len(array))), array)
+
+
+def interp_2d_array(array, n, ax=0):
+    """
+    Interpolates values along y axis into n points, for each x value
+    :param array:
+    :param n:
+    :param ax:
+    :return:
+    """
+
+    if ax == 0:
+        interped = np.zeros([n, len(array[0, :])])
+        for x in range(len(array[0, :])):
+            interped[:, x] = interp_1d_array(array[:, x], n)
+        return interped
+    elif ax == 1:
+        interped = np.zeros([len(array[:, 0]), n])
+        for x in range(len(array[:, 0])):
+            interped[x, :] = interp_1d_array(array[x, :], n)
+        return interped
     else:
-        line0 = np.array([coors[b, :], coors[a, :]])
+        return None
 
-    # Extend line
-    length = np.hypot((line0[0, 0] - line0[1, 0]), (line0[0, 1] - line0[1, 1]))
-    line0 = extend_line(line0, l / length)
 
-    # Thicken line
-    line1 = offset_line(line0, l / 2)
-    line2 = offset_line(line0, -l / 2)
-    end1 = np.array(
-        [np.linspace(line1[0, 0], line2[0, 0], l), np.linspace(line1[0, 1], line2[0, 1], l)]).T
-    end2 = np.array(
-        [np.linspace(line1[1, 0], line2[1, 0], l), np.linspace(line1[1, 1], line2[1, 1], l)]).T
+def rolling_ave_1d(array, window, periodic=True):
+    """
 
-    # Get cross section
-    num_points = l
-    zvals = np.zeros([l, l])
-    for section in range(l):
-        xvalues = np.linspace(end1[section, 0], end2[section, 0], num_points)
-        yvalues = np.linspace(end1[section, 1], end2[section, 1], num_points)
-        zvals[section, :] = map_coordinates(img.T, [xvalues, yvalues])
+    :param array:
+    :param window:
+    :param periodic:
+    :return:
+    """
+    if not periodic:
+        ave = np.zeros([len(array)])
+        ave[int(window / 2):-int(window / 2)] = np.convolve(array, np.ones(window) / window, mode='valid')
+        return ave
 
-    # Mirror
-    zvals = np.fliplr(zvals)
+    elif periodic:
+        ave = np.zeros([len(array)])
+        starts = np.append(range(len(array) - int(window / 2), len(array)),
+                           range(len(array) - int(window / 2)))
+        ends = np.append(np.array(range(int(np.ceil(window / 2)), len(array))),
+                         np.array(range(int(np.ceil(window / 2)))))
 
-    return zvals
+        for x in range(len(array)):
+            if starts[x] < x < ends[x]:
+                ave[x] = np.mean(array[starts[x]:ends[x]])
+            else:
+                ave[x] = np.mean(np.append(array[starts[x]:], array[:ends[x]]))
+        return ave
+
+
+def rolling_ave_2d(array, window, periodic=True):
+    """
+    Returns rolling average across the x axis of an image (used for straightened profiles)
+
+    :param array: image data
+    :param window: number of pixels to average over. Odd number is best
+    :param periodic: is true, rolls over at ends
+    :return: ave
+    """
+
+    if not periodic:
+        ave = np.zeros([len(array[:, 0]), len(array[0, :])])
+        for y in range(len(array[:, 0])):
+            ave[y, :] = np.convolve(array[y, :], np.ones(window) / window, mode='same')
+        return ave
+
+    elif periodic:
+        ave = np.zeros([len(array[:, 0]), len(array[0, :])])
+        starts = np.append(range(len(array[0, :]) - int(window / 2), len(array[0, :])),
+                           range(len(array[0, :]) - int(window / 2)))
+        ends = np.append(np.array(range(int(np.ceil(window / 2)), len(array[0, :]))),
+                         np.array(range(int(np.ceil(window / 2)))))
+
+        for x in range(len(array[0, :])):
+            if starts[x] < x < ends[x]:
+                ave[:, x] = np.mean(array[:, starts[x]:ends[x]], axis=1)
+            else:
+                ave[:, x] = np.mean(np.append(array[:, starts[x]:], array[:, :ends[x]], axis=1), axis=1)
+        return ave
+
+
+def bounded_mean_1d(array, bounds):
+    """
+    Averages 1D array over region specified by bounds
+
+    Should add interpolation step first
+
+    :param array:
+    :param bounds:
+    :return:
+    """
+
+    if bounds[0] < bounds[1]:
+        mean = np.mean(array[int(len(array) * bounds[0]): int(len(array) * bounds[1] + 1)])
+    else:
+        mean = np.mean(np.hstack((array[:int(len(array) * bounds[1] + 1)], array[int(len(array) * bounds[0]):])))
+    return mean
+
+
+def bounded_mean_2d(array, bounds):
+    """
+    Averages 2D array in y dimension over region specified by bounds
+
+    Should add axis parameter
+    Should add interpolation step first
+
+    :param array:
+    :param bounds:
+    :return:
+    """
+
+    if bounds[0] < bounds[1]:
+        mean = np.mean(array[:, int(len(array[0, :]) * bounds[0]): int(len(array[0, :]) * bounds[1])], 1)
+    else:
+        mean = np.mean(
+            np.hstack((array[:, :int(len(array[0, :]) * bounds[1])], array[:, int(len(array[0, :]) * bounds[0]):])), 1)
+    return mean
 
 
 def load_image(filename):
@@ -1194,18 +1472,18 @@ def saveimg(img, direc):
     im.save(direc)
 
 
-def saveimg_jpeg(img, direc, min, max):
+def saveimg_jpeg(img, direc, cmin, cmax):
     """
     Saves 2D array as jpeg, according to min and max pixel intensities
 
     :param img:
     :param direc:
-    :param min:
-    :param max:
+    :param cmin:
+    :param cmax:
     :return:
     """
 
-    a = toimage(img, cmin=min, cmax=max)
+    a = toimage(img, cmin=cmin, cmax=cmax)
     a.save(direc)
 
 
