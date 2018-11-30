@@ -17,8 +17,7 @@ Functions for segmentation and quantification of images
 To do:
 - ipynbs for segmentation example
 - change mag to 60
-- make more use of norm_coors function
-- commit
+- make more use of norm_coors function (rotate_coors, cse)
 - tidy test datasets (include af-corrected image?), write info file
 - change segmenter 1 and 2 to differential_evolution?
 - write readme
@@ -48,15 +47,16 @@ class SegmenterGeneric:
     direc           Directory to save coordinates to
     plot            True: will display output coordinates overlaid onto img
 
-    Output:
-    newcoors        New coordinates resulting from segmentation
-
     """
 
-    def __init__(self, img, coors=None, mag=1, iterations=3, periodic=True, parallel=False, resolution=5):
+    def __init__(self, img=None, img_g=None, img_r=None, coors=None, mag=1, iterations=3, periodic=True, parallel=False,
+                 resolution=5):
 
         # Inputs
         self.img = img
+        self.img_g = img_g
+        self.img_r = img_r
+        self.input_coors = coors
         self.coors = coors
         self.mag = mag
         self.iterations = iterations
@@ -65,19 +65,14 @@ class SegmenterGeneric:
         self.periodic = periodic
         self.method = None
 
-        # Outputs
-        self.newcoors = None
-
     def run(self):
         """
         Performs segmentation algorithm
 
         """
 
-        self.newcoors = self.coors
-
         # Interpolate coors to one pixel distance between points
-        self.newcoors = self.interp_coors(self.newcoors)
+        self.coors = self.interp_coors(self.coors)
 
         for i in range(self.iterations):
 
@@ -89,38 +84,68 @@ class SegmenterGeneric:
             offsets[nans] = np.interp(x(nans), x(~nans), offsets[~nans])
 
             # Interpolate
-            offsets = interp_1d_array(offsets, len(self.newcoors))
+            offsets = interp_1d_array(offsets, len(self.coors))
 
             # Offset coordinates
-            self.newcoors = offset_coordinates(self.newcoors, offsets)
+            self.coors = offset_coordinates(self.coors, offsets)
 
             # Filter
             if self.periodic:
-                self.newcoors = np.vstack(
-                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='wrap'),
-                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='wrap'))).T
+                self.coors = np.vstack(
+                    (savgol_filter(self.coors[:, 0], 19, 1, mode='wrap'),
+                     savgol_filter(self.coors[:, 1], 19, 1, mode='wrap'))).T
             elif not self.periodic:
-                self.newcoors = np.vstack(
-                    (savgol_filter(self.newcoors[:, 0], 19, 1, mode='nearest'),
-                     savgol_filter(self.newcoors[:, 1], 19, 1, mode='nearest'))).T
+                self.coors = np.vstack(
+                    (savgol_filter(self.coors[:, 0], 19, 1, mode='nearest'),
+                     savgol_filter(self.coors[:, 1], 19, 1, mode='nearest'))).T
 
             # Interpolate to one px distance between points
-            self.newcoors = self.interp_coors(self.newcoors)
+            self.coors = self.interp_coors(self.coors)
 
         # Rotate
         if self.periodic:
-            self.newcoors = self.rotate_coors(self.newcoors)
+            self.coors = self.rotate_coors(self.coors)
 
     def save(self, direc):
-        np.savetxt(direc, self.newcoors, fmt='%.4f', delimiter='\t')
+        np.savetxt(direc, self.coors, fmt='%.4f', delimiter='\t')
+
+    def _plot(self):
+        if self.img_g is not None:
+            self.comp_plot(self.img_g, self.img_r)
+        if self.img is not None:
+            plt.imshow(self.img, cmap='gray', vmin=0)
+
+    @staticmethod
+    def comp_plot(g, r):
+        """
+
+        """
+        rgb = np.dstack((r, g, np.zeros(g.shape)))
+        cmax = max(rgb.flatten())
+        rgb /= cmax
+        rgb[rgb <= 0] = 0
+        plt.imshow(rgb)
 
     def plot(self):
         """
 
         """
-        plt.imshow(self.img, cmap='gray', vmin=0)
-        plt.plot(self.newcoors[:, 0], self.newcoors[:, 1], c='r')
-        plt.scatter(self.newcoors[0, 0], self.newcoors[0, 1], c='r')
+        self._plot()
+        plt.plot(self.coors[:, 0], self.coors[:, 1], c='r')
+        plt.scatter(self.coors[0, 0], self.coors[0, 1], c='r')
+        plt.xticks([])
+        plt.yticks([])
+        plt.show()
+
+    def plot_straight(self):
+        """
+
+        """
+        if self.img_g is not None:
+            self.comp_plot(straighten(self.img_g, self.coors, 50 * self.mag),
+                           straighten(self.img_r, self.coors, 50 * self.mag))
+        if self.img is not None:
+            plt.imshow(straighten(self.img, self.coors, 50 * self.mag), cmap='gray', vmin=0)
         plt.xticks([])
         plt.yticks([])
         plt.show()
@@ -242,7 +267,8 @@ class SegmenterGeneric:
     def def_ROI(self):
         fig = plt.figure()
         ax = fig.add_subplot(111)
-        ax.imshow(self.img, cmap='gray', vmin=0)
+        # ax.imshow(self.img, cmap='gray', vmin=0)
+        self._plot()
         ax.text(0.03, 0.88,
                 'Specify ROI clockwise from the posterior (4 points minimum)'
                 '\nBACKSPACE to remove last point'
@@ -279,7 +305,8 @@ class Segmenter1(SegmenterGeneric):
     def __init__(self, img, bgcurve, coors=None, mag=1, iterations=3, parallel=False, resolution=5, freedom=0.3,
                  periodic=True):
 
-        super().__init__(img, coors, mag, iterations, periodic, parallel, resolution)
+        super().__init__(img=img, coors=coors, mag=mag, iterations=iterations, periodic=periodic, parallel=parallel,
+                         resolution=resolution)
 
         # Inputs
         self.bgcurve = bgcurve
@@ -292,7 +319,7 @@ class Segmenter1(SegmenterGeneric):
 
     def calc_offsets(self):
         # Straighten
-        straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+        straight = straighten(self.img, self.coors, int(self.thickness * self.mag))
 
         # Filter/smoothen/interpolate images
         straight = rolling_ave_2d(interp_2d_array(straight, self.itp), int(self.rol_ave * self.mag), self.periodic)
@@ -391,7 +418,8 @@ class Segmenter2(SegmenterGeneric):
     def __init__(self, img_g, img_r, bg_g, bg_r, coors=None, mag=1, iterations=3, parallel=False, resolution=5,
                  freedom=0.3, periodic=True):
 
-        super().__init__(img_g, coors, mag, iterations, periodic, parallel, resolution)
+        super().__init__(img_g=img_g, img_r=img_r, coors=coors, mag=mag, iterations=iterations, periodic=periodic,
+                         parallel=parallel, resolution=resolution)
 
         self.img_g = img_g
         self.img_r = img_r
@@ -409,8 +437,8 @@ class Segmenter2(SegmenterGeneric):
 
         """
         # Straighten
-        straight_g = straighten(self.img_g, self.newcoors, int(self.thickness * self.mag))
-        straight_r = straighten(self.img_r, self.newcoors, int(self.thickness * self.mag))
+        straight_g = straighten(self.img_g, self.coors, int(self.thickness * self.mag))
+        straight_r = straighten(self.img_r, self.coors, int(self.thickness * self.mag))
 
         # Smoothen/interpolate images
         straight_g = rolling_ave_2d(interp_2d_array(straight_g, self.itp), int(self.rol_ave * self.mag), self.periodic)
@@ -557,7 +585,8 @@ class Segmenter3(SegmenterGeneric):
 
     def __init__(self, img, coors=None, mag=1, iterations=2, parallel=False, resolution=5, periodic=True):
 
-        super().__init__(img, coors, mag, iterations, periodic, parallel, resolution)
+        super().__init__(img=img, coors=coors, mag=mag, iterations=iterations, periodic=periodic, parallel=parallel,
+                         resolution=resolution)
 
         self.itp = 1000
         self.thickness = 50
@@ -568,7 +597,7 @@ class Segmenter3(SegmenterGeneric):
 
         """
         # Straighten
-        straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+        straight = straighten(self.img, self.coors, int(self.thickness * self.mag))
 
         # Filter/smoothen/interpolate images
         straight = rolling_ave_2d(interp_2d_array(straight, self.itp), self.rol_ave, self.periodic)
@@ -607,7 +636,8 @@ class Segmenter4(SegmenterGeneric):
 
     def __init__(self, img, coors=None, mag=1, iterations=2, parallel=False, resolution=5, periodic=True):
 
-        super().__init__(img, coors, mag, iterations, periodic, parallel, resolution)
+        super().__init__(img=img, coors=coors, mag=mag, iterations=iterations, periodic=periodic, parallel=parallel,
+                         resolution=resolution)
 
         self.itp = 1000
         self.thickness = 50
@@ -618,7 +648,7 @@ class Segmenter4(SegmenterGeneric):
 
         """
         # Straighten
-        straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+        straight = straighten(self.img, self.coors, int(self.thickness * self.mag))
 
         # Filter/smoothen/interpolate images
         straight = rolling_ave_2d(interp_2d_array(straight, self.itp), self.rol_ave, self.periodic)
@@ -650,7 +680,8 @@ class Segmenter5(SegmenterGeneric):
 
     def __init__(self, img, cytbg, membg, coors=None, mag=1, iterations=2, parallel=False, resolution=5, freedom=0.3,
                  periodic=True):
-        super().__init__(img, coors, mag, iterations, periodic, parallel, resolution)
+        super().__init__(img=img, coors=coors, mag=mag, iterations=iterations, periodic=periodic, parallel=parallel,
+                         resolution=resolution)
 
         self.cytbg = cytbg
         self.membg = membg
@@ -660,13 +691,9 @@ class Segmenter5(SegmenterGeneric):
         self.rol_ave = 50
         self.end_region = 0.2
 
-        self._profile = None
-        self._cytbg = None
-        self._membg = None
-
     def calc_offsets(self):
         # Straighten
-        straight = straighten(self.img, self.newcoors, int(self.thickness * self.mag))
+        straight = straighten(self.img, self.coors, int(self.thickness * self.mag))
 
         # Filter/smoothen/interpolate images
         straight = rolling_ave_2d(interp_2d_array(straight, self.itp), int(self.rol_ave * self.mag), self.periodic)
@@ -693,11 +720,9 @@ class Segmenter5(SegmenterGeneric):
 
         """
 
-        self._profile = profile
-        self._cytbg = cytbg
-        self._membg = membg
-
-        res = differential_evolution(self.mse, bounds=((350, 650), (-1, 5)))
+        res = differential_evolution(self.mse, bounds=(
+            ((self.itp / 2) * (1 - self.freedom), (self.itp / 2) * (1 + self.freedom)), (-1, 5)),
+                                     args=(profile, cytbg, membg))
         o = (res.x[0] - self.itp / 2) / (self.itp / self.thickness)
 
         return o
@@ -718,37 +743,146 @@ class Segmenter5(SegmenterGeneric):
 
         return m1, c1, c2
 
-    def mse(self, l_a):
+    def mse(self, l_a, profile, cytbg, membg):
         """
 
         """
-        y = self.total_curve(l_a)
-        return np.mean((self._profile - y) ** 2)
+        y = self.total_curve(l_a, profile, cytbg, membg)
+        return np.mean((profile - y) ** 2)
 
-    def total_curve(self, l_a):
+    def total_curve(self, l_a, profile, cytbg, membg):
         """
 
         """
 
         l, a = l_a
-        cytbg = self._cytbg[int(l):int(l) + self.itp]
-        membg = self._membg[int(l):int(l) + self.itp]
-        m1, c1, c2 = self.fix_ends(self._profile, cytbg, membg, a)
+        m1, c1, c2 = self.fix_ends(profile, cytbg[int(l):int(l) + self.itp], membg[int(l):int(l) + self.itp], a)
 
         # Profile estimate
-        return m1 * (cytbg + a * membg) + c1 + c2
+        return m1 * (cytbg[int(l):int(l) + self.itp] + a * membg[int(l):int(l) + self.itp]) + c1 + c2
 
-    def cyt_only(self, l_a):
+    def cyt_only(self, l_a, profile, cytbg, membg):
         """
 
         """
         l, a = l_a
-        cytbg = self._cytbg[int(l):int(l) + self.itp]
-        membg = self._membg[int(l):int(l) + self.itp]
-        m1, c1, c2 = self.fix_ends(self._profile, cytbg, membg, a)
+        m1, c1, c2 = self.fix_ends(profile, cytbg[int(l):int(l) + self.itp], membg[int(l):int(l) + self.itp], a)
 
         # Profile estimate
-        return m1 * cytbg + c1
+        return m1 * cytbg[int(l):int(l) + self.itp] + c1
+
+
+class Segmenter6(SegmenterGeneric):
+    """
+    Fit profiles to cytoplasmic background + membrane background
+    Two channels
+
+    """
+
+    def __init__(self, img_g, img_r, cytbg_g, cytbg_r, membg_g, membg_r, coors=None, mag=1, iterations=2,
+                 parallel=False, resolution=5, freedom=0.3, periodic=True):
+        super().__init__(img_g=img_g, img_r=img_r, coors=coors, mag=mag, iterations=iterations, periodic=periodic,
+                         parallel=parallel, resolution=resolution)
+
+        self.img_g = img_g
+        self.img_r = img_r
+        self.cytbg_g = cytbg_g
+        self.cytbg_r = cytbg_r
+        self.membg_g = membg_g
+        self.membg_r = membg_r
+        self.freedom = freedom
+        self.thickness = 50
+        self.itp = 1000
+        self.rol_ave = 50
+        self.end_region = 0.2
+
+    def calc_offsets(self):
+        # Straighten
+        straight_g = straighten(self.img_g, self.coors, int(self.thickness * self.mag))
+        straight_r = straighten(self.img_r, self.coors, int(self.thickness * self.mag))
+
+        # Filter/smoothen/interpolate images
+        straight_g = rolling_ave_2d(interp_2d_array(straight_g, self.itp), int(self.rol_ave * self.mag), self.periodic)
+        straight_r = rolling_ave_2d(interp_2d_array(straight_r, self.itp), int(self.rol_ave * self.mag), self.periodic)
+
+        # Interpolate bgcurves
+        cytbg_g = interp_1d_array(self.cytbg_g, 2 * self.itp)
+        membg_g = interp_1d_array(self.membg_g, 2 * self.itp)
+        cytbg_r = interp_1d_array(self.cytbg_r, 2 * self.itp)
+        membg_r = interp_1d_array(self.membg_r, 2 * self.itp)
+
+        # Fit
+        if self.parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile)(straight_g[:, x * int(self.mag * self.resolution)],
+                                          straight_r[:, x * int(self.mag * self.resolution)], cytbg_g, cytbg_r,
+                                          membg_g, membg_r)
+                for x in range(len(straight_g[0, :]) // int(self.mag * self.resolution))))
+        else:
+            offsets = np.zeros(len(straight_g[0, :]) // int(self.mag * self.resolution))
+            for x in range(len(straight_g[0, :]) // int(self.mag * self.resolution)):
+                offsets[x] = self.fit_profile(straight_g[:, x * int(self.mag * self.resolution)],
+                                              straight_r[:, x * int(self.mag * self.resolution)], cytbg_g, cytbg_r,
+                                              membg_g, membg_r)
+
+        return offsets
+
+    def fit_profile(self, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r):
+        """
+        Takes cross sections from images and finds optimal offset for alignment
+
+        """
+
+        res = differential_evolution(self.mse, bounds=(
+            ((self.itp / 2) * (1 - self.freedom), (self.itp / 2) * (1 + self.freedom)), (-1, 5), (-1, 5)),
+                                     args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r))
+        o = (res.x[0] - self.itp / 2) / (self.itp / self.thickness)
+
+        return o
+
+    def fix_ends(self, profile, cytbg, membg, a):
+        """
+
+        """
+        pa = np.mean(profile[:int(len(profile) * self.end_region)])
+        px = np.mean(profile[int(len(profile) * (1 - self.end_region)):])
+        b1a = np.mean(cytbg[:int(len(cytbg) * self.end_region)])
+        b1x = np.mean(cytbg[int(len(cytbg) * (1 - self.end_region)):])
+        b2a = np.mean(membg[:int(len(membg) * self.end_region)])
+        b2x = np.mean(membg[int(len(membg) * (1 - self.end_region)):])
+        m1 = (px - pa) / (b1x - b1a + a * (b2x - b2a))
+        c1 = pa - (m1 * b1a)
+        c2 = - m1 * a * b2a
+
+        return m1, c1, c2
+
+    def mse(self, l_ag_ar, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r):
+        """
+
+        """
+        l, ag, ar = l_ag_ar
+        yg = self.total_curve(profile_g, cytbg_g, membg_g, l, ag)
+        yr = self.total_curve(profile_r, cytbg_r, membg_r, l, ar)
+        return np.mean([np.mean((profile_g - yg) ** 2), np.mean((profile_r - yr) ** 2)])
+
+    def total_curve(self, profile, cytbg, membg, l, a):
+        """
+
+        """
+
+        m1, c1, c2 = self.fix_ends(profile, cytbg[int(l):int(l) + self.itp], membg[int(l):int(l) + self.itp], a)
+
+        # Profile estimate
+        return m1 * (cytbg[int(l):int(l) + self.itp] + a * membg[int(l):int(l) + self.itp]) + c1 + c2
+
+    def cyt_only(self, profile, cytbg, membg, l, a):
+        """
+
+        """
+        m1, c1, c2 = self.fix_ends(profile, cytbg[int(l):int(l) + self.itp], membg[int(l):int(l) + self.itp], a)
+
+        # Profile estimate
+        return m1 * cytbg[int(l):int(l) + self.itp] + c1
 
 
 ################## ANALYSIS #################
