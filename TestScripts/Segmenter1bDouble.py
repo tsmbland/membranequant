@@ -18,13 +18,14 @@ img2 = ch3 - 3545.6087
 bg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/CytBgGFPaf.txt')
 
 # Set up segmenter
-seg = Segmenter2(img_g=img1, img_r=5 * img2, bg_g=bg, bg_r=bg, mag=1, iterations=3, parallel=True)
+seg = Segmenter1bDouble(img_g=img1, img_r=5 * img2, cytbg_g=bg, cytbg_r=bg, mag=1, iterations=3, parallel=True)
 
 # Specify ROI
 seg.def_ROI()
+seg.coors = seg.fit_spline(seg.coors)
 
 # Run
-seg.run()
+seg.segment()
 
 # Plot
 seg.plot()

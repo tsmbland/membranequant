@@ -16,14 +16,22 @@ img = af_subtraction(ch1, ch2, m=2, c=0)
 bg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/CytBgGFPaf.txt')
 
 # Set up segmenter
-seg = Segmenter1(img=img, bgcurve=bg, mag=1, iterations=3, parallel=True)
+seg = Segmenter1aSingle(img=img, cytbg=bg, mag=1, iterations=3, parallel=True)
 
 # Specify ROI
 seg.def_ROI()
+seg.coors = seg.fit_spline(seg.coors)
 
 # Run
-seg.run()
+seg.segment()
 
 # Plot
 seg.plot()
 seg.plot_straight()
+
+# Quantification
+q = Quantifier1c(img=img, coors=seg.coors, mag=1, cytbg=bg)
+q.run()
+plt.plot(q.sigs)
+plt.axhline(0)
+plt.show()

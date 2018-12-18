@@ -19,14 +19,23 @@ CytBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDatase
 MemBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/MemBgGFPaf.txt')
 
 # Set up segmenter
-seg = Segmenter5(img=img, coors=coors, cytbg=CytBg, membg=MemBg, mag=1, parallel=True, iterations=3, resolution=5)
+seg = Segmenter2Single(img=img, coors=coors, cytbg=CytBg, membg=MemBg, mag=1, parallel=True, iterations=3, resolution=5)
 
 # Specify ROI
 seg.def_ROI()
+seg.coors = seg.fit_spline(seg.coors)
 
 # Run
-seg.run()
+seg.segment()
 
 # Plot
 seg.plot()
 seg.plot_straight()
+
+q = Quantifier2b(img=img, coors=seg.coors, mag=1, thickness=50, cytbg=CytBg, membg=MemBg)
+q.run()
+plt.plot(q.sigs)
+plt.axhline(0)
+plt.show()
+
+

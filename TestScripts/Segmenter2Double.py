@@ -2,8 +2,7 @@ from IA import *
 import os
 
 """
-Segmentation using Segment0 method
-Single channel segmentation using cytoplasmic background curve to find edge
+Segmentation using Segment6 method
 
 """
 
@@ -19,15 +18,17 @@ CytBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDatase
 MemBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/MemBgGFPaf.txt')
 
 # Set up segmenter
-seg = Segmenter6(img_g=img1, img_r=5 * img2, cytbg_g=CytBg, cytbg_r=CytBg, membg_g=MemBg, membg_r=MemBg, mag=1,
-                 iterations=3, parallel=True, resolution=5)
+seg = Segmenter2Double(img_g=img1, img_r=5 * img2, cytbg_g=CytBg, cytbg_r=CytBg, membg_g=MemBg, membg_r=MemBg, mag=1,
+                       iterations=3, parallel=True, resolution=5)
 
 # Specify ROI
 seg.def_ROI()
+seg.coors = seg.fit_spline(seg.coors)
 
 # Run
-seg.run()
+seg.segment()
 
 # Plot
 seg.plot()
 seg.plot_straight()
+
