@@ -1,0 +1,841 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Large restructuring">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Old code.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TestScripts/coors.txt" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/Segmenter1bDouble.py" afterPath="" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/TestScripts/Segmenter2Double.py" afterPath="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
+      <change type="MOVED" beforePath="$PROJECT_DIR$/TestScripts/Segmenter2Single.py" afterPath="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/IA.py" afterPath="$PROJECT_DIR$/IA.py" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file leaf-file-name="IA.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/IA.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1159">
+              <caret line="21" column="14" lean-forward="true" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
+              <folding>
+                <element signature="e#0#21#0" expanded="true" />
+                <element signature="e#1252#2672#0" expanded="false" />
+                <element signature="e#2746#10344#0" expanded="false" />
+                <element signature="e#10401#13542#0" expanded="false" />
+                <element signature="e#13599#16939#0" expanded="false" />
+                <element signature="e#16981#18674#0" expanded="false" />
+                <element signature="e#18716#20184#0" expanded="false" />
+                <element signature="e#20266#23156#0" expanded="false" />
+                <element signature="e#23247#23811#0" expanded="false" />
+                <element signature="e#23858#25390#0" expanded="false" />
+                <element signature="e#25449#25654#0" expanded="false" />
+                <element signature="e#25698#26259#0" expanded="false" />
+                <element signature="e#26316#27509#0" expanded="false" />
+                <element signature="e#27542#27767#0" expanded="false" />
+                <element signature="e#27799#27940#0" expanded="false" />
+                <element signature="e#28029#28593#0" expanded="false" />
+                <element signature="e#28631#29274#0" expanded="false" />
+                <element signature="e#29312#30143#0" expanded="false" />
+                <element signature="e#30186#30400#0" expanded="false" />
+                <element signature="e#30457#31322#0" expanded="false" />
+                <element signature="e#31365#31874#0" expanded="false" />
+                <element signature="e#31923#32149#0" expanded="false" />
+                <element signature="e#32174#32313#0" expanded="false" />
+                <element signature="e#32370#33170#0" expanded="false" />
+                <element signature="e#33214#33526#0" expanded="false" />
+                <element signature="e#33571#34009#0" expanded="false" />
+                <element signature="e#34055#34491#0" expanded="false" />
+                <element signature="e#34521#34901#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Old code.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Old code.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="30">
+              <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+              <folding>
+                <element signature="e#20#2604#0" expanded="false" />
+                <element signature="e#2674#6796#0" expanded="false" />
+                <element signature="e#6855#12920#0" expanded="false" />
+                <element signature="e#12979#16615#0" expanded="false" />
+                <element signature="e#16674#22223#0" expanded="false" />
+                <element signature="e#22271#24899#0" expanded="false" />
+                <element signature="e#24936#27568#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="_0_w2488 SP 535-50.TIF" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestDataset/_0_w2488 SP 535-50.TIF">
+          <provider selected="true" editor-type-id="images">
+            <state />
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SegmenterDouble.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterDouble.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="390">
+              <caret line="26" column="36" lean-forward="true" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MemBgGFPaf.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MemBgGFPaf.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestDataset2/MemBgGFPaf.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/README.md">
+          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+            <state split_layout="SPLIT">
+              <first_editor relative-caret-position="180">
+                <caret line="12" column="17" lean-forward="false" selection-start-line="12" selection-start-column="17" selection-end-line="12" selection-end-column="17" />
+                <folding />
+              </first_editor>
+              <second_editor />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SegmenterSingle.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="720">
+              <caret line="48" column="0" lean-forward="true" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
+              <folding>
+                <marker date="1547242656000" expanded="true" signature="696:1017" ph="..." />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>self.itp</find>
+      <find>empty</find>
+      <find>mgrid</find>
+      <find>PCA</find>
+      <find>self.newcoors</find>
+      <find>polycrop</find>
+      <find>self.cyt_mem_offset</find>
+      <find>self.cyt_mem_offset =</find>
+      <find>self.cyt_mem_offset = 4</find>
+      <find>self.cyt_mem_offset = 3.5</find>
+      <find>self.cyt_mem_offset = 3</find>
+      <find>self.cyt_mem_offset = -3</find>
+      <find>self.cytbg_offset = 4</find>
+      <find>interp_2d_array</find>
+      <find>*params</find>
+      <find>total_profile</find>
+      <find>fix_ends</find>
+      <find>self.fix_ends</find>
+      <find>self.fix</find>
+      <find>cytbg_offset=</find>
+      <find>cytbg_offset=0.</find>
+      <find>cytbg_offset=0</find>
+      <find>thickness=50</find>
+      <find>rol_ave=50</find>
+      <find>end_region=0.2</find>
+      <find>thickness=100</find>
+      <find>50</find>
+      <find>thickness</find>
+      <find>cv2</find>
+      <find>itp=5</find>
+    </findStrings>
+    <replaceStrings>
+      <replace />
+    </replaceStrings>
+    <dirStrings>
+      <dir>$PROJECT_DIR$/Experiments</dir>
+    </dirStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Figs/f1802__par6_rundown_nelio.py" />
+        <option value="$PROJECT_DIR$/Figs/f1807__s241e.py" />
+        <option value="$PROJECT_DIR$/_AFSettings/Analysis_update.py" />
+        <option value="$PROJECT_DIR$/Experiments/Analysis_cluster.py" />
+        <option value="$PROJECT_DIR$/_BgCurves/Analysis.py" />
+        <option value="$PROJECT_DIR$/_AFSettings/Analysis.py" />
+        <option value="$PROJECT_DIR$/Experiments/Analysis.py" />
+        <option value="$PROJECT_DIR$/Old/Dump.py" />
+        <option value="$PROJECT_DIR$/Run.sh" />
+        <option value="$PROJECT_DIR$/IA2.py" />
+        <option value="$PROJECT_DIR$/Experiments/Run.sh" />
+        <option value="$PROJECT_DIR$/Experiments/Init.py" />
+        <option value="$PROJECT_DIR$/BgCurves.py" />
+        <option value="$PROJECT_DIR$/_BgCurves/Init.py" />
+        <option value="$PROJECT_DIR$/Experiments/Init2.py" />
+        <option value="$PROJECT_DIR$/_BgCurves/QuantificationControl.py" />
+        <option value="$PROJECT_DIR$/_BgCurves/Run.py" />
+        <option value="$PROJECT_DIR$/_BgCurves/BackgroundCurves.py" />
+        <option value="$PROJECT_DIR$/_AFSettings/Init.py" />
+        <option value="$PROJECT_DIR$/_AFSettings/Run.py" />
+        <option value="$PROJECT_DIR$/AFSettings.py" />
+        <option value="$PROJECT_DIR$/_AFSettings/Saved.py" />
+        <option value="$PROJECT_DIR$/BackgroundCurves/Init.py" />
+        <option value="$PROJECT_DIR$/BackgroundCurves/I.py" />
+        <option value="$PROJECT_DIR$/BackgroundCurves/Run.py" />
+        <option value="$PROJECT_DIR$/Experiments/I.py" />
+        <option value="$PROJECT_DIR$/Experiments/Init1.py" />
+        <option value="$PROJECT_DIR$/Experiments/Run.py" />
+        <option value="$PROJECT_DIR$/roipoly.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Quantification.py" />
+        <option value="$PROJECT_DIR$/TestDataset/INFO.md.py" />
+        <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/TestDataset/INFO.md" />
+        <option value="$PROJECT_DIR$/rough.py" />
+        <option value="/anaconda/lib/python3.6/site-packages/numpy/core/numeric.py" />
+        <option value="/anaconda/lib/python3.6/site-packages/numpy/lib/index_tricks.py" />
+        <option value="/anaconda/lib/python3.6/site-packages/scipy/optimize/optimize.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Segment0.py" />
+        <option value="$PROJECT_DIR$/OldCode.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Segment1.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Segment2.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Segment6.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Segment7.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Segment5.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py" />
+        <option value="$PROJECT_DIR$/Old code.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Segmenter2Single.py" />
+        <option value="$PROJECT_DIR$/TestScripts/Segmenter2Double.py" />
+        <option value="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
+        <option value="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
+        <option value="$PROJECT_DIR$/IA.py" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" fullScreen="true">
+    <option name="width" value="1280" />
+    <option name="height" value="800" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scratches" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="MembraneQuant" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MembraneQuant" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="MembraneQuant" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MembraneQuant" type="462c0819:PsiDirectoryNode" />
+              <item name="TestScripts" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/TestScripts" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/TestDataset2" />
+      <recent name="$PROJECT_DIR$/TestDataset" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/Old" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python.Segment5">
+    <configuration name="IA" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ImageAnalysis" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IA.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="Segment1" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/TestScripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ImageAnalysis" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="Segment2" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/TestScripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ImageAnalysis" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestScripts/Segmenter1bDouble.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="Segment5" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/TestScripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ImageAnalysis" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="Segment6" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/TestScripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ImageAnalysis" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <list size="5">
+      <item index="0" class="java.lang.String" itemvalue="Python.IA" />
+      <item index="1" class="java.lang.String" itemvalue="Python.Segment6" />
+      <item index="2" class="java.lang.String" itemvalue="Python.Segment5" />
+      <item index="3" class="java.lang.String" itemvalue="Python.Segment1" />
+      <item index="4" class="java.lang.String" itemvalue="Python.Segment2" />
+    </list>
+    <recent_temporary>
+      <list size="5">
+        <item index="0" class="java.lang.String" itemvalue="Python.Segment5" />
+        <item index="1" class="java.lang.String" itemvalue="Python.Segment6" />
+        <item index="2" class="java.lang.String" itemvalue="Python.Segment1" />
+        <item index="3" class="java.lang.String" itemvalue="Python.IA" />
+        <item index="4" class="java.lang.String" itemvalue="Python.Segment2" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false">
+    <option name="remove_strategy" value="false" />
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="" />
+      <created>1532608396510</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1532608396510</updated>
+    </task>
+    <task id="LOCAL-00001" summary="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions">
+      <created>1533827459455</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1533827459455</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Re-segmented and analysed all data">
+      <created>1533827514724</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1533827514724</updated>
+    </task>
+    <task id="LOCAL-00003" summary="changes to scriots">
+      <created>1534009662078</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1534009662078</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Changes to scripts">
+      <created>1534009687652</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1534009687652</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Changes to analysis scripts: more class based, save data as txt files, analysis results in separate directory to main data folder. Changes to figure scripts: now saves plots as png">
+      <created>1537366281864</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1537366281864</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Changes to make more compatible with server">
+      <created>1537540059136</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1537540059136</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Changes to analysis scripts: more class based, save data as txt files, analysis results in separate directory to main data folder. Changes to figure scripts: now saves plots as png">
+      <created>1537540185585</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1537540185585</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Changes for cluster">
+      <created>1537543205162</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1537543205162</updated>
+    </task>
+    <task id="LOCAL-00009" summary="classes for segmentation, analysis, batch analysis">
+      <created>1538725430716</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1538725430716</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Scripts now save parameter files for each embryo folder, before performing analysis on all">
+      <created>1539086740734</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1539086740734</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Moved scripts to new project">
+      <created>1539703791131</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1539703791131</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Fixed glitch in segmentation algorithm, added option for periodic vs non-periodic segmentation">
+      <created>1539941152666</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1539941152667</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Added generic segmenter class containing shared methods between segmenter subclasses. Segmenters now interpolate fitted coordinates to one pixel distances, ensures even coverage by quantifier. Ability to specify initial ROI within python, and fit spline to this. For segmenter1: end-fit and gaussian fit functions incorporated into single function. Added segmenter4 method to align coordinates to peak of profiles (useful for segmenting membrane background curves). Added segmenter5: segmentation using cytoplasmic and membrane background curves. Quantifier performs seperate calculations for anterior, posterior and whole membrane signal intensity. Function to calculate average membrane concentration, based on shape and assuming rotational symmetry + similar changes to whole embryo dosage calculation. Tidied section at end for general array functions.">
+      <created>1543487472346</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1543487472346</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Added readme (currently empty) and example scripts for two segmentation methods">
+      <created>1543487527635</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1543487527635</updated>
+    </task>
+    <task id="LOCAL-00015" summary="Added 2-channel plots for 2-channel segmentation methods, plot_straight method, Segmenter6 subclass (two channel)">
+      <created>1543576580518</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1543576580518</updated>
+    </task>
+    <task id="LOCAL-00016" summary="Large restructuring">
+      <created>1545156932643</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1545156932643</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24175824" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.13186814" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4004193" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32809225" sideWeight="0.490991" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.8681319" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32914045" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+    <layout-to-restore>
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.13186814" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32809225" sideWeight="0.490991" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26939204" sideWeight="0.8681319" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32914045" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22832723" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4004193" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+    </layout-to-restore>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions" />
+    <MESSAGE value="Re-segmented and analysed all data" />
+    <MESSAGE value="changes to scriots" />
+    <MESSAGE value="Changes to scripts" />
+    <MESSAGE value="Changes to make more compatible with server" />
+    <MESSAGE value="Changes to analysis scripts: more class based, save data as txt files, analysis results in separate directory to main data folder. Changes to figure scripts: now saves plots as png" />
+    <MESSAGE value="Changes for cluster" />
+    <MESSAGE value="classes for segmentation, analysis, batch analysis" />
+    <MESSAGE value="Scripts now save parameter files for each embryo folder, before performing analysis on all" />
+    <MESSAGE value="Moved scripts to new project" />
+    <MESSAGE value="Fixed glitch in segmentation algorithm, added option for periodic vs non-periodic segmentation" />
+    <MESSAGE value="Added generic segmenter class containing shared methods between segmenter subclasses. Segmenters now interpolate fitted coordinates to one pixel distances, ensures even coverage by quantifier. Ability to specify initial ROI within python, and fit spline to this. For segmenter1: end-fit and gaussian fit functions incorporated into single function. Added segmenter4 method to align coordinates to peak of profiles (useful for segmenting membrane background curves). Added segmenter5: segmentation using cytoplasmic and membrane background curves. Quantifier performs seperate calculations for anterior, posterior and whole membrane signal intensity. Function to calculate average membrane concentration, based on shape and assuming rotational symmetry + similar changes to whole embryo dosage calculation. Tidied section at end for general array functions." />
+    <MESSAGE value="Added readme (currently empty) and example scripts for two segmentation methods" />
+    <MESSAGE value="Added 2-channel plots for 2-channel segmentation methods, plot_straight method, Segmenter6 subclass (two channel)" />
+    <MESSAGE value="Large restructuring" />
+    <option name="LAST_COMMIT_MESSAGE" value="Large restructuring" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <option name="time" value="28" />
+    </breakpoint-manager>
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/Experiments/Analysis_old.py" />
+    <entry file="file://$PROJECT_DIR$/Experiments/Analysis_cluster.py" />
+    <entry file="file://$PROJECT_DIR$/_AFSettings/Analysis_old.py" />
+    <entry file="file://$PROJECT_DIR$/Figs/f1802__par6_rundown_nelio.py" />
+    <entry file="file://$PROJECT_DIR$/Old/Dump.py" />
+    <entry file="file://$PROJECT_DIR$/Run.sh" />
+    <entry file="file://$PROJECT_DIR$/_BgCurves/QuantificationControl.py" />
+    <entry file="file://$PROJECT_DIR$/_BgCurves/BackgroundCurves.py" />
+    <entry file="file://$PROJECT_DIR$/_AFSettings/Init.py" />
+    <entry file="file://$PROJECT_DIR$/_AFSettings/Run.py" />
+    <entry file="file://$PROJECT_DIR$/BackgroundCurves/Figs.py" />
+    <entry file="file://$PROJECT_DIR$/BackgroundCurves/Init.py" />
+    <entry file="file://$PROJECT_DIR$/BackgroundCurves/I.py" />
+    <entry file="file://$PROJECT_DIR$/BackgroundCurves/Run.py" />
+    <entry file="file://$PROJECT_DIR$/Experiments/I.py" />
+    <entry file="file://$PROJECT_DIR$/Experiments/Init1.py" />
+    <entry file="file://$PROJECT_DIR$/Experiments/Init2.py" />
+    <entry file="file://$PROJECT_DIR$/Experiments/Run.sh" />
+    <entry file="file://$PROJECT_DIR$/Experiments/Run.py" />
+    <entry file="file://$PROJECT_DIR$/AFSettings.py" />
+    <entry file="file://$PROJECT_DIR$/BgCurves.py" />
+    <entry file="file://$PROJECT_DIR$/_AFSettings/Saved.py" />
+    <entry file="file://$PROJECT_DIR$/IA2.py" />
+    <entry file="file://$PROJECT_DIR$/roipoly.py" />
+    <entry file="file://$PROJECT_DIR$/../SPT-master/Python/src/MovieTracks.py" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/info.txt" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/INFO.md.py" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w1DIC SP Camera.TIF">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w3488 SP 630-75.TIF">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/INFO.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="270">
+            <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/ROI_fitted.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///anaconda/lib/python3.6/site-packages/scipy/optimize/optimize.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="40320">
+          <caret line="2688" column="0" lean-forward="false" selection-start-line="2688" selection-start-column="0" selection-end-line="2688" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///anaconda/lib/python3.6/site-packages/numpy/core/numeric.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30765">
+          <caret line="2070" column="0" lean-forward="false" selection-start-line="2070" selection-start-column="0" selection-end-line="2070" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///anaconda/lib/python3.6/site-packages/numpy/lib/index_tricks.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2565">
+          <caret line="186" column="0" lean-forward="false" selection-start-line="186" selection-start-column="0" selection-end-line="186" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset2/CytBgGFPaf.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestScripts/Quantification.py" />
+    <entry file="file://$PROJECT_DIR$/TestScripts/Segment7.py" />
+    <entry file="file://$PROJECT_DIR$/OldCode.py" />
+    <entry file="file://$PROJECT_DIR$/rough.py" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset2/MemBgGFPaf.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1bDouble.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="24" column="37" lean-forward="false" selection-start-line="24" selection-start-column="37" selection-end-line="24" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/README.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor relative-caret-position="180">
+            <caret line="12" column="17" lean-forward="false" selection-start-line="12" selection-start-column="17" selection-end-line="12" selection-end-column="17" />
+            <folding />
+          </first_editor>
+          <second_editor />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w2488 SP 535-50.TIF">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="37" column="0" lean-forward="false" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Old code.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+          <folding>
+            <element signature="e#20#2604#0" expanded="false" />
+            <element signature="e#2674#6796#0" expanded="false" />
+            <element signature="e#6855#12920#0" expanded="false" />
+            <element signature="e#12979#16615#0" expanded="false" />
+            <element signature="e#16674#22223#0" expanded="false" />
+            <element signature="e#22271#24899#0" expanded="false" />
+            <element signature="e#24936#27568#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterDouble.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="26" column="36" lean-forward="true" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="720">
+          <caret line="48" column="0" lean-forward="true" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
+          <folding>
+            <marker date="1547242656000" expanded="true" signature="696:1017" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IA.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1159">
+          <caret line="21" column="14" lean-forward="true" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+            <element signature="e#1252#2672#0" expanded="false" />
+            <element signature="e#2746#10344#0" expanded="false" />
+            <element signature="e#10401#13542#0" expanded="false" />
+            <element signature="e#13599#16939#0" expanded="false" />
+            <element signature="e#16981#18674#0" expanded="false" />
+            <element signature="e#18716#20184#0" expanded="false" />
+            <element signature="e#20266#23156#0" expanded="false" />
+            <element signature="e#23247#23811#0" expanded="false" />
+            <element signature="e#23858#25390#0" expanded="false" />
+            <element signature="e#25449#25654#0" expanded="false" />
+            <element signature="e#25698#26259#0" expanded="false" />
+            <element signature="e#26316#27509#0" expanded="false" />
+            <element signature="e#27542#27767#0" expanded="false" />
+            <element signature="e#27799#27940#0" expanded="false" />
+            <element signature="e#28029#28593#0" expanded="false" />
+            <element signature="e#28631#29274#0" expanded="false" />
+            <element signature="e#29312#30143#0" expanded="false" />
+            <element signature="e#30186#30400#0" expanded="false" />
+            <element signature="e#30457#31322#0" expanded="false" />
+            <element signature="e#31365#31874#0" expanded="false" />
+            <element signature="e#31923#32149#0" expanded="false" />
+            <element signature="e#32174#32313#0" expanded="false" />
+            <element signature="e#32370#33170#0" expanded="false" />
+            <element signature="e#33214#33526#0" expanded="false" />
+            <element signature="e#33571#34009#0" expanded="false" />
+            <element signature="e#34055#34491#0" expanded="false" />
+            <element signature="e#34521#34901#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

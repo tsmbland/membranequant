@@ -1,10 +1,8 @@
+import sys
+
+sys.path.append('..')
 from IA import *
 import os
-
-"""
-Segmentation using Segment6 method
-
-"""
 
 # Load image(s)
 ch1 = load_image(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/_0_w2488 SP 535-50.TIF')
@@ -18,17 +16,16 @@ CytBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDatase
 MemBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/MemBgGFPaf.txt')
 
 # Set up segmenter
-seg = Segmenter2Double(img_g=img1, img_r=5 * img2, cytbg_g=CytBg, cytbg_r=CytBg, membg_g=MemBg, membg_r=MemBg, mag=1,
-                       iterations=3, parallel=True, resolution=5)
+seg = Segmenter1Double(img_g=img1, img_r=5 * img2, cytbg_g=CytBg, cytbg_r=CytBg, membg_g=MemBg, membg_r=MemBg, mag=1,
+                       resolution=5)
 
 # Specify ROI
 seg.def_ROI()
 seg.coors = seg.fit_spline(seg.coors)
 
 # Run
-seg.segment()
+seg.run(iterations=3, parallel=True)
 
 # Plot
 seg.plot()
 seg.plot_straight()
-
