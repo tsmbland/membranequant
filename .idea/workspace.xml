@@ -1,16 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Large restructuring">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Old code.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TestScripts/coors.txt" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/Segmenter1bDouble.py" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/TestScripts/Segmenter2Double.py" afterPath="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/TestScripts/Segmenter2Single.py" afterPath="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/IA.py" afterPath="$PROJECT_DIR$/IA.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Old code.py" afterPath="$PROJECT_DIR$/Old code.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -24,37 +18,25 @@
       <file leaf-file-name="IA.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1159">
-              <caret line="21" column="14" lean-forward="true" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
+            <state relative-caret-position="1230">
+              <caret line="756" column="16" lean-forward="true" selection-start-line="756" selection-start-column="16" selection-end-line="756" selection-end-column="16" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
-                <element signature="e#1252#2672#0" expanded="false" />
-                <element signature="e#2746#10344#0" expanded="false" />
-                <element signature="e#10401#13542#0" expanded="false" />
-                <element signature="e#13599#16939#0" expanded="false" />
-                <element signature="e#16981#18674#0" expanded="false" />
-                <element signature="e#18716#20184#0" expanded="false" />
-                <element signature="e#20266#23156#0" expanded="false" />
-                <element signature="e#23247#23811#0" expanded="false" />
-                <element signature="e#23858#25390#0" expanded="false" />
-                <element signature="e#25449#25654#0" expanded="false" />
-                <element signature="e#25698#26259#0" expanded="false" />
-                <element signature="e#26316#27509#0" expanded="false" />
-                <element signature="e#27542#27767#0" expanded="false" />
-                <element signature="e#27799#27940#0" expanded="false" />
-                <element signature="e#28029#28593#0" expanded="false" />
-                <element signature="e#28631#29274#0" expanded="false" />
-                <element signature="e#29312#30143#0" expanded="false" />
-                <element signature="e#30186#30400#0" expanded="false" />
-                <element signature="e#30457#31322#0" expanded="false" />
-                <element signature="e#31365#31874#0" expanded="false" />
-                <element signature="e#31923#32149#0" expanded="false" />
-                <element signature="e#32174#32313#0" expanded="false" />
-                <element signature="e#32370#33170#0" expanded="false" />
-                <element signature="e#33214#33526#0" expanded="false" />
-                <element signature="e#33571#34009#0" expanded="false" />
-                <element signature="e#34055#34491#0" expanded="false" />
-                <element signature="e#34521#34901#0" expanded="false" />
+                <element signature="e#1210#2630#0" expanded="false" />
+                <element signature="e#2704#10302#0" expanded="false" />
+                <element signature="e#10359#13500#0" expanded="false" />
+                <element signature="e#13557#16897#0" expanded="false" />
+                <element signature="e#16939#18632#0" expanded="false" />
+                <element signature="e#18674#20142#0" expanded="false" />
+                <element signature="e#20224#23114#0" expanded="false" />
+                <element signature="e#23205#23769#0" expanded="false" />
+                <element signature="e#23816#25348#0" expanded="false" />
+                <element signature="e#25386#25591#0" expanded="false" />
+                <element signature="e#25635#26196#0" expanded="false" />
+                <element signature="e#26253#27446#0" expanded="false" />
+                <element signature="e#27479#27704#0" expanded="false" />
+                <element signature="e#27736#27877#0" expanded="false" />
+                <element signature="e#27920#28134#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -131,7 +113,7 @@
       <file leaf-file-name="SegmenterSingle.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="720">
+            <state relative-caret-position="435">
               <caret line="48" column="0" lean-forward="true" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
               <folding>
                 <marker date="1547242656000" expanded="true" signature="696:1017" ph="..." />
@@ -545,7 +527,14 @@
       <option name="project" value="LOCAL" />
       <updated>1545156932643</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Big tidy. Removed old segmenter/quantifier classes">
+      <created>1547244304823</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1547244304823</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -611,7 +600,8 @@
     <MESSAGE value="Added readme (currently empty) and example scripts for two segmentation methods" />
     <MESSAGE value="Added 2-channel plots for 2-channel segmentation methods, plot_straight method, Segmenter6 subclass (two channel)" />
     <MESSAGE value="Large restructuring" />
-    <option name="LAST_COMMIT_MESSAGE" value="Large restructuring" />
+    <MESSAGE value="Big tidy. Removed old segmenter/quantifier classes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Big tidy. Removed old segmenter/quantifier classes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -792,7 +782,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="720">
+        <state relative-caret-position="435">
           <caret line="48" column="0" lean-forward="true" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
           <folding>
             <marker date="1547242656000" expanded="true" signature="696:1017" ph="..." />
@@ -802,37 +792,25 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/IA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1159">
-          <caret line="21" column="14" lean-forward="true" selection-start-line="21" selection-start-column="14" selection-end-line="21" selection-end-column="14" />
+        <state relative-caret-position="1230">
+          <caret line="756" column="16" lean-forward="true" selection-start-line="756" selection-start-column="16" selection-end-line="756" selection-end-column="16" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
-            <element signature="e#1252#2672#0" expanded="false" />
-            <element signature="e#2746#10344#0" expanded="false" />
-            <element signature="e#10401#13542#0" expanded="false" />
-            <element signature="e#13599#16939#0" expanded="false" />
-            <element signature="e#16981#18674#0" expanded="false" />
-            <element signature="e#18716#20184#0" expanded="false" />
-            <element signature="e#20266#23156#0" expanded="false" />
-            <element signature="e#23247#23811#0" expanded="false" />
-            <element signature="e#23858#25390#0" expanded="false" />
-            <element signature="e#25449#25654#0" expanded="false" />
-            <element signature="e#25698#26259#0" expanded="false" />
-            <element signature="e#26316#27509#0" expanded="false" />
-            <element signature="e#27542#27767#0" expanded="false" />
-            <element signature="e#27799#27940#0" expanded="false" />
-            <element signature="e#28029#28593#0" expanded="false" />
-            <element signature="e#28631#29274#0" expanded="false" />
-            <element signature="e#29312#30143#0" expanded="false" />
-            <element signature="e#30186#30400#0" expanded="false" />
-            <element signature="e#30457#31322#0" expanded="false" />
-            <element signature="e#31365#31874#0" expanded="false" />
-            <element signature="e#31923#32149#0" expanded="false" />
-            <element signature="e#32174#32313#0" expanded="false" />
-            <element signature="e#32370#33170#0" expanded="false" />
-            <element signature="e#33214#33526#0" expanded="false" />
-            <element signature="e#33571#34009#0" expanded="false" />
-            <element signature="e#34055#34491#0" expanded="false" />
-            <element signature="e#34521#34901#0" expanded="false" />
+            <element signature="e#1210#2630#0" expanded="false" />
+            <element signature="e#2704#10302#0" expanded="false" />
+            <element signature="e#10359#13500#0" expanded="false" />
+            <element signature="e#13557#16897#0" expanded="false" />
+            <element signature="e#16939#18632#0" expanded="false" />
+            <element signature="e#18674#20142#0" expanded="false" />
+            <element signature="e#20224#23114#0" expanded="false" />
+            <element signature="e#23205#23769#0" expanded="false" />
+            <element signature="e#23816#25348#0" expanded="false" />
+            <element signature="e#25386#25591#0" expanded="false" />
+            <element signature="e#25635#26196#0" expanded="false" />
+            <element signature="e#26253#27446#0" expanded="false" />
+            <element signature="e#27479#27704#0" expanded="false" />
+            <element signature="e#27736#27877#0" expanded="false" />
+            <element signature="e#27920#28134#0" expanded="false" />
           </folding>
         </state>
       </provider>

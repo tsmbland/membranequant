@@ -854,3 +854,82 @@ class SegmenterSingleB(SegmenterParent, Profile):
 
 
 
+def fix_ends(curve1, curve2):
+    """
+    Used for background subtraction. Returns fitted bgcurve which can then be subtracted from the signal curve
+    Bg fitted by fixing ends
+
+    Fixes ends of curve 2 to ends of curve 1
+
+    :param curve1:
+    :param curve2:
+    :return:
+    """
+
+    # Fix ends
+    line = np.polyfit(
+        [np.mean(curve2[:int(len(curve2) * 0.2)]), np.mean(curve2[int(len(curve2) * 0.8):])],
+        [np.mean(curve1[:int(len(curve1) * 0.2)]), np.mean(curve1[int(len(curve1) * 0.8):])], 1)
+
+    # Create new bgcurve
+    curve2 = curve2 * line[0] + line[1]
+
+    return curve2
+
+
+def offset_line(line, offset):
+    """
+    Moves a straight line of coordinates perpendicular to itself
+
+    :param line:
+    :param offset:
+    :return:
+    """
+
+    xcoors = line[:, 0]
+    ycoors = line[:, 1]
+
+    # Create coordinates
+    rise = ycoors[1] - ycoors[0]
+    run = xcoors[1] - xcoors[0]
+    bisectorgrad = rise / run
+    tangentgrad = -1 / bisectorgrad
+
+    xchange = ((offset ** 2) / (1 + tangentgrad ** 2)) ** 0.5
+    ychange = xchange / abs(bisectorgrad)
+    newxs = xcoors + np.sign(rise) * np.sign(offset) * xchange
+    newys = ycoors - np.sign(run) * np.sign(offset) * ychange
+
+    newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
+    return newcoors
+
+
+def extend_line(line, extend):
+    """
+    Extends a straight line of coordinates along itself
+
+    Should adjust to allow shrinking
+    :param line:
+    :param extend: e.g. 1.1 = 10% longer
+    :return:
+    """
+
+    xcoors = line[:, 0]
+    ycoors = line[:, 1]
+
+    len = np.hypot((xcoors[0] - xcoors[1]), (ycoors[0] - ycoors[1]))
+    extension = (extend - 1) * len * 0.5
+
+    rise = ycoors[1] - ycoors[0]
+    run = xcoors[1] - xcoors[0]
+    bisectorgrad = rise / run
+    tangentgrad = -1 / bisectorgrad
+
+    xchange = ((extension ** 2) / (1 + bisectorgrad ** 2)) ** 0.5
+    ychange = xchange / abs(tangentgrad)
+    newxs = xcoors - np.sign(rise) * np.sign(tangentgrad) * xchange * np.array([-1, 1])
+    newys = ycoors - np.sign(run) * np.sign(tangentgrad) * ychange * np.array([-1, 1])
+    newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
+    return newcoors
+
+
