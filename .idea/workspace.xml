@@ -5,6 +5,11 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/IA.py" afterPath="$PROJECT_DIR$/IA.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Old code.py" afterPath="$PROJECT_DIR$/Old code.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt" afterPath="$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt" afterPath="$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" afterPath="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" afterPath="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TestScripts/coors.txt" afterPath="$PROJECT_DIR$/TestScripts/coors.txt" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -18,25 +23,30 @@
       <file leaf-file-name="IA.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1230">
-              <caret line="756" column="16" lean-forward="true" selection-start-line="756" selection-start-column="16" selection-end-line="756" selection-end-column="16" />
+            <state relative-caret-position="-925">
+              <caret line="39" column="14" lean-forward="true" selection-start-line="39" selection-start-column="14" selection-end-line="39" selection-end-column="14" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
-                <element signature="e#1210#2630#0" expanded="false" />
-                <element signature="e#2704#10302#0" expanded="false" />
-                <element signature="e#10359#13500#0" expanded="false" />
-                <element signature="e#13557#16897#0" expanded="false" />
-                <element signature="e#16939#18632#0" expanded="false" />
-                <element signature="e#18674#20142#0" expanded="false" />
-                <element signature="e#20224#23114#0" expanded="false" />
-                <element signature="e#23205#23769#0" expanded="false" />
-                <element signature="e#23816#25348#0" expanded="false" />
-                <element signature="e#25386#25591#0" expanded="false" />
-                <element signature="e#25635#26196#0" expanded="false" />
-                <element signature="e#26253#27446#0" expanded="false" />
-                <element signature="e#27479#27704#0" expanded="false" />
-                <element signature="e#27736#27877#0" expanded="false" />
-                <element signature="e#27920#28134#0" expanded="false" />
+                <element signature="e#2792#10577#0" expanded="false" />
+                <element signature="e#10634#14124#0" expanded="false" />
+                <element signature="e#14181#17508#0" expanded="false" />
+                <element signature="e#17550#19243#0" expanded="false" />
+                <element signature="e#19285#20753#0" expanded="false" />
+                <element signature="e#20835#24412#0" expanded="false" />
+                <element signature="e#24503#25067#0" expanded="false" />
+                <element signature="e#25114#26646#0" expanded="false" />
+                <element signature="e#26684#26889#0" expanded="false" />
+                <element signature="e#26933#27494#0" expanded="false" />
+                <element signature="e#27551#28744#0" expanded="false" />
+                <element signature="e#28777#29002#0" expanded="false" />
+                <element signature="e#29034#29175#0" expanded="false" />
+                <element signature="e#29218#29432#0" expanded="false" />
+                <element signature="e#29476#29788#0" expanded="false" />
+                <element signature="e#29833#30271#0" expanded="false" />
+                <element signature="e#30317#30753#0" expanded="false" />
+                <element signature="e#30794#31525#0" expanded="false" />
+                <element signature="e#31555#31935#0" expanded="false" />
+                <element signature="e#31978#32487#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -45,8 +55,8 @@
       <file leaf-file-name="Old code.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Old code.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+            <state relative-caret-position="620">
+              <caret line="964" column="0" lean-forward="false" selection-start-line="964" selection-start-column="0" selection-end-line="964" selection-end-column="0" />
               <folding>
                 <element signature="e#20#2604#0" expanded="false" />
                 <element signature="e#2674#6796#0" expanded="false" />
@@ -70,30 +80,24 @@
       <file leaf-file-name="SegmenterDouble.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterDouble.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="390">
-              <caret line="26" column="36" lean-forward="true" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
+            <state relative-caret-position="465">
+              <caret line="31" column="0" lean-forward="true" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MemBgGFPaf.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
+      <file leaf-file-name="_0_w3488 SP 630-75.TIF" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestDataset/_0_w3488 SP 630-75.TIF">
+          <provider selected="true" editor-type-id="images">
+            <state />
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MemBgGFPaf.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TestDataset2/MemBgGFPaf.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
+      <file leaf-file-name="_0_w4561 SP 630-75.TIF" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF">
+          <provider selected="true" editor-type-id="images">
+            <state />
           </provider>
         </entry>
       </file>
@@ -113,11 +117,31 @@
       <file leaf-file-name="SegmenterSingle.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="435">
-              <caret line="48" column="0" lean-forward="true" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
+            <state relative-caret-position="579">
+              <caret line="67" column="0" lean-forward="true" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
               <folding>
-                <marker date="1547242656000" expanded="true" signature="696:1017" ph="..." />
+                <marker date="1549637817000" expanded="true" signature="696:1056" ph="..." />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="CytBgGFPaf.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="MemBgGFPaf.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="0">
+              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -133,12 +157,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>self.itp</find>
-      <find>empty</find>
-      <find>mgrid</find>
-      <find>PCA</find>
-      <find>self.newcoors</find>
-      <find>polycrop</find>
       <find>self.cyt_mem_offset</find>
       <find>self.cyt_mem_offset =</find>
       <find>self.cyt_mem_offset = 4</find>
@@ -149,20 +167,26 @@
       <find>interp_2d_array</find>
       <find>*params</find>
       <find>total_profile</find>
-      <find>fix_ends</find>
       <find>self.fix_ends</find>
       <find>self.fix</find>
       <find>cytbg_offset=</find>
       <find>cytbg_offset=0.</find>
       <find>cytbg_offset=0</find>
-      <find>thickness=50</find>
       <find>rol_ave=50</find>
       <find>end_region=0.2</find>
-      <find>thickness=100</find>
       <find>50</find>
       <find>thickness</find>
       <find>cv2</find>
       <find>itp=5</find>
+      <find>cytbg_offset=2</find>
+      <find>cytbg_offset=1</find>
+      <find>itp=</find>
+      <find>thickness=50</find>
+      <find>cytbg_offset=4</find>
+      <find>end_region=0.1</find>
+      <find>fix_ends</find>
+      <find>cytbg_offset=5</find>
+      <find>thickness=100</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -222,18 +246,18 @@
         <option value="$PROJECT_DIR$/TestScripts/Segment7.py" />
         <option value="$PROJECT_DIR$/TestScripts/Segment5.py" />
         <option value="$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py" />
-        <option value="$PROJECT_DIR$/Old code.py" />
         <option value="$PROJECT_DIR$/TestScripts/Segmenter2Single.py" />
         <option value="$PROJECT_DIR$/TestScripts/Segmenter2Double.py" />
-        <option value="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
         <option value="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
+        <option value="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
         <option value="$PROJECT_DIR$/IA.py" />
+        <option value="$PROJECT_DIR$/Old code.py" />
       </list>
     </option>
   </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="width" value="1280" />
-    <option name="height" value="800" />
+    <option name="width" value="1680" />
+    <option name="height" value="1050" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -251,7 +275,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -259,16 +282,12 @@
               <item name="MembraneQuant" type="b2602c69:ProjectViewProjectNode" />
               <item name="MembraneQuant" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="MembraneQuant" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MembraneQuant" type="462c0819:PsiDirectoryNode" />
-              <item name="TestScripts" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
       <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -276,14 +295,14 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/TestScripts" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/TestDataset2" />
       <recent name="$PROJECT_DIR$/TestDataset" />
+      <recent name="$PROJECT_DIR$/TestDataset2" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/Old" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/TestScripts" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -298,7 +317,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.Segment5">
+  <component name="RunManager" selected="Python.Segment6">
     <configuration name="IA" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -393,10 +412,10 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.Segment5" />
-        <item index="1" class="java.lang.String" itemvalue="Python.Segment6" />
-        <item index="2" class="java.lang.String" itemvalue="Python.Segment1" />
-        <item index="3" class="java.lang.String" itemvalue="Python.IA" />
+        <item index="0" class="java.lang.String" itemvalue="Python.Segment6" />
+        <item index="1" class="java.lang.String" itemvalue="Python.Segment5" />
+        <item index="2" class="java.lang.String" itemvalue="Python.IA" />
+        <item index="3" class="java.lang.String" itemvalue="Python.Segment1" />
         <item index="4" class="java.lang.String" itemvalue="Python.Segment2" />
       </list>
     </recent_temporary>
@@ -534,20 +553,27 @@
       <option name="project" value="LOCAL" />
       <updated>1547244304823</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="Removed some unused functions">
+      <created>1547245049126</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1547245049126</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24175824" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25702077" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.13186814" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4004193" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4004193" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32809225" sideWeight="0.490991" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.8681319" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26939204" sideWeight="0.8681319" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32914045" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -601,7 +627,8 @@
     <MESSAGE value="Added 2-channel plots for 2-channel segmentation methods, plot_straight method, Segmenter6 subclass (two channel)" />
     <MESSAGE value="Large restructuring" />
     <MESSAGE value="Big tidy. Removed old segmenter/quantifier classes" />
-    <option name="LAST_COMMIT_MESSAGE" value="Big tidy. Removed old segmenter/quantifier classes" />
+    <MESSAGE value="Removed some unused functions" />
+    <option name="LAST_COMMIT_MESSAGE" value="Removed some unused functions" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -640,23 +667,6 @@
     <entry file="file://$PROJECT_DIR$/TestDataset/_0_w1DIC SP Camera.TIF">
       <provider selected="true" editor-type-id="images">
         <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w3488 SP 630-75.TIF">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/TestDataset/INFO.md">
@@ -708,26 +718,12 @@
     <entry file="file://$PROJECT_DIR$/TestScripts/Segment7.py" />
     <entry file="file://$PROJECT_DIR$/OldCode.py" />
     <entry file="file://$PROJECT_DIR$/rough.py" />
-    <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1bDouble.py" />
+    <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py" />
     <entry file="file://$PROJECT_DIR$/TestDataset2/MemBgGFPaf.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1bDouble.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="24" column="37" lean-forward="false" selection-start-line="24" selection-start-column="37" selection-end-line="24" selection-end-column="37" />
           <folding />
         </state>
       </provider>
@@ -743,23 +739,59 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w3488 SP 630-75.TIF">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/TestDataset/_0_w2488 SP 535-50.TIF">
       <provider selected="true" editor-type-id="images">
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py">
+    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
-          <caret line="37" column="0" lean-forward="false" selection-start-line="37" selection-start-column="0" selection-end-line="37" selection-end-column="0" />
+        <state relative-caret-position="579">
+          <caret line="67" column="0" lean-forward="true" selection-start-line="67" selection-start-column="0" selection-end-line="67" selection-end-column="0" />
+          <folding>
+            <marker date="1549637817000" expanded="true" signature="696:1056" ph="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterDouble.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="31" column="0" lean-forward="true" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Old code.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="68" column="0" lean-forward="false" selection-start-line="68" selection-start-column="0" selection-end-line="68" selection-end-column="0" />
+        <state relative-caret-position="620">
+          <caret line="964" column="0" lean-forward="false" selection-start-line="964" selection-start-column="0" selection-end-line="964" selection-end-column="0" />
           <folding>
             <element signature="e#20#2604#0" expanded="false" />
             <element signature="e#2674#6796#0" expanded="false" />
@@ -772,45 +804,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterDouble.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="390">
-          <caret line="26" column="36" lean-forward="true" selection-start-line="26" selection-start-column="36" selection-end-line="26" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="48" column="0" lean-forward="true" selection-start-line="48" selection-start-column="0" selection-end-line="48" selection-end-column="0" />
-          <folding>
-            <marker date="1547242656000" expanded="true" signature="696:1017" ph="..." />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/IA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1230">
-          <caret line="756" column="16" lean-forward="true" selection-start-line="756" selection-start-column="16" selection-end-line="756" selection-end-column="16" />
+        <state relative-caret-position="-925">
+          <caret line="39" column="14" lean-forward="true" selection-start-line="39" selection-start-column="14" selection-end-line="39" selection-end-column="14" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
-            <element signature="e#1210#2630#0" expanded="false" />
-            <element signature="e#2704#10302#0" expanded="false" />
-            <element signature="e#10359#13500#0" expanded="false" />
-            <element signature="e#13557#16897#0" expanded="false" />
-            <element signature="e#16939#18632#0" expanded="false" />
-            <element signature="e#18674#20142#0" expanded="false" />
-            <element signature="e#20224#23114#0" expanded="false" />
-            <element signature="e#23205#23769#0" expanded="false" />
-            <element signature="e#23816#25348#0" expanded="false" />
-            <element signature="e#25386#25591#0" expanded="false" />
-            <element signature="e#25635#26196#0" expanded="false" />
-            <element signature="e#26253#27446#0" expanded="false" />
-            <element signature="e#27479#27704#0" expanded="false" />
-            <element signature="e#27736#27877#0" expanded="false" />
-            <element signature="e#27920#28134#0" expanded="false" />
+            <element signature="e#2792#10577#0" expanded="false" />
+            <element signature="e#10634#14124#0" expanded="false" />
+            <element signature="e#14181#17508#0" expanded="false" />
+            <element signature="e#17550#19243#0" expanded="false" />
+            <element signature="e#19285#20753#0" expanded="false" />
+            <element signature="e#20835#24412#0" expanded="false" />
+            <element signature="e#24503#25067#0" expanded="false" />
+            <element signature="e#25114#26646#0" expanded="false" />
+            <element signature="e#26684#26889#0" expanded="false" />
+            <element signature="e#26933#27494#0" expanded="false" />
+            <element signature="e#27551#28744#0" expanded="false" />
+            <element signature="e#28777#29002#0" expanded="false" />
+            <element signature="e#29034#29175#0" expanded="false" />
+            <element signature="e#29218#29432#0" expanded="false" />
+            <element signature="e#29476#29788#0" expanded="false" />
+            <element signature="e#29833#30271#0" expanded="false" />
+            <element signature="e#30317#30753#0" expanded="false" />
+            <element signature="e#30794#31525#0" expanded="false" />
+            <element signature="e#31555#31935#0" expanded="false" />
+            <element signature="e#31978#32487#0" expanded="false" />
           </folding>
         </state>
       </provider>

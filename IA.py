@@ -8,6 +8,7 @@ from joblib import Parallel, delayed
 import multiprocessing
 from scipy.interpolate import splprep, splev
 from scipy.ndimage.filters import gaussian_filter
+import cv2
 
 """
 Functions and Classes for segmentation and quantification of images
@@ -20,12 +21,15 @@ To do:
 - write readme
 - function for reverse straightening
 - incorporate uncertainty into fitting algorithms???
-- change fit type 2 funcs to y = m1 * cytbg + m2 * membg + c
 - parallel option for quantification
 - use convolve function for rolling average functions (scipy.ndimage.filters.convolve)
 - scipy.ndimage.filters.laplace for model??
 - more specific import statements
-- fix divide by zero error: bisectorgrad = rise / run, tangentgrad = -1 / bisectorgrad, ychange = xchange / abs(bisectorgrad)
+- need to think hard about 2 channel segmentation and 'cvf' parameter. May introduce biases
+- need to fix issue in segmenter where fitting fails
+
+Improvements:
+- change coordinate filtering method
 
 """
 
@@ -38,31 +42,32 @@ class Profile:
         self.end_region = end_region
 
     def fix_ends(self, profile, cytbg, membg, a):
-        """
-        Needs to throw a warning if profile, cytbg and membg are different lengths
-
-        """
-
-        pa = np.mean(profile[:int(len(profile) * self.end_region)])
         px = np.mean(profile[int(len(profile) * (1 - self.end_region)):])
-        b1a = np.mean(cytbg[:int(len(cytbg) * self.end_region)])
         b1x = np.mean(cytbg[int(len(cytbg) * (1 - self.end_region)):])
-        b2a = np.mean(membg[:int(len(membg) * self.end_region)])
         b2x = np.mean(membg[int(len(membg) * (1 - self.end_region)):])
-        m1 = (px - pa) / (b1x - b1a + a * (b2x - b2a))
-        c1 = pa - (m1 * b1a)
-        c2 = - m1 * a * b2a
-        return m1, c1, c2
+        m1 = px / ((a * b2x) + b1x)
+        return m1
 
     def total_profile(self, profile, cytbg, membg, l, a, o):
-        m1, c1, c2 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
-                                   membg[int(l):int(l) + len(profile)], a)
-        return m1 * (cytbg[int(l + o):int(l + o) + len(profile)] + a * membg[int(l):int(l) + len(profile)]) + c1 + c2
+        m1 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+                           membg[int(l):int(l) + len(profile)], a)
+        return m1 * (
+            cytbg[int(l + o):int(l + o) + len(profile)] + a * membg[int(l):int(l) + len(profile)])
 
     def cyt_profile(self, profile, cytbg, membg, l, a, o):
-        m1, c1, c2 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
-                                   membg[int(l):int(l) + len(profile)], a)
-        return m1 * cytbg[int(l + o):int(l + o) + len(profile)] + c1
+        m1 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+                           membg[int(l):int(l) + len(profile)], a)
+        return m1 * cytbg[int(l + o):int(l + o) + len(profile)]
+
+    def mem_profile(self, profile, cytbg, membg, l, a, o):
+        m1 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+                           membg[int(l):int(l) + len(profile)], a)
+        return m1 * a * membg[int(l):int(l) + len(profile)]
+
+    def fix_ends2(self, profile, cytbg, membg, l, a, o):
+        m1 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+                           membg[int(l):int(l) + len(profile)], a)
+        return m1
 
 
 ############### SEGMENTATION ################
@@ -95,7 +100,6 @@ class SegmenterParent:
         self.coors = self.interp_coors(self.coors)
 
         for i in range(iterations):
-
             # Calculate offsets
             offsets = self.calc_offsets(parallel)
 
@@ -108,6 +112,9 @@ class SegmenterParent:
 
             # Offset coordinates
             self.coors = offset_coordinates(self.coors, offsets)
+            # plt.plot(self.coors[:, 0], self.coors[:, 1])
+
+            # >>>>> Change filtering method
 
             # Filter
             if self.periodic:
@@ -121,6 +128,8 @@ class SegmenterParent:
 
             # Interpolate to one px distance between points
             self.coors = self.interp_coors(self.coors)
+            # plt.plot(self.coors[:, 0], self.coors[:, 1])
+            # plt.show()
 
         # Rotate
         if self.periodic:
@@ -322,8 +331,8 @@ class Segmenter1Single(SegmenterParent, Profile):
 
     """
 
-    def __init__(self, img, cytbg, membg, coors=None, mag=1, resolution=5, freedom=0.3,
-                 periodic=True, thickness=50, itp=10, rol_ave=50, end_region=0.1, cytbg_offset=2):
+    def __init__(self, img, cytbg, membg, coors=None, mag=1, resolution=1, freedom=0.3,
+                 periodic=True, thickness=50, itp=10, rol_ave=50, end_region=0.2, cytbg_offset=4):
 
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
                                  thickness=thickness * mag)
@@ -335,7 +344,7 @@ class Segmenter1Single(SegmenterParent, Profile):
         self.membg = interp_1d_array(membg, 2 * self.thickness2)
         self.freedom = freedom
         self.rol_ave = int(rol_ave * mag)
-        self.cytbg_offset = int(self.itp * self.mag * cytbg_offset)
+        self.cytbg_offset = int(itp * cytbg_offset)
         self.lmin = (self.thickness2 / 2) * (1 - self.freedom)
         self.lmax = (self.thickness2 / 2) * (1 + self.freedom)
         self.resolution = int(resolution * mag)
@@ -360,8 +369,15 @@ class Segmenter1Single(SegmenterParent, Profile):
         return offsets
 
     def fit_profile(self, profile, cytbg, membg):
-        res = differential_evolution(self.mse, bounds=((self.lmin, self.lmax), (-5, 50)),
+        res = differential_evolution(self.mse, bounds=((self.lmin, self.lmax), (0, 50)),
                                      args=(profile, cytbg, membg))
+
+        # plt.plot(profile)
+        # plt.plot(self.total_profile(profile, cytbg, membg, l=res.x[0], a=res.x[1], o=self.cytbg_offset))
+        # plt.plot(self.cyt_profile(profile, cytbg, membg, l=res.x[0], a=res.x[1], o=self.cytbg_offset))
+        # print(self.bg_intensity(profile, cytbg, membg, l=res.x[0], a=res.x[1], o=self.cytbg_offset))
+        # plt.show()
+
         o = (res.x[0] - self.thickness2 / 2) / self.itp
         return o
 
@@ -379,8 +395,8 @@ class Segmenter1Double(SegmenterParent, Profile):
     """
 
     def __init__(self, img_g, img_r, cytbg_g, cytbg_r, membg_g, membg_r, coors=None, mag=1,
-                 resolution=5, freedom=0.3, periodic=True, thickness=50, itp=10, rol_ave=50,
-                 end_region=0.1, cytbg_offset=2):
+                 resolution=1, freedom=0.3, periodic=True, thickness=50, itp=10, rol_ave=50,
+                 end_region=0.2, cytbg_offset=4):
 
         SegmenterParent.__init__(self, img_g=img_g, img_r=img_r, coors=coors, mag=mag,
                                  periodic=periodic, thickness=thickness * mag)
@@ -395,7 +411,7 @@ class Segmenter1Double(SegmenterParent, Profile):
         self.membg_r = interp_1d_array(membg_r, 2 * self.thickness2)
         self.freedom = freedom
         self.rol_ave = int(rol_ave * mag)
-        self.cytbg_offset = self.itp * self.mag * cytbg_offset
+        self.cytbg_offset = int(itp * cytbg_offset)
         self.lmin = (self.thickness2 / 2) * (1 - self.freedom)
         self.lmax = (self.thickness2 / 2) * (1 + self.freedom)
         self.resolution = int(resolution * mag)
@@ -427,7 +443,7 @@ class Segmenter1Double(SegmenterParent, Profile):
 
     def fit_profile(self, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r):
         res = differential_evolution(self.mse, bounds=(
-            (self.lmin, self.lmax), (-5, 50), (-5, 50)),
+            (self.lmin, self.lmax), (0, 50), (0, 50)),
                                      args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r))
         o = (res.x[0] - self.thickness2 / 2) / self.itp
         return o
@@ -450,7 +466,7 @@ class Segmenter2(SegmenterParent):
 
     """
 
-    def __init__(self, img, coors=None, mag=1, resolution=5, periodic=True,
+    def __init__(self, img, coors=None, mag=1, resolution=1, periodic=True,
                  thickness=50, itp=10, rol_ave=50):
 
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
@@ -503,7 +519,7 @@ class Segmenter3(SegmenterParent):
 
     """
 
-    def __init__(self, img, coors=None, mag=1, resolution=5, periodic=True,
+    def __init__(self, img, coors=None, mag=1, resolution=1, periodic=True,
                  thickness=50, itp=10, rol_ave=50):
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
                                  thickness=thickness * mag)
@@ -551,8 +567,8 @@ class Quantifier(Profile):
 
     """
 
-    def __init__(self, img, coors, mag, cytbg, membg, thickness=50, rol_ave=10, periodic=True,
-                 end_region=0.1, cytbg_offset=2, psize=0.255):
+    def __init__(self, img, coors, mag, cytbg, membg, thickness=50, rol_ave=20, periodic=True,
+                 end_region=0.2, cytbg_offset=4, psize=0.255):
         Profile.__init__(self, end_region=end_region)
         self.img = img
         self.coors = coors
@@ -564,12 +580,16 @@ class Quantifier(Profile):
         self.cytbg_offset = cytbg_offset * mag
         self.psize = psize / mag
 
+        # Results
         self.sigs = np.zeros([len(coors[:, 0])])
         self.cyts = np.zeros([len(coors[:, 0])])
         self.bg = np.zeros([len(coors[:, 0])])
         self.straight = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_fit = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_bg = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_mem = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_cyt = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_resids = np.zeros([self.thickness, len(self.coors[:, 0])])
 
     def run(self):
         self.straight = rolling_ave_2d(straighten(self.img, self.coors, int(self.thickness)), int(self.rol_ave),
@@ -579,25 +599,35 @@ class Quantifier(Profile):
         for x in range(len(self.straight[0, :])):
             profile = self.straight[:, x]
             a = self.fit_profile_a(profile, self.cytbg, self.membg)
-            m1, c1, c2 = self.fix_ends(profile,
-                                       self.cytbg[int(self.thickness / 2 + self.cytbg_offset):int(
-                                           self.thickness / 2 + self.cytbg_offset) + self.thickness],
-                                       self.membg[int(self.thickness / 2):int(self.thickness / 2) + self.thickness], a)
+            m1 = self.fix_ends2(profile, self.cytbg, self.membg, l=int(self.thickness / 2), a=a,
+                                o=self.cytbg_offset)
+            self.sigs[x] = m1 * a
+            self.cyts[x] = m1
 
             self.straight_cyt[:, x] = self.cyt_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2), a=a,
-                                                       o=self.cytbg_offset) - c1
-            self.straight_mem[:, x] = self.total_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
-                                                         a=a, o=self.cytbg_offset) - (self.straight_cyt[:, x] + c1)
-            self.sigs[x] = 2 * np.trapz(self.straight_mem[:int(self.thickness / 2), x])
-            self.cyts[x] = m1
-            self.bg[x] = c1 + c2
+                                                       o=self.cytbg_offset)
+            self.straight_mem[:, x] = self.mem_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2), a=a,
+                                                       o=self.cytbg_offset)
+            self.straight_fit[:, x] = self.total_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
+                                                         a=a, o=self.cytbg_offset)
+            self.straight_resids[:, x] = profile - (self.straight_fit[:, x])
 
-        # Convert to um units
-        self.sigs *= (1 / self.psize)
-        self.cyts *= (1 / self.psize) ** 2
+            # Convert to um units
+            # self.sigs *= (1 / self.psize)
+            # self.cyts *= (1 / self.psize) ** 2
 
     def fit_profile_a(self, profile, cytbg, membg):
         res = differential_evolution(self.fit_profile_a_func, bounds=((-5, 50),), args=(profile, cytbg, membg))
+
+        # plt.plot(profile)
+        # plt.plot(self.total_profile(profile, cytbg, membg, l=int(self.thickness / 2), a=res.x[0], o=self.cytbg_offset))
+        # cyt = self.cyt_profile(profile, cytbg, membg, l=int(self.thickness / 2), a=res.x[0], o=self.cytbg_offset)
+        # mem = self.mem_profile(profile, cytbg, membg, l=int(self.thickness / 2), a=res.x[0], o=self.cytbg_offset)
+        # plt.plot(cyt)
+        # plt.plot(cyt + mem)
+        # plt.ylim(bottom=0)
+        # plt.show()
+
         return res.x[0]
 
     def fit_profile_a_func(self, a, profile, cytbg, membg):
@@ -782,3 +812,118 @@ def af_subtraction(ch1, ch2, m, c):
     af = m * ch2 + c
     signal = ch1 - af
     return signal
+
+
+def bg_subtraction(img, coors, mag):
+    """
+    Subtracts the background from an image
+    By subtracting average signal 50 - 100 pixels from embryo
+
+    :param img:
+    :param coors:
+    :param mag:
+    :return:
+    """
+
+    a = polycrop(img, coors, 100 * mag) - polycrop(img, coors, 50 * mag)
+    a = [np.nanmean(a[np.nonzero(a)])]
+    return img - a
+
+
+def polycrop(img, polyline, enlarge):
+    """
+    Crops image according to polyline coordinates
+    Expand or contract selection with enlarge parameter
+
+    :param img:
+    :param polyline:
+    :param enlarge:
+    :return:
+    """
+
+    newcoors = np.int32(offset_coordinates(polyline, enlarge * np.ones([len(polyline[:, 0])])))
+    mask = np.zeros(img.shape)
+    mask = cv2.fillPoly(mask, [newcoors], 1)
+    newimg = img * mask
+    # newimg[newimg == 0] = np.nan
+    return newimg
+
+
+def polycrop2(img, polyline, enlarge):
+    """
+    Crops image according to polyline coordinates
+    Expand or contract selection with enlarge parameter
+
+    :param img:
+    :param polyline:
+    :param enlarge:
+    :return:
+    """
+
+    newcoors = np.int32(offset_coordinates(polyline, enlarge * np.ones([len(polyline[:, 0])])))
+    mask = np.zeros(img.shape)
+    mask = cv2.fillPoly(mask, [newcoors], 1)
+    newimg = img * mask
+    newimg[newimg == 0] = np.nan
+    return newimg
+
+
+def dosage(img, coors, expand=5):
+    ys = np.zeros(img.shape)
+    for y in range(len(img[:, 0])):
+        ys[y, :] = y
+    xs = np.zeros(img.shape)
+    for x in range(len(img[:, 0])):
+        xs[:, x] = x
+    M = (coors - np.mean(coors.T, axis=1)).T
+    [latent, coeff] = np.linalg.eig(np.cov(M))
+    score = np.dot(coeff.T, M).T
+    ys2 = (ys - np.mean(coors[:, 1]))
+    xs2 = (xs - np.mean(coors[:, 0]))
+    newxs = abs(coeff.T[0, 0] * xs2 + coeff.T[0, 1] * ys2)
+    newys = abs(coeff.T[1, 0] * xs2 + coeff.T[1, 1] * ys2)
+    if (max(score[0, :]) - min(score[0, :])) < (max(score[1, :]) - min(score[1, :])):
+        newxs, newys = newys, newxs
+    a = polycrop2(img, coors, expand)
+    indices = ~np.isnan(a)
+    return np.average(a[indices], weights=newys[indices])
+
+
+def norm_coors(coors):
+    """
+    Aligns coordinates to their long axis
+
+    :param coors:
+    :return:
+    """
+
+    # PCA
+    M = (coors - np.mean(coors.T, axis=1)).T
+    [latent, coeff] = np.linalg.eig(np.cov(M))
+    score = np.dot(coeff.T, M).T
+
+    # Find long axis
+    if (max(score[0, :]) - min(score[0, :])) < (max(score[1, :]) - min(score[1, :])):
+        score = np.fliplr(score)
+
+    return score
+
+
+def bounded_mean_2d(array, bounds):
+    """
+    Averages 2D array in y dimension over region specified by bounds
+
+    Should add axis parameter
+    Should add interpolation step first
+
+    :param array:
+    :param bounds:
+    :return:
+    """
+
+    if bounds[0] < bounds[1]:
+        mean = np.mean(array[:, int(len(array[0, :]) * bounds[0]): int(len(array[0, :]) * bounds[1])], 1)
+    else:
+        mean = np.mean(
+            np.hstack((array[:, :int(len(array[0, :]) * bounds[1])], array[:, int(len(array[0, :]) * bounds[0]):])), 1)
+    return mean

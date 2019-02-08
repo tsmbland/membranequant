@@ -877,59 +877,91 @@ def fix_ends(curve1, curve2):
     return curve2
 
 
-def offset_line(line, offset):
-    """
-    Moves a straight line of coordinates perpendicular to itself
-
-    :param line:
-    :param offset:
-    :return:
-    """
-
-    xcoors = line[:, 0]
-    ycoors = line[:, 1]
-
-    # Create coordinates
-    rise = ycoors[1] - ycoors[0]
-    run = xcoors[1] - xcoors[0]
-    bisectorgrad = rise / run
-    tangentgrad = -1 / bisectorgrad
-
-    xchange = ((offset ** 2) / (1 + tangentgrad ** 2)) ** 0.5
-    ychange = xchange / abs(bisectorgrad)
-    newxs = xcoors + np.sign(rise) * np.sign(offset) * xchange
-    newys = ycoors - np.sign(run) * np.sign(offset) * ychange
-
-    newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
-    return newcoors
 
 
-def extend_line(line, extend):
-    """
-    Extends a straight line of coordinates along itself
+# class Profile:
+#     def __init__(self, end_region):
+#         self.end_region = end_region
+#
+#     def fix_ends(self, profile, cytbg, membg, a):
+#         pa = np.mean(profile[:int(len(profile) * self.end_region)])
+#         px = np.mean(profile[int(len(profile) * (1 - self.end_region)):])
+#         b1a = np.mean(cytbg[:int(len(cytbg) * self.end_region)])
+#         b1x = np.mean(cytbg[int(len(cytbg) * (1 - self.end_region)):])
+#         b2a = np.mean(membg[:int(len(membg) * self.end_region)])
+#         b2x = np.mean(membg[int(len(membg) * (1 - self.end_region)):])
+#         m1 = (px - pa) / (b1x - b1a + a * (b2x - b2a))
+#         c1 = - m1 * b1a
+#         c2 = - m1 * a * b2a
+#         return m1, c1, c2, pa
+#
+#     def total_profile(self, profile, cytbg, membg, l, a, o):
+#         m1, c1, c2, pa = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                        membg[int(l):int(l) + len(profile)], a)
+#         return m1 * (
+#             cytbg[int(l + o):int(l + o) + len(profile)] + a * membg[int(l):int(l) + len(profile)]) + c1 + c2 + pa
+#
+#     def cyt_profile(self, profile, cytbg, membg, l, a, o):
+#         m1, c1, c2, pa = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                        membg[int(l):int(l) + len(profile)], a)
+#         return m1 * cytbg[int(l + o):int(l + o) + len(profile)] + c1
+#
+#     def mem_profile(self, profile, cytbg, membg, l, a, o):
+#         m1, c1, c2, pa = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                        membg[int(l):int(l) + len(profile)], a)
+#         return m1 * a * membg[int(l):int(l) + len(profile)] + c2
+#
+#     def bg_intensity(self, profile, cytbg, membg, l, a, o):
+#         m1, c1, c2, pa = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                        membg[int(l):int(l) + len(profile)], a)
+#         return pa
+#
+#     def fix_ends2(self, profile, cytbg, membg, l, a, o):
+#         m1, c1, c2, pa = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                        membg[int(l):int(l) + len(profile)], a)
+#         return m1, c1, c2, pa
+#
+#
+# class Profile2:
+#     def __init__(self, end_region):
+#         self.end_region = end_region
+#
+#     def fix_ends(self, profile, cytbg, membg, a):
+#         pa = np.mean(profile[:int(len(profile) * self.end_region)])
+#         px = np.mean(profile[int(len(profile) * (1 - self.end_region)):])
+#         b1a = np.mean(cytbg[:int(len(cytbg) * self.end_region)])
+#         b1x = np.mean(cytbg[int(len(cytbg) * (1 - self.end_region)):])
+#         b2a = np.mean(membg[:int(len(membg) * self.end_region)])
+#         b2x = np.mean(membg[int(len(membg) * (1 - self.end_region)):])
+#         m1 = (px - pa) / (b1x - b1a + a * (b2x - b2a))
+#         bg = pa - m1 * (a * b1a + b2a)
+#         return m1, bg
+#
+#     def total_profile(self, profile, cytbg, membg, l, a, o):
+#         m1, bg = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                membg[int(l):int(l) + len(profile)], a)
+#         return m1 * (
+#             cytbg[int(l + o):int(l + o) + len(profile)] + a * membg[int(l):int(l) + len(profile)]) + bg
+#
+#     def cyt_profile(self, profile, cytbg, membg, l, a, o):
+#         m1, bg = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                membg[int(l):int(l) + len(profile)], a)
+#         return m1 * cytbg[int(l + o):int(l + o) + len(profile)]
+#
+#     def mem_profile(self, profile, cytbg, membg, l, a, o):
+#         m1, bg = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                membg[int(l):int(l) + len(profile)], a)
+#         return m1 * a * membg[int(l):int(l) + len(profile)]
+#
+#     def bg_intensity(self, profile, cytbg, membg, l, a, o):
+#         m1, bg = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                membg[int(l):int(l) + len(profile)], a)
+#         return bg
+#
+#     def fix_ends2(self, profile, cytbg, membg, l, a, o):
+#         m1, bg = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
+#                                membg[int(l):int(l) + len(profile)], a)
+#         return m1, bg
 
-    Should adjust to allow shrinking
-    :param line:
-    :param extend: e.g. 1.1 = 10% longer
-    :return:
-    """
-
-    xcoors = line[:, 0]
-    ycoors = line[:, 1]
-
-    len = np.hypot((xcoors[0] - xcoors[1]), (ycoors[0] - ycoors[1]))
-    extension = (extend - 1) * len * 0.5
-
-    rise = ycoors[1] - ycoors[0]
-    run = xcoors[1] - xcoors[0]
-    bisectorgrad = rise / run
-    tangentgrad = -1 / bisectorgrad
-
-    xchange = ((extension ** 2) / (1 + bisectorgrad ** 2)) ** 0.5
-    ychange = xchange / abs(tangentgrad)
-    newxs = xcoors - np.sign(rise) * np.sign(tangentgrad) * xchange * np.array([-1, 1])
-    newys = ycoors - np.sign(run) * np.sign(tangentgrad) * ychange * np.array([-1, 1])
-    newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
-    return newcoors
 
 

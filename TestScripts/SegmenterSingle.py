@@ -16,7 +16,8 @@ CytBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDatase
 MemBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/MemBgGFPaf.txt')
 
 # # Set up segmenter
-# seg = Segmenter1Single(img=img, coors=coors, cytbg=CytBg, membg=MemBg, mag=1, resolution=5, cytbg_offset=2)
+# seg = Segmenter1Single(img=img, coors=coors, cytbg=CytBg, membg=MemBg, mag=1, resolution=1, cytbg_offset=4,
+#                        thickness=50)
 #
 # # Specify ROI
 # seg.def_ROI()
@@ -32,17 +33,35 @@ MemBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDatase
 
 # Quantification
 coors = np.loadtxt('coors.txt')
-q = Quantifier(img=img, coors=coors, mag=1, thickness=50, cytbg=CytBg, membg=MemBg, cytbg_offset=2)
+# coors = np.roll(coors, 200, 0)
+
+q = Quantifier(img=img, coors=coors, mag=1, thickness=50, cytbg=CytBg, membg=MemBg, cytbg_offset=4)
 q.run()
 
 plt.plot(q.sigs)
+plt.show()
+
 plt.plot(q.cyts)
-plt.plot(q.sigs / q.cyts)
-plt.axhline(0)
+plt.show()
+
+# plt.plot(q.bg)
+# plt.show()
+
+# plt.plot(q.sigs / q.cyts)
+# plt.axhline(0)
+# plt.show()
+
+plt.imshow(q.straight_fit)
 plt.show()
 
 plt.imshow(q.straight_cyt)
 plt.show()
 
 plt.imshow(q.straight_mem)
+plt.show()
+
+# plt.imshow(q.straight_bg)
+# plt.show()
+
+plt.imshow(q.straight_resids)
 plt.show()
