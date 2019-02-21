@@ -14,18 +14,18 @@ coors = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDatase
 # Load background curves
 CytBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/CytBgGFPaf.txt')
 MemBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/MemBgGFPaf.txt')
-
+#
 # # Set up segmenter
-# seg = Segmenter1Single(img=img, coors=coors, cytbg=CytBg, membg=MemBg, mag=1, resolution=1, cytbg_offset=4,
-#                        thickness=50)
+# seg = Segmenter1Single(img=img, coors=coors, cytbg=CytBg, membg=MemBg, mag=1, resolution=1,
+#                        cytbg_offset=4, thickness=50)
 #
 # # Specify ROI
 # seg.def_ROI()
 # seg.coors = seg.fit_spline(seg.coors)
-#
+# 
 # # Run
 # seg.run(parallel=True, iterations=3)
-# seg.save('coors.txt')
+# seg.save('coors3.txt')
 #
 # # Plot
 # seg.plot()
@@ -65,3 +65,9 @@ plt.show()
 
 plt.imshow(q.straight_resids)
 plt.show()
+#
+# # saveimg(q.straight, 'straight4.tif')
+# # saveimg(q.straight_fit, 'straight_fit4.tif')
+# # saveimg(q.straight_resids, 'straight_resids4.tif')
+# # saveimg(q.straight_mem, 'straight_mem4.tif')
+# # saveimg(q.straight_cyt, 'straight_cyt4.tif')

@@ -6,7 +6,7 @@ from scipy.optimize import differential_evolution
 from scipy.ndimage.interpolation import map_coordinates
 from joblib import Parallel, delayed
 import multiprocessing
-from scipy.interpolate import splprep, splev
+from scipy.interpolate import splprep, splev, CubicSpline
 from scipy.ndimage.filters import gaussian_filter
 import cv2
 
@@ -25,11 +25,11 @@ To do:
 - use convolve function for rolling average functions (scipy.ndimage.filters.convolve)
 - scipy.ndimage.filters.laplace for model??
 - more specific import statements
-- need to think hard about 2 channel segmentation and 'cvf' parameter. May introduce biases
 - need to fix issue in segmenter where fitting fails
 
-Improvements:
+- adjust ranges profile fits, or way to automatically set range
 - change coordinate filtering method
+- way to remove polar body
 
 """
 
@@ -38,36 +38,17 @@ Improvements:
 
 
 class Profile:
-    def __init__(self, end_region):
-        self.end_region = end_region
+    @staticmethod
+    def total_profile(profile, cytbg, membg, l, c, m, o):
+        return (c * cytbg[int(l + o):int(l + o) + len(profile)]) + (m * membg[int(l):int(l) + len(profile)])
 
-    def fix_ends(self, profile, cytbg, membg, a):
-        px = np.mean(profile[int(len(profile) * (1 - self.end_region)):])
-        b1x = np.mean(cytbg[int(len(cytbg) * (1 - self.end_region)):])
-        b2x = np.mean(membg[int(len(membg) * (1 - self.end_region)):])
-        m1 = px / ((a * b2x) + b1x)
-        return m1
+    @staticmethod
+    def cyt_profile(profile, cytbg, membg, l, c, m, o):
+        return c * cytbg[int(l + o):int(l + o) + len(profile)]
 
-    def total_profile(self, profile, cytbg, membg, l, a, o):
-        m1 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
-                           membg[int(l):int(l) + len(profile)], a)
-        return m1 * (
-            cytbg[int(l + o):int(l + o) + len(profile)] + a * membg[int(l):int(l) + len(profile)])
-
-    def cyt_profile(self, profile, cytbg, membg, l, a, o):
-        m1 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
-                           membg[int(l):int(l) + len(profile)], a)
-        return m1 * cytbg[int(l + o):int(l + o) + len(profile)]
-
-    def mem_profile(self, profile, cytbg, membg, l, a, o):
-        m1 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
-                           membg[int(l):int(l) + len(profile)], a)
-        return m1 * a * membg[int(l):int(l) + len(profile)]
-
-    def fix_ends2(self, profile, cytbg, membg, l, a, o):
-        m1 = self.fix_ends(profile, cytbg[int(l + o):int(l + o) + len(profile)],
-                           membg[int(l):int(l) + len(profile)], a)
-        return m1
+    @staticmethod
+    def mem_profile(profile, cytbg, membg, l, c, m, o):
+        return m * membg[int(l):int(l) + len(profile)]
 
 
 ############### SEGMENTATION ################
@@ -112,7 +93,6 @@ class SegmenterParent:
 
             # Offset coordinates
             self.coors = offset_coordinates(self.coors, offsets)
-            # plt.plot(self.coors[:, 0], self.coors[:, 1])
 
             # >>>>> Change filtering method
 
@@ -128,8 +108,6 @@ class SegmenterParent:
 
             # Interpolate to one px distance between points
             self.coors = self.interp_coors(self.coors)
-            # plt.plot(self.coors[:, 0], self.coors[:, 1])
-            # plt.show()
 
         # Rotate
         if self.periodic:
@@ -233,7 +211,7 @@ class SegmenterParent:
 
         return newpoints
 
-    def fit_spline(self, coors):
+    def fit_spline(self, coors, s=0):
         """
         Fits a spline to points specifying the coordinates of the cortex, then interpolates to pixel distances
 
@@ -311,7 +289,7 @@ class SegmenterParent:
         self.coors = np.vstack((roi.xpoints, roi.ypoints)).T
 
 
-class Segmenter1Single(SegmenterParent, Profile):
+class Segmenter1Single(SegmenterParent):
     """
     Fit profiles to cytoplasmic background + membrane background
 
@@ -323,7 +301,6 @@ class Segmenter1Single(SegmenterParent, Profile):
     thickness          thickness of cross section over which to perform segmentation
     itp                amount to interpolate image prior to segmentation (this many points per pixel in original image)
     rol_ave            width of rolling average
-    end_region         for end fitting, fraction of profile that is fixed to background curves at each end
     cytbg_offset       offset between cytbg and membg
 
     By default itp, rol_ave, cytbg_offset and resolution will adjust if mag is not 1 to ensure similar behavior at
@@ -332,12 +309,11 @@ class Segmenter1Single(SegmenterParent, Profile):
     """
 
     def __init__(self, img, cytbg, membg, coors=None, mag=1, resolution=1, freedom=0.3,
-                 periodic=True, thickness=50, itp=10, rol_ave=50, end_region=0.2, cytbg_offset=4):
+                 periodic=True, thickness=50, itp=10, rol_ave=50, cytbg_offset=4):
 
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
                                  thickness=thickness * mag)
 
-        Profile.__init__(self, end_region=end_region)
         self.itp = itp / mag
         self.thickness2 = int(itp * self.thickness)
         self.cytbg = interp_1d_array(cytbg, 2 * self.thickness2)
@@ -354,7 +330,8 @@ class Segmenter1Single(SegmenterParent, Profile):
         straight = straighten(self.img, self.coors, self.thickness)
 
         # Filter/smoothen/interpolate images
-        straight = rolling_ave_2d(interp_2d_array(straight, self.thickness2), self.rol_ave, self.periodic)
+        straight = rolling_ave_2d(interp_2d_array(straight, self.thickness2, method='cubic'), self.rol_ave,
+                                  self.periodic)
 
         # Fit
         if parallel:
@@ -369,7 +346,7 @@ class Segmenter1Single(SegmenterParent, Profile):
         return offsets
 
     def fit_profile(self, profile, cytbg, membg):
-        res = differential_evolution(self.mse, bounds=((self.lmin, self.lmax), (0, 50)),
+        res = differential_evolution(self.mse, bounds=((self.lmin, self.lmax), (-1000, 20000), (-1000, 30000)),
                                      args=(profile, cytbg, membg))
 
         # plt.plot(profile)
@@ -381,13 +358,128 @@ class Segmenter1Single(SegmenterParent, Profile):
         o = (res.x[0] - self.thickness2 / 2) / self.itp
         return o
 
-    def mse(self, l_a, profile, cytbg, membg):
-        l, a = l_a
-        y = self.total_profile(profile, cytbg, membg, l=l, a=a, o=self.cytbg_offset)
+    def mse(self, l_c_m, profile, cytbg, membg):
+        l, c, m = l_c_m
+        y = Profile.total_profile(profile, cytbg, membg, l=l, c=c, m=m, o=self.cytbg_offset)
         return np.mean((profile - y) ** 2)
 
 
-class Segmenter1Double(SegmenterParent, Profile):
+class Segmenter1SingleUC(SegmenterParent):
+    """
+    Fit profiles to cytoplasmic background + membrane background
+
+    Parameters:
+    mag                magnification of image wrt 60x
+    resolution         gap between segmentation points
+    freedom            amount of freedom allowed in offset (0=min, 1=max)
+    periodic           True if coordinates form a closed loop
+    thickness          thickness of cross section over which to perform segmentation
+    itp                amount to interpolate image prior to segmentation (this many points per pixel in original image)
+    rol_ave            width of rolling average
+    cytbg_offset       offset between cytbg and membg
+
+    By default itp, rol_ave, cytbg_offset and resolution will adjust if mag is not 1 to ensure similar behavior at
+    different magnifications
+
+
+    Uniform cytoplasm
+
+
+    """
+
+    def __init__(self, img, cytbg, membg, coors=None, mag=1, resolution=1, freedom=0.3,
+                 periodic=True, thickness=50, itp=10, rol_ave=50, cytbg_offset=4, parallel=False,
+                 resolution_cyt=50):
+
+        SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
+                                 thickness=thickness * mag)
+
+        self.itp = itp / mag
+        self.thickness2 = int(itp * self.thickness)
+        self.cytbg = interp_1d_array(cytbg, 2 * self.thickness2)
+        self.membg = interp_1d_array(membg, 2 * self.thickness2)
+        self.freedom = freedom
+        self.rol_ave = int(rol_ave * mag)
+        self.cytbg_offset = int(itp * cytbg_offset)
+        self.lmin = (self.thickness2 / 2) * (1 - self.freedom)
+        self.lmax = (self.thickness2 / 2) * (1 + self.freedom)
+        self.resolution = int(resolution * mag)
+        self.resolution_cyt = int(resolution_cyt * mag)
+        self.parallel = parallel
+
+    def calc_offsets(self, parallel):
+        # Straighten
+        straight = straighten(self.img, self.coors, self.thickness)
+
+        # Filter/smoothen/interpolate images
+        straight = rolling_ave_2d(interp_2d_array(straight, self.thickness2, method='cubic'), self.rol_ave,
+                                  self.periodic)
+
+        # Fit global cytoplasm
+        c = self.fit_profile_1(straight, self.cytbg, self.membg)
+
+        # Fit
+        if self.parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile_2)(straight[:, x * self.resolution], self.cytbg, self.membg, c)
+                for x in range(len(straight[0, :]) // self.resolution)))
+        else:
+            offsets = np.zeros(len(straight[0, :]) // self.resolution)
+            for x in range(len(straight[0, :]) // self.resolution):
+                offsets[x] = self.fit_profile_2(straight[:, x * self.resolution], self.cytbg, self.membg, c)
+
+        return offsets
+
+    def fit_profile_1(self, straight, cytbg, membg):
+        """
+        For finding optimal global cytoplasm
+
+        """
+
+        res = differential_evolution(self.fit_profile_1_func, bounds=((-1000, 20000),), args=(straight, cytbg, membg))
+        return res.x[0]
+
+    def fit_profile_1_func(self, c, straight, cytbg, membg):
+        if self.parallel:
+            mses = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile_2b)(straight[:, x * self.resolution_cyt], cytbg, membg, c)
+                for x in range(len(straight[0, :]) // self.resolution_cyt)))
+        else:
+            mses = np.zeros(len(straight[0, :]) // self.resolution_cyt)
+            for x in range(len(straight[0, :]) // self.resolution_cyt):
+                mses[x] = self.fit_profile_2b(straight[:, x * self.resolution_cyt], cytbg, membg, c)
+        return np.mean(mses)
+
+    def fit_profile_2(self, profile, cytbg, membg, c):
+        """
+        For finding optimal local membrane, alignment
+        Returns offset
+
+        """
+
+        res = differential_evolution(self.fit_profile_2_func, bounds=((self.lmin, self.lmax), (-1000, 30000)),
+                                     args=(profile, cytbg, membg, c))
+        o = (res.x[0] - self.thickness2 / 2) / self.itp
+        return o
+
+    def fit_profile_2b(self, profile, cytbg, membg, c):
+        """
+        For finding optimal local membrane, alignment
+        Returns mse
+
+        """
+
+        res = differential_evolution(self.fit_profile_2_func, bounds=((self.lmin, self.lmax), (-1000, 30000)),
+                                     args=(profile, cytbg, membg, c))
+        return res.fun
+
+    def fit_profile_2_func(self, l_m, profile, cytbg, membg, c):
+        l, m = l_m
+        y = Profile.total_profile(profile, cytbg, membg, l=l, c=c, m=m, o=self.cytbg_offset)
+        return np.mean((profile - y) ** 2)
+
+
+class Segmenter1Double(SegmenterParent):
     """
     Fit profiles to cytoplasmic background + membrane background
     Two channels
@@ -396,12 +488,10 @@ class Segmenter1Double(SegmenterParent, Profile):
 
     def __init__(self, img_g, img_r, cytbg_g, cytbg_r, membg_g, membg_r, coors=None, mag=1,
                  resolution=1, freedom=0.3, periodic=True, thickness=50, itp=10, rol_ave=50,
-                 end_region=0.2, cytbg_offset=4):
+                 cytbg_offset=4):
 
         SegmenterParent.__init__(self, img_g=img_g, img_r=img_r, coors=coors, mag=mag,
                                  periodic=periodic, thickness=thickness * mag)
-
-        Profile.__init__(self, end_region=end_region)
 
         self.itp = itp / mag
         self.thickness2 = itp * self.thickness
@@ -422,8 +512,10 @@ class Segmenter1Double(SegmenterParent, Profile):
         straight_r = straighten(self.img_r, self.coors, self.thickness)
 
         # Filter/smoothen/interpolate images
-        straight_g = rolling_ave_2d(interp_2d_array(straight_g, self.thickness2), self.rol_ave, self.periodic)
-        straight_r = rolling_ave_2d(interp_2d_array(straight_r, self.thickness2), self.rol_ave, self.periodic)
+        straight_g = rolling_ave_2d(interp_2d_array(straight_g, self.thickness2, method='cubic'), self.rol_ave,
+                                    self.periodic)
+        straight_r = rolling_ave_2d(interp_2d_array(straight_r, self.thickness2, method='cubic'), self.rol_ave,
+                                    self.periodic)
 
         # Fit
         if parallel:
@@ -443,15 +535,249 @@ class Segmenter1Double(SegmenterParent, Profile):
 
     def fit_profile(self, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r):
         res = differential_evolution(self.mse, bounds=(
-            (self.lmin, self.lmax), (0, 50), (0, 50)),
+            (self.lmin, self.lmax), (-1000, 20000), (-1000, 20000), (-1000, 30000), (-1000, 30000)),
                                      args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r))
         o = (res.x[0] - self.thickness2 / 2) / self.itp
         return o
 
-    def mse(self, l_ag_ar, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r):
-        l, ag, ar = l_ag_ar
-        yg = self.total_profile(profile_g, cytbg_g, membg_g, l=l, a=ag, o=self.cytbg_offset)
-        yr = self.total_profile(profile_r, cytbg_r, membg_r, l=l, a=ar, o=self.cytbg_offset)
+    def mse(self, l_cg_cr_mg_mr, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r):
+        l, cg, cr, mg, mr = l_cg_cr_mg_mr
+        yg = Profile.total_profile(profile_g, cytbg_g, membg_g, l=l, c=cg, m=mg, o=self.cytbg_offset)
+        yr = Profile.total_profile(profile_r, cytbg_r, membg_r, l=l, c=cr, m=mr, o=self.cytbg_offset)
+        return np.mean([np.mean((profile_g - yg) ** 2), np.mean((profile_r - yr) ** 2)])
+
+
+class Segmenter1DoubleUC(SegmenterParent):
+    """
+    Fit profiles to cytoplasmic background + membrane background
+    Two channels
+
+    """
+
+    def __init__(self, img_g, img_r, cytbg_g, cytbg_r, membg_g, membg_r, coors=None, mag=1,
+                 resolution=1, freedom=0.3, periodic=True, thickness=50, itp=10, rol_ave=50,
+                 cytbg_offset=4, parallel=False, resolution_cyt=50):
+
+        SegmenterParent.__init__(self, img_g=img_g, img_r=img_r, coors=coors, mag=mag,
+                                 periodic=periodic, thickness=thickness * mag)
+
+        self.itp = itp / mag
+        self.thickness2 = itp * self.thickness
+        self.cytbg_g = interp_1d_array(cytbg_g, 2 * self.thickness2)
+        self.cytbg_r = interp_1d_array(cytbg_r, 2 * self.thickness2)
+        self.membg_g = interp_1d_array(membg_g, 2 * self.thickness2)
+        self.membg_r = interp_1d_array(membg_r, 2 * self.thickness2)
+        self.freedom = freedom
+        self.rol_ave = int(rol_ave * mag)
+        self.cytbg_offset = int(itp * cytbg_offset)
+        self.lmin = (self.thickness2 / 2) * (1 - self.freedom)
+        self.lmax = (self.thickness2 / 2) * (1 + self.freedom)
+        self.resolution = int(resolution * mag)
+        self.resolution_cyt = int(resolution_cyt * mag)
+        self.parallel = parallel
+
+    def calc_offsets(self, parallel):
+        # Straighten
+        straight_g = straighten(self.img_g, self.coors, self.thickness)
+        straight_r = straighten(self.img_r, self.coors, self.thickness)
+
+        # Filter/smoothen/interpolate images
+        straight_g = rolling_ave_2d(interp_2d_array(straight_g, self.thickness2, method='cubic'), self.rol_ave,
+                                    self.periodic)
+        straight_r = rolling_ave_2d(interp_2d_array(straight_r, self.thickness2, method='cubic'), self.rol_ave,
+                                    self.periodic)
+
+        # Find global cytoplasms
+        c_g, c_r = self.fit_profile_1(straight_g, straight_r, self.cytbg_g, self.cytbg_r, self.membg_g, self.membg_r)
+
+        # Fit
+        if parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile_2)(straight_g[:, x * self.resolution],
+                                            straight_r[:, x * self.resolution], self.cytbg_g, self.cytbg_r,
+                                            self.membg_g, self.membg_r, c_g, c_r)
+                for x in range(len(straight_g[0, :]) // self.resolution)))
+        else:
+            offsets = np.zeros(len(straight_g[0, :]) // self.resolution)
+            for x in range(len(straight_g[0, :]) // self.resolution):
+                offsets[x] = self.fit_profile_2(straight_g[:, x * self.resolution],
+                                                straight_r[:, x * self.resolution], self.cytbg_g, self.cytbg_r,
+                                                self.membg_g, self.membg_r, c_g, c_r)
+
+        return offsets
+
+    def fit_profile_1(self, straight_g, straight_r, cytbg_g, cytbg_r, membg_g, membg_r):
+        """
+        For finding optimal global cytoplasm
+
+        """
+
+        res = differential_evolution(self.fit_profile_1_func, bounds=((-1000, 20000), (-1000, 20000)),
+                                     args=(straight_g, straight_r, cytbg_g, cytbg_r, membg_g, membg_r))
+        return res.x[0], res.x[1]
+
+    def fit_profile_1_func(self, cg_cr, straight_g, straight_r, cytbg_g, cytbg_r, membg_g, membg_r):
+        c_g, c_r = cg_cr
+        if self.parallel:
+            mses = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile_2b)(straight_g[:, x * self.resolution_cyt],
+                                             straight_r[:, x * self.resolution_cyt], cytbg_g, cytbg_r, membg_g, membg_r,
+                                             c_g, c_r)
+                for x in range(len(straight_g[0, :]) // self.resolution_cyt)))
+        else:
+            mses = np.zeros(len(straight_g[0, :]) // self.resolution_cyt)
+            for x in range(len(straight_g[0, :]) // self.resolution_cyt):
+                mses[x] = self.fit_profile_2b(straight_g[:, x * self.resolution_cyt],
+                                              straight_g[:, x * self.resolution_cyt], cytbg_g, cytbg_r, membg_g,
+                                              membg_r, c_g, c_r)
+        return np.mean(mses)
+
+    def fit_profile_2(self, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, c_g, c_r):
+        """
+        For finding optimal local membrane, alignment
+        Returns offset
+
+        """
+
+        res = differential_evolution(self.fit_profile_2_func,
+                                     bounds=((self.lmin, self.lmax), (-1000, 30000), (-1000, 30000)),
+                                     args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, c_g, c_r))
+        o = (res.x[0] - self.thickness2 / 2) / self.itp
+        return o
+
+    def fit_profile_2b(self, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, c_g, c_r):
+        """
+        For finding optimal local membrane, alignment
+        Returns mse
+
+        """
+
+        res = differential_evolution(self.fit_profile_2_func,
+                                     bounds=((self.lmin, self.lmax), (-1000, 30000), (-1000, 30000)),
+                                     args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, c_g, c_r))
+        return res.fun
+
+    def fit_profile_2_func(self, l_mg_mr, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, c_g, c_r):
+        l, m_g, m_r = l_mg_mr
+        yg = Profile.total_profile(profile_g, cytbg_g, membg_g, l=l, c=c_g, m=m_g, o=self.cytbg_offset)
+        yr = Profile.total_profile(profile_r, cytbg_r, membg_r, l=l, c=c_r, m=m_r, o=self.cytbg_offset)
+        return np.mean([np.mean((profile_g - yg) ** 2), np.mean((profile_r - yr) ** 2)])
+
+
+class Segmenter1DoubleMix(SegmenterParent):
+    """
+    Fit profiles to cytoplasmic background + membrane background
+    Two channels
+
+    Uniform r, polarised g
+
+    """
+
+    def __init__(self, img_g, img_r, cytbg_g, cytbg_r, membg_g, membg_r, coors=None, mag=1,
+                 resolution=1, freedom=0.3, periodic=True, thickness=50, itp=10, rol_ave=50,
+                 end_region=0.2, cytbg_offset=4, parallel=False, resolution_cyt=50):
+
+        SegmenterParent.__init__(self, img_g=img_g, img_r=img_r, coors=coors, mag=mag,
+                                 periodic=periodic, thickness=thickness * mag)
+
+        self.itp = itp / mag
+        self.thickness2 = itp * self.thickness
+        self.cytbg_g = interp_1d_array(cytbg_g, 2 * self.thickness2)
+        self.cytbg_r = interp_1d_array(cytbg_r, 2 * self.thickness2)
+        self.membg_g = interp_1d_array(membg_g, 2 * self.thickness2)
+        self.membg_r = interp_1d_array(membg_r, 2 * self.thickness2)
+        self.freedom = freedom
+        self.rol_ave = int(rol_ave * mag)
+        self.cytbg_offset = int(itp * cytbg_offset)
+        self.lmin = (self.thickness2 / 2) * (1 - self.freedom)
+        self.lmax = (self.thickness2 / 2) * (1 + self.freedom)
+        self.resolution = int(resolution * mag)
+        self.resolution_cyt = int(resolution_cyt * mag)
+        self.parallel = parallel
+
+    def calc_offsets(self, parallel):
+        # Straighten
+        straight_g = straighten(self.img_g, self.coors, self.thickness)
+        straight_r = straighten(self.img_r, self.coors, self.thickness)
+
+        # Filter/smoothen/interpolate images
+        straight_g = rolling_ave_2d(interp_2d_array(straight_g, self.thickness2, method='cubic'), self.rol_ave,
+                                    self.periodic)
+        straight_r = rolling_ave_2d(interp_2d_array(straight_r, self.thickness2, method='cubic'), self.rol_ave,
+                                    self.periodic)
+
+        # Find global cytoplasms
+        c_r = self.fit_profile_1(straight_r, self.cytbg_r, self.membg_r)
+
+        # Fit
+        if parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile_3)(straight_g[:, x * self.resolution],
+                                            straight_r[:, x * self.resolution], self.cytbg_g, self.cytbg_r,
+                                            self.membg_g, self.membg_r, c_r)
+                for x in range(len(straight_g[0, :]) // self.resolution)))
+        else:
+            offsets = np.zeros(len(straight_g[0, :]) // self.resolution)
+            for x in range(len(straight_g[0, :]) // self.resolution):
+                offsets[x] = self.fit_profile_3(straight_g[:, x * self.resolution],
+                                                straight_r[:, x * self.resolution], self.cytbg_g, self.cytbg_r,
+                                                self.membg_g, self.membg_r, c_r)
+
+        return offsets
+
+    def fit_profile_1(self, straight, cytbg, membg):
+        """
+        For finding optimal global cytoplasm
+
+        """
+
+        res = differential_evolution(self.fit_profile_1_func, bounds=((-1000, 20000),), args=(straight, cytbg, membg))
+        return res.x[0]
+
+    def fit_profile_1_func(self, c, straight, cytbg, membg):
+        if self.parallel:
+            mses = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile_2b)(straight[:, x * self.resolution_cyt], cytbg, membg, c)
+                for x in range(len(straight[0, :]) // self.resolution_cyt)))
+        else:
+            mses = np.zeros(len(straight[0, :]) // self.resolution_cyt)
+            for x in range(len(straight[0, :]) // self.resolution_cyt):
+                mses[x] = self.fit_profile_2b(straight[:, x * self.resolution_cyt], cytbg, membg, c)
+        return np.mean(mses)
+
+    def fit_profile_2b(self, profile, cytbg, membg, c):
+        """
+        For finding optimal local membrane, alignment
+        Returns mse
+
+        """
+
+        res = differential_evolution(self.fit_profile_2_func, bounds=((self.lmin, self.lmax), (-1000, 30000)),
+                                     args=(profile, cytbg, membg, c))
+        return res.fun
+
+    def fit_profile_2_func(self, l_m, profile, cytbg, membg, c):
+        l, m = l_m
+        y = Profile.total_profile(profile, cytbg, membg, l=l, c=c, m=m, o=self.cytbg_offset)
+        return np.mean((profile - y) ** 2)
+
+    def fit_profile_3(self, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, cr):
+        """
+        For finding optimal local membrane, alignment
+        Returns offset
+
+        """
+
+        res = differential_evolution(self.fit_profile_3_func,
+                                     bounds=((self.lmin, self.lmax), (-1000, 20000), (-1000, 30000), (-1000, 30000)),
+                                     args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, cr))
+        o = (res.x[0] - self.thickness2 / 2) / self.itp
+        return o
+
+    def fit_profile_3_func(self, l_cg_mg_mr, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, cr):
+        l, cg, mg, mr = l_cg_mg_mr
+        yg = Profile.total_profile(profile_g, cytbg_g, membg_g, l=l, c=cg, m=mg, o=self.cytbg_offset)
+        yr = Profile.total_profile(profile_r, cytbg_r, membg_r, l=l, c=cr, m=mr, o=self.cytbg_offset)
         return np.mean([np.mean((profile_g - yg) ** 2), np.mean((profile_r - yr) ** 2)])
 
 
@@ -467,7 +793,7 @@ class Segmenter2(SegmenterParent):
     """
 
     def __init__(self, img, coors=None, mag=1, resolution=1, periodic=True,
-                 thickness=50, itp=10, rol_ave=50):
+                 thickness=50, itp=100, rol_ave=50):
 
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
                                  thickness=thickness * mag)
@@ -485,7 +811,8 @@ class Segmenter2(SegmenterParent):
         straight = straighten(self.img, self.coors, self.thickness)
 
         # Filter/smoothen/interpolate images
-        straight = rolling_ave_2d(interp_2d_array(straight, self.thickness2), self.rol_ave, self.periodic)
+        straight = rolling_ave_2d(interp_2d_array(straight, self.thickness2, method='cubic'), self.rol_ave,
+                                  self.periodic)
 
         # Calculate offsets
         if parallel:
@@ -520,7 +847,7 @@ class Segmenter3(SegmenterParent):
     """
 
     def __init__(self, img, coors=None, mag=1, resolution=1, periodic=True,
-                 thickness=50, itp=10, rol_ave=50):
+                 thickness=50, itp=100, rol_ave=50):
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
                                  thickness=thickness * mag)
         self.itp = itp / mag
@@ -536,7 +863,8 @@ class Segmenter3(SegmenterParent):
         straight = straighten(self.img, self.coors, self.thickness)
 
         # Filter/smoothen/interpolate images
-        straight = rolling_ave_2d(interp_2d_array(straight, self.thickness2), self.rol_ave, self.periodic)
+        straight = rolling_ave_2d(interp_2d_array(straight, self.thickness2, method='cubic'), self.rol_ave,
+                                  self.periodic)
 
         # Calculate offsets
         if parallel:
@@ -559,17 +887,14 @@ class Segmenter3(SegmenterParent):
 ############ MEMBRANE QUANTIFICATION ###########
 
 
-class Quantifier(Profile):
+class Quantifier:
     """
-    Cytbg offset fixed
 
-    Main method for quantification
 
     """
 
-    def __init__(self, img, coors, mag, cytbg, membg, thickness=50, rol_ave=20, periodic=True,
-                 end_region=0.2, cytbg_offset=4, psize=0.255):
-        Profile.__init__(self, end_region=end_region)
+    def __init__(self, img, coors, mag, cytbg, membg, thickness=50, rol_ave=10, periodic=True,
+                 cytbg_offset=4, psize=0.255):
         self.img = img
         self.coors = coors
         self.thickness = thickness * mag
@@ -583,10 +908,8 @@ class Quantifier(Profile):
         # Results
         self.sigs = np.zeros([len(coors[:, 0])])
         self.cyts = np.zeros([len(coors[:, 0])])
-        self.bg = np.zeros([len(coors[:, 0])])
         self.straight = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_fit = np.zeros([self.thickness, len(self.coors[:, 0])])
-        self.straight_bg = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_mem = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_cyt = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_resids = np.zeros([self.thickness, len(self.coors[:, 0])])
@@ -598,26 +921,24 @@ class Quantifier(Profile):
         # Get cortical/cytoplasmic signals
         for x in range(len(self.straight[0, :])):
             profile = self.straight[:, x]
-            a = self.fit_profile_a(profile, self.cytbg, self.membg)
-            m1 = self.fix_ends2(profile, self.cytbg, self.membg, l=int(self.thickness / 2), a=a,
-                                o=self.cytbg_offset)
-            self.sigs[x] = m1 * a
-            self.cyts[x] = m1
+            c, m = self.fit_profile_a(profile, self.cytbg, self.membg)
 
-            self.straight_cyt[:, x] = self.cyt_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2), a=a,
-                                                       o=self.cytbg_offset)
-            self.straight_mem[:, x] = self.mem_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2), a=a,
-                                                       o=self.cytbg_offset)
-            self.straight_fit[:, x] = self.total_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
-                                                         a=a, o=self.cytbg_offset)
+            self.sigs[x] = m
+            self.cyts[x] = c
+
+            self.straight_cyt[:, x] = Profile.cyt_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
+                                                          c=c,
+                                                          m=m, o=self.cytbg_offset)
+            self.straight_mem[:, x] = Profile.mem_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
+                                                          c=c,
+                                                          m=m, o=self.cytbg_offset)
+            self.straight_fit[:, x] = Profile.total_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
+                                                            c=c, m=m, o=self.cytbg_offset)
             self.straight_resids[:, x] = profile - (self.straight_fit[:, x])
 
-            # Convert to um units
-            # self.sigs *= (1 / self.psize)
-            # self.cyts *= (1 / self.psize) ** 2
-
     def fit_profile_a(self, profile, cytbg, membg):
-        res = differential_evolution(self.fit_profile_a_func, bounds=((-5, 50),), args=(profile, cytbg, membg))
+        res = differential_evolution(self.fit_profile_a_func, bounds=((-1000, 20000), (-1000, 30000)),
+                                     args=(profile, cytbg, membg))
 
         # plt.plot(profile)
         # plt.plot(self.total_profile(profile, cytbg, membg, l=int(self.thickness / 2), a=res.x[0], o=self.cytbg_offset))
@@ -628,10 +949,121 @@ class Quantifier(Profile):
         # plt.ylim(bottom=0)
         # plt.show()
 
+        return res.x[0], res.x[1]
+
+    def fit_profile_a_func(self, c_m, profile, cytbg, membg):
+        c, m = c_m
+        y = Profile.total_profile(profile, cytbg, membg, l=int(self.thickness / 2), c=c, m=m, o=self.cytbg_offset)
+        return np.mean((profile - y) ** 2)
+
+
+class QuantifierUC:
+    """
+    Uniform cytoplasmic pool
+
+    """
+
+    def __init__(self, img, coors, mag, cytbg, membg, thickness=50, rol_ave=10, periodic=True,
+                 cytbg_offset=4, psize=0.255, resolution_cyt=20, parallel=False):
+
+        self.img = img
+        self.coors = coors
+        self.thickness = thickness * mag
+        self.cytbg = interp_1d_array(cytbg, 2 * self.thickness)
+        self.membg = interp_1d_array(membg, 2 * self.thickness)
+        self.rol_ave = rol_ave * mag
+        self.periodic = periodic
+        self.cytbg_offset = cytbg_offset * mag
+        self.psize = psize / mag
+        self.resolution_cyt = int(resolution_cyt * mag)
+        self.parallel = parallel
+
+        # Results
+        self.sigs = np.zeros([len(coors[:, 0])])
+        self.cyts = np.zeros([len(coors[:, 0])])
+        self.straight = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_fit = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_mem = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_cyt = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_resids = np.zeros([self.thickness, len(self.coors[:, 0])])
+
+    def run(self):
+        self.straight = rolling_ave_2d(straighten(self.img, self.coors, int(self.thickness)), int(self.rol_ave),
+                                       self.periodic)
+        c = self.fit_profile_1(self.straight, self.cytbg, self.membg)
+
+        if self.parallel:
+            ms = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile_2a)(self.straight[:, x], self.cytbg, self.membg, c)
+                for x in range(len(self.straight[0, :]))))
+        else:
+            ms = np.zeros([len(self.straight[0, :])])
+            for x in range(len(self.straight[0, :])):
+                ms[x] = self.fit_profile_2a(self.straight[:, x], self.cytbg, self.membg, c)
+
+        for x in range(len(self.straight[0, :])):
+            profile = self.straight[:, x]
+            self.straight_cyt[:, x] = Profile.cyt_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
+                                                          c=c,
+                                                          m=ms[x], o=self.cytbg_offset)
+            self.straight_mem[:, x] = Profile.mem_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
+                                                          c=c,
+                                                          m=ms[x], o=self.cytbg_offset)
+            self.straight_fit[:, x] = Profile.total_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
+                                                            c=c, m=ms[x], o=self.cytbg_offset)
+            self.straight_resids[:, x] = profile - (self.straight_fit[:, x])
+
+            self.sigs[x] = ms[x]
+            self.cyts[x] = c
+
+            # plt.plot(self.straight[:, x])
+            # plt.plot(self.straight_cyt[:, x])
+            # plt.plot(self.straight_fit[:, x])
+            # plt.ylim(bottom=0)
+            # plt.show()
+
+    def fit_profile_1(self, straight, cytbg, membg):
+        """
+        For finding optimal global cytoplasm
+
+        """
+
+        res = differential_evolution(self.fit_profile_1_func, bounds=((-1000, 20000),), args=(straight, cytbg, membg))
         return res.x[0]
 
-    def fit_profile_a_func(self, a, profile, cytbg, membg):
-        y = self.total_profile(profile, cytbg, membg, l=int(self.thickness / 2), a=a, o=self.cytbg_offset)
+    def fit_profile_1_func(self, c, straight, cytbg, membg):
+        if self.parallel:
+            mses = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.fit_profile_2b)(straight[:, x * self.resolution_cyt], self.cytbg, self.membg, c)
+                for x in range(len(straight[0, :]) // self.resolution_cyt)))
+        else:
+            mses = np.zeros(len(straight[0, :]) // self.resolution_cyt)
+            for x in range(len(straight[0, :]) // self.resolution_cyt):
+                mses[x] = self.fit_profile_2b(straight[:, x * self.resolution_cyt], cytbg, membg, c)
+        return np.mean(mses)
+
+    def fit_profile_2a(self, profile, cytbg, membg, c):
+        """
+        For finding optimal local membrane
+        Returns m
+
+        """
+
+        res = differential_evolution(self.fit_profile_2_func, bounds=((-1000, 30000),), args=(profile, cytbg, membg, c))
+        return res.x[0]
+
+    def fit_profile_2b(self, profile, cytbg, membg, c):
+        """
+        For finding optimal local membrane
+        Returns mse
+
+        """
+
+        res = differential_evolution(self.fit_profile_2_func, bounds=((-1000, 30000),), args=(profile, cytbg, membg, c))
+        return res.fun
+
+    def fit_profile_2_func(self, m, profile, cytbg, membg, c):
+        y = Profile.total_profile(profile, cytbg, membg, l=int(self.thickness / 2), c=c, m=m, o=self.cytbg_offset)
         return np.mean((profile - y) ** 2)
 
 
@@ -705,7 +1137,7 @@ def offset_coordinates(coors, offsets):
     return newcoors
 
 
-def interp_1d_array(array, n):
+def interp_1d_array(array, n, method='linear'):
     """
     Interpolates a one dimensional array into n points
 
@@ -714,10 +1146,13 @@ def interp_1d_array(array, n):
     :return:
     """
 
-    return np.interp(np.linspace(0, len(array) - 1, n), np.array(range(len(array))), array)
+    if method == 'linear':
+        return np.interp(np.linspace(0, len(array) - 1, n), np.array(range(len(array))), array)
+    elif method == 'cubic':
+        return CubicSpline(np.arange(len(array)), array)(np.linspace(0, len(array) - 1, n))
 
 
-def interp_2d_array(array, n, ax=1):
+def interp_2d_array(array, n, ax=1, method='linear'):
     """
     Interpolates values along y axis into n points, for each x value
     :param array:
@@ -729,12 +1164,12 @@ def interp_2d_array(array, n, ax=1):
     if ax == 1:
         interped = np.zeros([n, len(array[0, :])])
         for x in range(len(array[0, :])):
-            interped[:, x] = interp_1d_array(array[:, x], n)
+            interped[:, x] = interp_1d_array(array[:, x], n, method)
         return interped
     elif ax == 0:
         interped = np.zeros([len(array[:, 0]), n])
         for x in range(len(array[:, 0])):
-            interped[x, :] = interp_1d_array(array[x, :], n)
+            interped[x, :] = interp_1d_array(array[x, :], n, method)
         return interped
     else:
         return None

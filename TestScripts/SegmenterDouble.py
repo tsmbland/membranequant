@@ -16,8 +16,11 @@ CytBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDatase
 MemBg = np.loadtxt(os.path.dirname(os.path.realpath(__file__)) + '/../TestDataset/MemBgGFPaf.txt')
 
 # Set up segmenter
-seg = Segmenter1Double(img_g=img1, img_r=3 * img2, cytbg_g=CytBg, cytbg_r=CytBg, membg_g=MemBg, membg_r=MemBg, mag=1,
+seg = Segmenter1Double(img_g=img1, img_r=2 * img2, cytbg_g=CytBg, cytbg_r=CytBg, membg_g=MemBg, membg_r=MemBg, mag=1,
                        resolution=1, cytbg_offset=4, thickness=50)
+
+# seg = Segmenter1DoubleUC(img_g=img1, img_r=img1, cytbg_g=CytBg, cytbg_r=CytBg, membg_g=MemBg, membg_r=MemBg, mag=1,
+#                          resolution=1, cytbg_offset=4, thickness=50, parallel=True, resolution_cyt=20)
 
 # Specify ROI
 seg.def_ROI()
