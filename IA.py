@@ -8,7 +8,9 @@ from joblib import Parallel, delayed
 import multiprocessing
 from scipy.interpolate import splprep, splev, CubicSpline
 from scipy.ndimage.filters import gaussian_filter
+from scipy.ndimage import convolve
 import cv2
+from matplotlib.widgets import Slider
 
 """
 Functions and Classes for segmentation and quantification of images
@@ -27,9 +29,10 @@ To do:
 - more specific import statements
 - need to fix issue in segmenter where fitting fails
 
-- adjust ranges profile fits, or way to automatically set range
+- adjust ranges for profile fits, or way to automatically set range
 - change coordinate filtering method
 - way to remove polar body
+- artefacts at edges when not periodic
 
 """
 
@@ -59,7 +62,7 @@ class SegmenterParent:
     """
 
     def __init__(self, img=None, img_g=None, img_r=None, coors=None, mag=1, periodic=True,
-                 thickness=50):
+                 thickness=50, savgol_window=19, savgol_order=1):
 
         # Inputs
         self.img = img
@@ -70,6 +73,8 @@ class SegmenterParent:
         self.mag = mag
         self.periodic = periodic
         self.thickness = int(thickness * mag)
+        self.savgol_window = savgol_window
+        self.savgol_order = savgol_order
 
     def run(self, parallel=False, iterations=3):
         """
@@ -78,7 +83,7 @@ class SegmenterParent:
         """
 
         # Interpolate coors to one pixel distance between points
-        self.coors = self.interp_coors(self.coors)
+        self.coors = self.interp_coors(self.coors, self.periodic)
 
         for i in range(iterations):
             # Calculate offsets
@@ -94,20 +99,19 @@ class SegmenterParent:
             # Offset coordinates
             self.coors = offset_coordinates(self.coors, offsets)
 
-            # >>>>> Change filtering method
-
             # Filter
-            if self.periodic:
-                self.coors = np.vstack(
-                    (savgol_filter(self.coors[:, 0], 19, 1, mode='wrap'),
-                     savgol_filter(self.coors[:, 1], 19, 1, mode='wrap'))).T
-            elif not self.periodic:
-                self.coors = np.vstack(
-                    (savgol_filter(self.coors[:, 0], 19, 1, mode='nearest'),
-                     savgol_filter(self.coors[:, 1], 19, 1, mode='nearest'))).T
+            if self.savgol_window is not None:
+                if self.periodic:
+                    self.coors = np.vstack(
+                        (savgol_filter(self.coors[:, 0], self.savgol_window, self.savgol_order, mode='wrap'),
+                         savgol_filter(self.coors[:, 1], self.savgol_window, self.savgol_order, mode='wrap'))).T
+                elif not self.periodic:
+                    self.coors = np.vstack(
+                        (savgol_filter(self.coors[:, 0], self.savgol_window, self.savgol_order, mode='nearest'),
+                         savgol_filter(self.coors[:, 1], self.savgol_window, self.savgol_order, mode='nearest'))).T
 
             # Interpolate to one px distance between points
-            self.coors = self.interp_coors(self.coors)
+            self.coors = self.interp_coors(self.coors, self.periodic)
 
         # Rotate
         if self.periodic:
@@ -186,7 +190,7 @@ class SegmenterParent:
         return newcoors
 
     @staticmethod
-    def interp_coors(coors):
+    def interp_coors(coors, periodic=True):
         """
         Interpolates coordinates to one pixel distances (or as close as possible to one pixel)
         Linear interpolation
@@ -195,7 +199,10 @@ class SegmenterParent:
         :return:
         """
 
-        c = np.append(coors, [coors[0, :]], axis=0)
+        if periodic:
+            c = np.append(coors, [coors[0, :]], axis=0)
+        else:
+            c = coors
         distances = ((np.diff(c[:, 0]) ** 2) + (np.diff(c[:, 1]) ** 2)) ** 0.5
         distances_cumsum = np.append([0], np.cumsum(distances))
         px = sum(distances) / round(sum(distances))  # effective pixel size
@@ -211,7 +218,7 @@ class SegmenterParent:
 
         return newpoints
 
-    def fit_spline(self, coors, s=0):
+    def fit_spline(self, coors, periodic=True):
         """
         Fits a spline to points specifying the coordinates of the cortex, then interpolates to pixel distances
 
@@ -220,17 +227,21 @@ class SegmenterParent:
         """
 
         # Append the starting x,y coordinates
-        x = np.r_[coors[:, 0], coors[0, 0]]
-        y = np.r_[coors[:, 1], coors[0, 1]]
+        if periodic:
+            x = np.r_[coors[:, 0], coors[0, 0]]
+            y = np.r_[coors[:, 1], coors[0, 1]]
+        else:
+            x = coors[:, 0]
+            y = coors[:, 1]
 
         # Fit spline
-        tck, u = splprep([x, y], s=0, per=True)
+        tck, u = splprep([x, y], s=0, per=periodic)
 
         # Evaluate spline
         xi, yi = splev(np.linspace(0, 1, 1000), tck)
 
         # Interpolate
-        return self.interp_coors(np.vstack((xi, yi)).T)
+        return self.interp_coors(np.vstack((xi, yi)).T, periodic=periodic)
 
     class ROI:
         def __init__(self):
@@ -306,13 +317,15 @@ class Segmenter1Single(SegmenterParent):
     By default itp, rol_ave, cytbg_offset and resolution will adjust if mag is not 1 to ensure similar behavior at
     different magnifications
 
+    Freedom parameter: max offset is +- 0.5 * freedom * thickness
+
     """
 
     def __init__(self, img, cytbg, membg, coors=None, mag=1, resolution=1, freedom=0.3,
-                 periodic=True, thickness=50, itp=10, rol_ave=50, cytbg_offset=4):
+                 periodic=True, thickness=50, itp=10, rol_ave=50, cytbg_offset=4.5, savgol_window=19, savgol_order=1):
 
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
-                                 thickness=thickness * mag)
+                                 thickness=thickness * mag, savgol_window=savgol_window, savgol_order=savgol_order)
 
         self.itp = itp / mag
         self.thickness2 = int(itp * self.thickness)
@@ -324,6 +337,9 @@ class Segmenter1Single(SegmenterParent):
         self.lmin = (self.thickness2 / 2) * (1 - self.freedom)
         self.lmax = (self.thickness2 / 2) * (1 + self.freedom)
         self.resolution = int(resolution * mag)
+
+        self.cyts = np.zeros(len(coors[:, 0]) // self.resolution)
+        self.mems = np.zeros(len(coors[:, 0]) // self.resolution)
 
     def calc_offsets(self, parallel):
         # Straighten
@@ -341,22 +357,32 @@ class Segmenter1Single(SegmenterParent):
         else:
             offsets = np.zeros(len(straight[0, :]) // self.resolution)
             for x in range(len(straight[0, :]) // self.resolution):
-                offsets[x] = self.fit_profile(straight[:, x * self.resolution], self.cytbg, self.membg)
+                results = self.fit_profile(straight[:, x * self.resolution], self.cytbg, self.membg)
+                offsets[x] = results[0]
+                self.cyts[x] = results[1]
+                self.mems[x] = results[2]
+
+        # plt.plot(offsets)
+        # plt.show()
 
         return offsets
 
     def fit_profile(self, profile, cytbg, membg):
-        res = differential_evolution(self.mse, bounds=((self.lmin, self.lmax), (-1000, 20000), (-1000, 30000)),
+        res = differential_evolution(self.mse, bounds=((self.lmin, self.lmax), (-2000, 20000), (-2000, 30000)),
                                      args=(profile, cytbg, membg))
 
-        # plt.plot(profile)
-        # plt.plot(self.total_profile(profile, cytbg, membg, l=res.x[0], a=res.x[1], o=self.cytbg_offset))
-        # plt.plot(self.cyt_profile(profile, cytbg, membg, l=res.x[0], a=res.x[1], o=self.cytbg_offset))
-        # print(self.bg_intensity(profile, cytbg, membg, l=res.x[0], a=res.x[1], o=self.cytbg_offset))
-        # plt.show()
+        # if res.x[2] < 0:
+        #     plt.plot(profile)
+        #     plt.plot(
+        #         Profile.total_profile(profile, cytbg, membg, l=res.x[0], c=res.x[1], m=res.x[2], o=self.cytbg_offset))
+        #     plt.plot(
+        #         Profile.cyt_profile(profile, cytbg, membg, l=res.x[0], c=res.x[1], m=res.x[2], o=self.cytbg_offset))
+        #     plt.plot(
+        #         Profile.mem_profile(profile, cytbg, membg, l=res.x[0], c=res.x[1], m=res.x[2], o=self.cytbg_offset))
+        #     plt.show()
 
         o = (res.x[0] - self.thickness2 / 2) / self.itp
-        return o
+        return o, res.x[1], res.x[2]
 
     def mse(self, l_c_m, profile, cytbg, membg):
         l, c, m = l_c_m
@@ -388,11 +414,11 @@ class Segmenter1SingleUC(SegmenterParent):
     """
 
     def __init__(self, img, cytbg, membg, coors=None, mag=1, resolution=1, freedom=0.3,
-                 periodic=True, thickness=50, itp=10, rol_ave=50, cytbg_offset=4, parallel=False,
-                 resolution_cyt=50):
+                 periodic=True, thickness=50, itp=10, rol_ave=50, cytbg_offset=4.5, parallel=False,
+                 resolution_cyt=50, savgol_window=19, savgol_order=1):
 
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
-                                 thickness=thickness * mag)
+                                 thickness=thickness * mag, savgol_window=savgol_window, savgol_order=savgol_order)
 
         self.itp = itp / mag
         self.thickness2 = int(itp * self.thickness)
@@ -419,7 +445,7 @@ class Segmenter1SingleUC(SegmenterParent):
         c = self.fit_profile_1(straight, self.cytbg, self.membg)
 
         # Fit
-        if self.parallel:
+        if parallel:
             offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
                 delayed(self.fit_profile_2)(straight[:, x * self.resolution], self.cytbg, self.membg, c)
                 for x in range(len(straight[0, :]) // self.resolution)))
@@ -436,7 +462,7 @@ class Segmenter1SingleUC(SegmenterParent):
 
         """
 
-        res = differential_evolution(self.fit_profile_1_func, bounds=((-1000, 20000),), args=(straight, cytbg, membg))
+        res = differential_evolution(self.fit_profile_1_func, bounds=((-2000, 20000),), args=(straight, cytbg, membg))
         return res.x[0]
 
     def fit_profile_1_func(self, c, straight, cytbg, membg):
@@ -457,7 +483,7 @@ class Segmenter1SingleUC(SegmenterParent):
 
         """
 
-        res = differential_evolution(self.fit_profile_2_func, bounds=((self.lmin, self.lmax), (-1000, 30000)),
+        res = differential_evolution(self.fit_profile_2_func, bounds=((self.lmin, self.lmax), (-2000, 30000)),
                                      args=(profile, cytbg, membg, c))
         o = (res.x[0] - self.thickness2 / 2) / self.itp
         return o
@@ -469,7 +495,7 @@ class Segmenter1SingleUC(SegmenterParent):
 
         """
 
-        res = differential_evolution(self.fit_profile_2_func, bounds=((self.lmin, self.lmax), (-1000, 30000)),
+        res = differential_evolution(self.fit_profile_2_func, bounds=((self.lmin, self.lmax), (-2000, 30000)),
                                      args=(profile, cytbg, membg, c))
         return res.fun
 
@@ -488,10 +514,11 @@ class Segmenter1Double(SegmenterParent):
 
     def __init__(self, img_g, img_r, cytbg_g, cytbg_r, membg_g, membg_r, coors=None, mag=1,
                  resolution=1, freedom=0.3, periodic=True, thickness=50, itp=10, rol_ave=50,
-                 cytbg_offset=4):
+                 cytbg_offset_g=4.5, cytbg_offset_r=4.5, savgol_window=19, savgol_order=1):
 
         SegmenterParent.__init__(self, img_g=img_g, img_r=img_r, coors=coors, mag=mag,
-                                 periodic=periodic, thickness=thickness * mag)
+                                 periodic=periodic, thickness=thickness * mag, savgol_window=savgol_window,
+                                 savgol_order=savgol_order)
 
         self.itp = itp / mag
         self.thickness2 = itp * self.thickness
@@ -501,7 +528,8 @@ class Segmenter1Double(SegmenterParent):
         self.membg_r = interp_1d_array(membg_r, 2 * self.thickness2)
         self.freedom = freedom
         self.rol_ave = int(rol_ave * mag)
-        self.cytbg_offset = int(itp * cytbg_offset)
+        self.cytbg_offset_g = int(itp * cytbg_offset_g)
+        self.cytbg_offset_r = int(itp * cytbg_offset_r)
         self.lmin = (self.thickness2 / 2) * (1 - self.freedom)
         self.lmax = (self.thickness2 / 2) * (1 + self.freedom)
         self.resolution = int(resolution * mag)
@@ -535,15 +563,15 @@ class Segmenter1Double(SegmenterParent):
 
     def fit_profile(self, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r):
         res = differential_evolution(self.mse, bounds=(
-            (self.lmin, self.lmax), (-1000, 20000), (-1000, 20000), (-1000, 30000), (-1000, 30000)),
+            (self.lmin, self.lmax), (-2000, 20000), (-2000, 20000), (-2000, 30000), (-2000, 30000)),
                                      args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r))
         o = (res.x[0] - self.thickness2 / 2) / self.itp
         return o
 
     def mse(self, l_cg_cr_mg_mr, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r):
         l, cg, cr, mg, mr = l_cg_cr_mg_mr
-        yg = Profile.total_profile(profile_g, cytbg_g, membg_g, l=l, c=cg, m=mg, o=self.cytbg_offset)
-        yr = Profile.total_profile(profile_r, cytbg_r, membg_r, l=l, c=cr, m=mr, o=self.cytbg_offset)
+        yg = Profile.total_profile(profile_g, cytbg_g, membg_g, l=l, c=cg, m=mg, o=self.cytbg_offset_g)
+        yr = Profile.total_profile(profile_r, cytbg_r, membg_r, l=l, c=cr, m=mr, o=self.cytbg_offset_r)
         return np.mean([np.mean((profile_g - yg) ** 2), np.mean((profile_r - yr) ** 2)])
 
 
@@ -556,10 +584,12 @@ class Segmenter1DoubleUC(SegmenterParent):
 
     def __init__(self, img_g, img_r, cytbg_g, cytbg_r, membg_g, membg_r, coors=None, mag=1,
                  resolution=1, freedom=0.3, periodic=True, thickness=50, itp=10, rol_ave=50,
-                 cytbg_offset=4, parallel=False, resolution_cyt=50):
+                 cytbg_offset_g=4.5, cytbg_offset_r=4.5, parallel=False, resolution_cyt=50, savgol_window=19,
+                 savgol_order=1):
 
         SegmenterParent.__init__(self, img_g=img_g, img_r=img_r, coors=coors, mag=mag,
-                                 periodic=periodic, thickness=thickness * mag)
+                                 periodic=periodic, thickness=thickness * mag, savgol_window=savgol_window,
+                                 savgol_order=savgol_order)
 
         self.itp = itp / mag
         self.thickness2 = itp * self.thickness
@@ -569,7 +599,8 @@ class Segmenter1DoubleUC(SegmenterParent):
         self.membg_r = interp_1d_array(membg_r, 2 * self.thickness2)
         self.freedom = freedom
         self.rol_ave = int(rol_ave * mag)
-        self.cytbg_offset = int(itp * cytbg_offset)
+        self.cytbg_offset_g = int(itp * cytbg_offset_g)
+        self.cytbg_offset_r = int(itp * cytbg_offset_r)
         self.lmin = (self.thickness2 / 2) * (1 - self.freedom)
         self.lmax = (self.thickness2 / 2) * (1 + self.freedom)
         self.resolution = int(resolution * mag)
@@ -612,7 +643,7 @@ class Segmenter1DoubleUC(SegmenterParent):
 
         """
 
-        res = differential_evolution(self.fit_profile_1_func, bounds=((-1000, 20000), (-1000, 20000)),
+        res = differential_evolution(self.fit_profile_1_func, bounds=((-2000, 20000), (-2000, 20000)),
                                      args=(straight_g, straight_r, cytbg_g, cytbg_r, membg_g, membg_r))
         return res.x[0], res.x[1]
 
@@ -640,7 +671,7 @@ class Segmenter1DoubleUC(SegmenterParent):
         """
 
         res = differential_evolution(self.fit_profile_2_func,
-                                     bounds=((self.lmin, self.lmax), (-1000, 30000), (-1000, 30000)),
+                                     bounds=((self.lmin, self.lmax), (-2000, 30000), (-2000, 30000)),
                                      args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, c_g, c_r))
         o = (res.x[0] - self.thickness2 / 2) / self.itp
         return o
@@ -653,14 +684,14 @@ class Segmenter1DoubleUC(SegmenterParent):
         """
 
         res = differential_evolution(self.fit_profile_2_func,
-                                     bounds=((self.lmin, self.lmax), (-1000, 30000), (-1000, 30000)),
+                                     bounds=((self.lmin, self.lmax), (-2000, 30000), (-2000, 30000)),
                                      args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, c_g, c_r))
         return res.fun
 
     def fit_profile_2_func(self, l_mg_mr, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, c_g, c_r):
         l, m_g, m_r = l_mg_mr
-        yg = Profile.total_profile(profile_g, cytbg_g, membg_g, l=l, c=c_g, m=m_g, o=self.cytbg_offset)
-        yr = Profile.total_profile(profile_r, cytbg_r, membg_r, l=l, c=c_r, m=m_r, o=self.cytbg_offset)
+        yg = Profile.total_profile(profile_g, cytbg_g, membg_g, l=l, c=c_g, m=m_g, o=self.cytbg_offset_g)
+        yr = Profile.total_profile(profile_r, cytbg_r, membg_r, l=l, c=c_r, m=m_r, o=self.cytbg_offset_r)
         return np.mean([np.mean((profile_g - yg) ** 2), np.mean((profile_r - yr) ** 2)])
 
 
@@ -675,10 +706,12 @@ class Segmenter1DoubleMix(SegmenterParent):
 
     def __init__(self, img_g, img_r, cytbg_g, cytbg_r, membg_g, membg_r, coors=None, mag=1,
                  resolution=1, freedom=0.3, periodic=True, thickness=50, itp=10, rol_ave=50,
-                 end_region=0.2, cytbg_offset=4, parallel=False, resolution_cyt=50):
+                 end_region=0.2, cytbg_offset_g=4.5, cytbg_offset_r=4.5, parallel=False, resolution_cyt=50,
+                 savgol_window=19, savgol_order=1):
 
         SegmenterParent.__init__(self, img_g=img_g, img_r=img_r, coors=coors, mag=mag,
-                                 periodic=periodic, thickness=thickness * mag)
+                                 periodic=periodic, thickness=thickness * mag, savgol_window=savgol_window,
+                                 savgol_order=savgol_order)
 
         self.itp = itp / mag
         self.thickness2 = itp * self.thickness
@@ -688,7 +721,8 @@ class Segmenter1DoubleMix(SegmenterParent):
         self.membg_r = interp_1d_array(membg_r, 2 * self.thickness2)
         self.freedom = freedom
         self.rol_ave = int(rol_ave * mag)
-        self.cytbg_offset = int(itp * cytbg_offset)
+        self.cytbg_offset_g = int(itp * cytbg_offset_g)
+        self.cytbg_offset_r = int(itp * cytbg_offset_r)
         self.lmin = (self.thickness2 / 2) * (1 - self.freedom)
         self.lmax = (self.thickness2 / 2) * (1 + self.freedom)
         self.resolution = int(resolution * mag)
@@ -731,7 +765,7 @@ class Segmenter1DoubleMix(SegmenterParent):
 
         """
 
-        res = differential_evolution(self.fit_profile_1_func, bounds=((-1000, 20000),), args=(straight, cytbg, membg))
+        res = differential_evolution(self.fit_profile_1_func, bounds=((-2000, 20000),), args=(straight, cytbg, membg))
         return res.x[0]
 
     def fit_profile_1_func(self, c, straight, cytbg, membg):
@@ -752,13 +786,13 @@ class Segmenter1DoubleMix(SegmenterParent):
 
         """
 
-        res = differential_evolution(self.fit_profile_2_func, bounds=((self.lmin, self.lmax), (-1000, 30000)),
+        res = differential_evolution(self.fit_profile_2_func, bounds=((self.lmin, self.lmax), (-2000, 30000)),
                                      args=(profile, cytbg, membg, c))
         return res.fun
 
     def fit_profile_2_func(self, l_m, profile, cytbg, membg, c):
         l, m = l_m
-        y = Profile.total_profile(profile, cytbg, membg, l=l, c=c, m=m, o=self.cytbg_offset)
+        y = Profile.total_profile(profile, cytbg, membg, l=l, c=c, m=m, o=self.cytbg_offset_g)
         return np.mean((profile - y) ** 2)
 
     def fit_profile_3(self, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, cr):
@@ -769,15 +803,15 @@ class Segmenter1DoubleMix(SegmenterParent):
         """
 
         res = differential_evolution(self.fit_profile_3_func,
-                                     bounds=((self.lmin, self.lmax), (-1000, 20000), (-1000, 30000), (-1000, 30000)),
+                                     bounds=((self.lmin, self.lmax), (-2000, 20000), (-2000, 30000), (-2000, 30000)),
                                      args=(profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, cr))
         o = (res.x[0] - self.thickness2 / 2) / self.itp
         return o
 
     def fit_profile_3_func(self, l_cg_mg_mr, profile_g, profile_r, cytbg_g, cytbg_r, membg_g, membg_r, cr):
         l, cg, mg, mr = l_cg_mg_mr
-        yg = Profile.total_profile(profile_g, cytbg_g, membg_g, l=l, c=cg, m=mg, o=self.cytbg_offset)
-        yr = Profile.total_profile(profile_r, cytbg_r, membg_r, l=l, c=cr, m=mr, o=self.cytbg_offset)
+        yg = Profile.total_profile(profile_g, cytbg_g, membg_g, l=l, c=cg, m=mg, o=self.cytbg_offset_g)
+        yr = Profile.total_profile(profile_r, cytbg_r, membg_r, l=l, c=cr, m=mr, o=self.cytbg_offset_r)
         return np.mean([np.mean((profile_g - yg) ** 2), np.mean((profile_r - yr) ** 2)])
 
 
@@ -793,10 +827,10 @@ class Segmenter2(SegmenterParent):
     """
 
     def __init__(self, img, coors=None, mag=1, resolution=1, periodic=True,
-                 thickness=50, itp=100, rol_ave=50):
+                 thickness=50, itp=100, rol_ave=50, savgol_window=19, savgol_order=1):
 
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
-                                 thickness=thickness * mag)
+                                 thickness=thickness * mag, savgol_window=savgol_window, savgol_order=savgol_order)
 
         self.itp = itp / mag
         self.thickness2 = itp * self.thickness
@@ -847,9 +881,9 @@ class Segmenter3(SegmenterParent):
     """
 
     def __init__(self, img, coors=None, mag=1, resolution=1, periodic=True,
-                 thickness=50, itp=100, rol_ave=50):
+                 thickness=50, itp=100, rol_ave=50, savgol_window=19, savgol_order=1):
         SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
-                                 thickness=thickness * mag)
+                                 thickness=thickness * mag, savgol_window=savgol_window, savgol_order=savgol_order)
         self.itp = itp / mag
         self.thickness2 = itp * self.thickness
         self.rol_ave = rol_ave * mag
@@ -869,19 +903,69 @@ class Segmenter3(SegmenterParent):
         # Calculate offsets
         if parallel:
             offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
-                delayed(self.func)(straight, x) for x in range(len(straight[0, :]))))
+                delayed(self.func)(straight[:, x]) for x in range(len(straight[0, :]))))
         else:
             offsets = np.zeros(len(straight[0, :]))
             for x in range(len(straight[0, :])):
-                offsets[x] = self.func(straight, x)
+                offsets[x] = self.func(straight[:, x])
 
         return offsets
 
-    def func(self, straight, x):
+    def func(self, profile):
         """
 
         """
-        return ((self.thickness2 / 2) - np.argmax(straight[:, x]) * (len(straight[:, 0]) / self.thickness2)) / self.itp
+        return ((self.thickness2 / 2) - np.argmax(profile) * (len(profile) / self.thickness2)) / self.itp
+
+
+class Segmenter4(SegmenterParent):
+    """
+
+    Segments embryos to greatest slope
+
+    """
+
+    def __init__(self, img, coors=None, mag=1, resolution=1, periodic=True,
+                 thickness=50, itp=100, rol_ave=50, savgol_window=19, savgol_order=1):
+        SegmenterParent.__init__(self, img=img, coors=coors, mag=mag, periodic=periodic,
+                                 thickness=thickness * mag, savgol_window=savgol_window, savgol_order=savgol_order)
+        self.itp = itp / mag
+        self.thickness2 = itp * self.thickness
+        self.rol_ave = rol_ave * mag
+        self.resolution = int(resolution * mag)
+
+    def calc_offsets(self, parallel):
+        """
+
+        """
+        # Straighten
+        straight = straighten(self.img, self.coors, self.thickness)
+
+        # Filter/smoothen/interpolate images
+        straight = rolling_ave_2d(interp_2d_array(straight, self.thickness2, method='cubic'), self.rol_ave,
+                                  self.periodic)
+
+        # Calculate offsets
+        if parallel:
+            offsets = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
+                delayed(self.func)(straight[:, x]) for x in range(len(straight[0, :]))))
+        else:
+            offsets = np.zeros(len(straight[0, :]))
+            for x in range(len(straight[0, :])):
+                offsets[x] = self.func(straight[:, x])
+
+        return offsets
+
+    def func(self, profile):
+        """
+
+        """
+        profile = savgol_filter(profile, 39, 1, mode='mirror')
+        diff = np.diff(profile)
+
+        offset = ((self.thickness2 / 2) - (0.5 + np.argmax(diff)) * (len(profile) / self.thickness2)) / self.itp
+
+        return offset
 
 
 ############ MEMBRANE QUANTIFICATION ###########
@@ -893,16 +977,18 @@ class Quantifier:
 
     """
 
-    def __init__(self, img, coors, mag, cytbg, membg, thickness=50, rol_ave=10, periodic=True,
-                 cytbg_offset=4, psize=0.255):
+    def __init__(self, img, coors, mag, cytbg, membg, thickness=50, rol_ave=20, periodic=True,
+                 cytbg_offset=4.5, psize=0.255, itp=10):
         self.img = img
         self.coors = coors
         self.thickness = thickness * mag
-        self.cytbg = interp_1d_array(cytbg, 2 * self.thickness)
-        self.membg = interp_1d_array(membg, 2 * self.thickness)
-        self.rol_ave = rol_ave * mag
         self.periodic = periodic
-        self.cytbg_offset = cytbg_offset * mag
+        self.itp = itp / mag
+        self.thickness2 = int(itp * self.thickness)
+        self.cytbg = interp_1d_array(cytbg, 2 * self.thickness2)
+        self.membg = interp_1d_array(membg, 2 * self.thickness2)
+        self.rol_ave = int(rol_ave * mag)
+        self.cytbg_offset = int(itp * cytbg_offset)
         self.psize = psize / mag
 
         # Results
@@ -913,47 +999,48 @@ class Quantifier:
         self.straight_mem = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_cyt = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_resids = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_resids_pos = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_resids_neg = np.zeros([self.thickness, len(self.coors[:, 0])])
 
     def run(self):
         self.straight = rolling_ave_2d(straighten(self.img, self.coors, int(self.thickness)), int(self.rol_ave),
                                        self.periodic)
 
+        straight = interp_2d_array(self.straight, self.thickness2, method='cubic')
+
         # Get cortical/cytoplasmic signals
-        for x in range(len(self.straight[0, :])):
-            profile = self.straight[:, x]
+        for x in range(len(straight[0, :])):
+            profile = straight[:, x]
             c, m = self.fit_profile_a(profile, self.cytbg, self.membg)
 
             self.sigs[x] = m
             self.cyts[x] = c
 
-            self.straight_cyt[:, x] = Profile.cyt_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
-                                                          c=c,
-                                                          m=m, o=self.cytbg_offset)
-            self.straight_mem[:, x] = Profile.mem_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
-                                                          c=c,
-                                                          m=m, o=self.cytbg_offset)
-            self.straight_fit[:, x] = Profile.total_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
-                                                            c=c, m=m, o=self.cytbg_offset)
-            self.straight_resids[:, x] = profile - (self.straight_fit[:, x])
+            self.straight_cyt[:, x] = interp_1d_array(Profile.cyt_profile(profile, self.cytbg, self.membg,
+                                                                          l=int(self.thickness2 / 2),
+                                                                          c=c,
+                                                                          m=m, o=self.cytbg_offset), self.thickness)
+            self.straight_mem[:, x] = interp_1d_array(Profile.mem_profile(profile, self.cytbg, self.membg,
+                                                                          l=int(self.thickness2 / 2),
+                                                                          c=c,
+                                                                          m=m, o=self.cytbg_offset), self.thickness)
+            self.straight_fit[:, x] = interp_1d_array(Profile.total_profile(profile, self.cytbg, self.membg,
+                                                                            l=int(self.thickness2 / 2),
+                                                                            c=c, m=m, o=self.cytbg_offset),
+                                                      self.thickness)
+            self.straight_resids[:, x] = self.straight[:, x] - self.straight_fit[:, x]
+            self.straight_resids_pos[:, x] = np.clip(self.straight_resids[:, x], a_min=0, a_max=None)
+            self.straight_resids_neg[:, x] = abs(np.clip(self.straight_resids[:, x], a_min=None, a_max=0))
 
     def fit_profile_a(self, profile, cytbg, membg):
-        res = differential_evolution(self.fit_profile_a_func, bounds=((-1000, 20000), (-1000, 30000)),
+        res = differential_evolution(self.fit_profile_a_func, bounds=((-2000, 20000), (-2000, 30000)),
                                      args=(profile, cytbg, membg))
-
-        # plt.plot(profile)
-        # plt.plot(self.total_profile(profile, cytbg, membg, l=int(self.thickness / 2), a=res.x[0], o=self.cytbg_offset))
-        # cyt = self.cyt_profile(profile, cytbg, membg, l=int(self.thickness / 2), a=res.x[0], o=self.cytbg_offset)
-        # mem = self.mem_profile(profile, cytbg, membg, l=int(self.thickness / 2), a=res.x[0], o=self.cytbg_offset)
-        # plt.plot(cyt)
-        # plt.plot(cyt + mem)
-        # plt.ylim(bottom=0)
-        # plt.show()
 
         return res.x[0], res.x[1]
 
     def fit_profile_a_func(self, c_m, profile, cytbg, membg):
         c, m = c_m
-        y = Profile.total_profile(profile, cytbg, membg, l=int(self.thickness / 2), c=c, m=m, o=self.cytbg_offset)
+        y = Profile.total_profile(profile, cytbg, membg, l=int(self.thickness2 / 2), c=c, m=m, o=self.cytbg_offset)
         return np.mean((profile - y) ** 2)
 
 
@@ -963,20 +1050,22 @@ class QuantifierUC:
 
     """
 
-    def __init__(self, img, coors, mag, cytbg, membg, thickness=50, rol_ave=10, periodic=True,
-                 cytbg_offset=4, psize=0.255, resolution_cyt=20, parallel=False):
+    def __init__(self, img, coors, mag, cytbg, membg, thickness=50, rol_ave=20, periodic=True,
+                 cytbg_offset=4.5, psize=0.255, resolution_cyt=20, parallel=False, itp=10):
 
         self.img = img
         self.coors = coors
         self.thickness = thickness * mag
-        self.cytbg = interp_1d_array(cytbg, 2 * self.thickness)
-        self.membg = interp_1d_array(membg, 2 * self.thickness)
-        self.rol_ave = rol_ave * mag
         self.periodic = periodic
-        self.cytbg_offset = cytbg_offset * mag
-        self.psize = psize / mag
+        self.itp = itp / mag
+        self.thickness2 = int(itp * self.thickness)
+        self.cytbg = interp_1d_array(cytbg, 2 * self.thickness2)
+        self.membg = interp_1d_array(membg, 2 * self.thickness2)
+        self.rol_ave = int(rol_ave * mag)
+        self.cytbg_offset = int(itp * cytbg_offset)
         self.resolution_cyt = int(resolution_cyt * mag)
         self.parallel = parallel
+        self.psize = psize / mag
 
         # Results
         self.sigs = np.zeros([len(coors[:, 0])])
@@ -986,41 +1075,51 @@ class QuantifierUC:
         self.straight_mem = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_cyt = np.zeros([self.thickness, len(self.coors[:, 0])])
         self.straight_resids = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_resids_pos = np.zeros([self.thickness, len(self.coors[:, 0])])
+        self.straight_resids_neg = np.zeros([self.thickness, len(self.coors[:, 0])])
 
     def run(self):
         self.straight = rolling_ave_2d(straighten(self.img, self.coors, int(self.thickness)), int(self.rol_ave),
                                        self.periodic)
-        c = self.fit_profile_1(self.straight, self.cytbg, self.membg)
+
+        # Straighten
+        straight = straighten(self.img, self.coors, self.thickness)
+
+        # Filter/smoothen/interpolate images
+        straight = rolling_ave_2d(interp_2d_array(straight, self.thickness2, method='cubic'), self.rol_ave,
+                                  self.periodic)
+
+        c = self.fit_profile_1(straight, self.cytbg, self.membg)
 
         if self.parallel:
             ms = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
-                delayed(self.fit_profile_2a)(self.straight[:, x], self.cytbg, self.membg, c)
-                for x in range(len(self.straight[0, :]))))
+                delayed(self.fit_profile_2a)(straight[:, x], self.cytbg, self.membg, c)
+                for x in range(len(straight[0, :]))))
         else:
-            ms = np.zeros([len(self.straight[0, :])])
-            for x in range(len(self.straight[0, :])):
-                ms[x] = self.fit_profile_2a(self.straight[:, x], self.cytbg, self.membg, c)
+            ms = np.zeros([len(straight[0, :])])
+            for x in range(len(straight[0, :])):
+                ms[x] = self.fit_profile_2a(straight[:, x], self.cytbg, self.membg, c)
 
-        for x in range(len(self.straight[0, :])):
-            profile = self.straight[:, x]
-            self.straight_cyt[:, x] = Profile.cyt_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
-                                                          c=c,
-                                                          m=ms[x], o=self.cytbg_offset)
-            self.straight_mem[:, x] = Profile.mem_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
-                                                          c=c,
-                                                          m=ms[x], o=self.cytbg_offset)
-            self.straight_fit[:, x] = Profile.total_profile(profile, self.cytbg, self.membg, l=int(self.thickness / 2),
-                                                            c=c, m=ms[x], o=self.cytbg_offset)
-            self.straight_resids[:, x] = profile - (self.straight_fit[:, x])
+        for x in range(len(straight[0, :])):
+            profile = straight[:, x]
+            self.straight_cyt[:, x] = interp_1d_array(Profile.cyt_profile(profile, self.cytbg, self.membg,
+                                                                          l=int(self.thickness2 / 2),
+                                                                          c=c,
+                                                                          m=ms[x], o=self.cytbg_offset), self.thickness)
+            self.straight_mem[:, x] = interp_1d_array(Profile.mem_profile(profile, self.cytbg, self.membg,
+                                                                          l=int(self.thickness2 / 2),
+                                                                          c=c,
+                                                                          m=ms[x], o=self.cytbg_offset), self.thickness)
+            self.straight_fit[:, x] = interp_1d_array(Profile.total_profile(profile, self.cytbg, self.membg,
+                                                                            l=int(self.thickness2 / 2),
+                                                                            c=c, m=ms[x], o=self.cytbg_offset),
+                                                      self.thickness)
+            self.straight_resids[:, x] = self.straight[:, x] - self.straight_fit[:, x]
+            self.straight_resids_pos[:, x] = np.clip(self.straight_resids[:, x], a_min=0, a_max=None)
+            self.straight_resids_neg[:, x] = abs(np.clip(self.straight_resids[:, x], a_min=None, a_max=0))
 
             self.sigs[x] = ms[x]
             self.cyts[x] = c
-
-            # plt.plot(self.straight[:, x])
-            # plt.plot(self.straight_cyt[:, x])
-            # plt.plot(self.straight_fit[:, x])
-            # plt.ylim(bottom=0)
-            # plt.show()
 
     def fit_profile_1(self, straight, cytbg, membg):
         """
@@ -1028,7 +1127,8 @@ class QuantifierUC:
 
         """
 
-        res = differential_evolution(self.fit_profile_1_func, bounds=((-1000, 20000),), args=(straight, cytbg, membg))
+        res = differential_evolution(self.fit_profile_1_func, bounds=((-2000, 20000),),
+                                     args=(straight, cytbg, membg))
         return res.x[0]
 
     def fit_profile_1_func(self, c, straight, cytbg, membg):
@@ -1049,7 +1149,8 @@ class QuantifierUC:
 
         """
 
-        res = differential_evolution(self.fit_profile_2_func, bounds=((-1000, 30000),), args=(profile, cytbg, membg, c))
+        res = differential_evolution(self.fit_profile_2_func, bounds=((-2000, 30000),),
+                                     args=(profile, cytbg, membg, c))
         return res.x[0]
 
     def fit_profile_2b(self, profile, cytbg, membg, c):
@@ -1059,11 +1160,12 @@ class QuantifierUC:
 
         """
 
-        res = differential_evolution(self.fit_profile_2_func, bounds=((-1000, 30000),), args=(profile, cytbg, membg, c))
+        res = differential_evolution(self.fit_profile_2_func, bounds=((-2000, 30000),),
+                                     args=(profile, cytbg, membg, c))
         return res.fun
 
     def fit_profile_2_func(self, m, profile, cytbg, membg, c):
-        y = Profile.total_profile(profile, cytbg, membg, l=int(self.thickness / 2), c=c, m=m, o=self.cytbg_offset)
+        y = Profile.total_profile(profile, cytbg, membg, l=int(self.thickness2 / 2), c=c, m=m, o=self.cytbg_offset)
         return np.mean((profile - y) ** 2)
 
 
@@ -1082,11 +1184,16 @@ def straighten(img, coors, thickness):
 
     img2 = np.zeros([thickness, len(coors[:, 0])])
     offsets = np.linspace(thickness / 2, -thickness / 2, thickness)
+    # newcoors_x = np.zeros([thickness, len(coors[:, 0])])
+    # newcoors_y = np.zeros([thickness, len(coors[:, 0])])
+
     for section in range(thickness):
         sectioncoors = offset_coordinates(coors, offsets[section])
         a = map_coordinates(img.T, [sectioncoors[:, 0], sectioncoors[:, 1]])
-        a[a == 0] = np.mean(a)
+        a[a == 0] = np.mean(a)  # if selection goes outside of the image
         img2[section, :] = a
+        # newcoors_x[section, :] = sectioncoors[:, 0]
+        # newcoors_y[section, :] = sectioncoors[:, 1]
     return img2
 
 
@@ -1185,10 +1292,13 @@ def rolling_ave_2d(array, window, periodic=True):
     :return: ave
     """
 
+    if window == 1:
+        return array
+
     if not periodic:
         ave = np.zeros([len(array[:, 0]), len(array[0, :])])
         for y in range(len(array[:, 0])):
-            ave[y, :] = np.convolve(array[y, :], np.ones(window) / window, mode='same')
+            ave[y, :] = convolve(array[y, :], np.ones(window) / window, mode='mirror')
         return ave
 
     elif periodic:
@@ -1260,7 +1370,7 @@ def bg_subtraction(img, coors, mag):
     :return:
     """
 
-    a = polycrop(img, coors, 100 * mag) - polycrop(img, coors, 50 * mag)
+    a = polycrop(img, coors, 75 * mag) - polycrop(img, coors, 25 * mag)
     a = [np.nanmean(a[np.nonzero(a)])]
     return img - a
 
@@ -1362,3 +1472,44 @@ def bounded_mean_2d(array, bounds):
         mean = np.mean(
             np.hstack((array[:, :int(len(array[0, :]) * bounds[1])], array[:, int(len(array[0, :]) * bounds[0]):])), 1)
     return mean
+
+
+def coor_angles(coors):
+    """
+    Calculates angle at each coordinate
+    Uses law of cosines to find angles
+
+    :param coors:
+    :return:
+    """
+
+    c = np.r_[coors, coors[:2, :]]
+
+    distances = ((np.diff(c[:, 0]) ** 2) + (np.diff(c[:, 1]) ** 2)) ** 0.5
+    distances2 = np.zeros([len(coors[:, 0])])
+    for i in range(len(coors[:, 0])):
+        distances2[i] = (((c[i + 2, 0] - c[i, 0]) ** 2) + ((c[i + 2, 1] - c[i, 1]) ** 2)) ** 0.5
+    angles = np.zeros([len(coors[:, 0])])
+    for i in range(len(coors[:, 0])):
+        angles[i] = np.arccos(((distances[i] ** 2) + (distances[i + 1] ** 2) - (distances2[i] ** 2)) / (
+            2 * distances[i] * distances[i + 1]))
+    angles = np.roll(angles, 1)
+
+    return angles
+
+
+def view_stack(stack, vmin, vmax):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    plt.subplots_adjust(left=0.25, bottom=0.25)
+    axframe = plt.axes([0.25, 0.1, 0.65, 0.03])
+    sframe = Slider(axframe, 'Time point', 0, len(stack[:, 0, 0]), valinit=0, valfmt='%d')
+
+    def update(i):
+        ax.clear()
+        ax.imshow(stack[int(i), :, :], cmap='gray', vmin=vmin, vmax=vmax)
+        ax.set_xticks([])
+        ax.set_yticks([])
+
+    sframe.on_changed(update)
+    plt.show()
