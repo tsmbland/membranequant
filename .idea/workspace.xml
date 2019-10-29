@@ -1,43 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ExampleDataset/488 SP 535-50.TIF" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ExampleDataset/488 SP 630-75.TIF" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/IA_lite.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/Autofluorescence.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/BackgroundCurve.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ExampleDataset/af_settings.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ExampleDataset/cytbg.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/Quantification.py" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/README.md" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/INFO.md" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/ROI.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/ROI_fitted.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/_0_w1DIC SP Camera.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/_0_w2488 SP 535-50.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/_0_w3488 SP 630-75.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/CytBgGFPaf.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/MemBgGFPaf.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/ROI_fitted.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/_3_w1DIC SP Camera.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/_3_w2488 SP 535-50.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/_3_w3488 SP 630-75.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/_3_w4561 SP 630-75 Nelio.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Data/_0_w2488 SP 535-50 Nelio.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Data/_0_w3488 SP 630-75 Nelio-AF.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Data/cytbg.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Data/membg.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Quantification.ipynb" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/coors.txt" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/IA.py" afterPath="$PROJECT_DIR$/IA.py" />
-    </list>
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -50,8 +14,8 @@
       <file leaf-file-name="IA.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="207">
-              <caret line="1121" column="14" lean-forward="false" selection-start-line="1121" selection-start-column="4" selection-end-line="1121" selection-end-column="14" />
+            <state relative-caret-position="447">
+              <caret line="1137" column="37" lean-forward="false" selection-start-line="1137" selection-start-column="37" selection-end-line="1137" selection-end-column="37" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
                 <element signature="e#22154#22820#0" expanded="false" />
@@ -68,7 +32,7 @@
       <file leaf-file-name="IA_lite.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/IA_lite.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="240">
+            <state relative-caret-position="15">
               <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
@@ -81,8 +45,8 @@
       <file leaf-file-name="Autofluorescence.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Scripts/Autofluorescence.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="495">
-              <caret line="33" column="3" lean-forward="true" selection-start-line="33" selection-start-column="3" selection-end-line="33" selection-end-column="3" />
+            <state relative-caret-position="450">
+              <caret line="33" column="3" lean-forward="false" selection-start-line="33" selection-start-column="3" selection-end-line="33" selection-end-column="3" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -93,8 +57,8 @@
       <file leaf-file-name="BackgroundCurve.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Scripts/BackgroundCurve.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" column="29" lean-forward="true" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
+            <state relative-caret-position="330">
+              <caret line="25" column="29" lean-forward="false" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -105,7 +69,7 @@
       <file leaf-file-name="Quantification.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Scripts/Quantification.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="540">
+            <state relative-caret-position="480">
               <caret line="36" column="7" lean-forward="false" selection-start-line="36" selection-start-column="7" selection-end-line="36" selection-end-column="7" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
@@ -235,15 +199,15 @@
         <option value="$PROJECT_DIR$/rough.py" />
         <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/Scripts/ExampleDataset/af_settings.txt" />
-        <option value="$PROJECT_DIR$/IA.py" />
         <option value="$PROJECT_DIR$/Scripts/Quantification.py" />
         <option value="$PROJECT_DIR$/IA_lite.py" />
         <option value="$PROJECT_DIR$/Scripts/Autofluorescence.py" />
         <option value="$PROJECT_DIR$/Scripts/BackgroundCurve.py" />
+        <option value="$PROJECT_DIR$/IA.py" />
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
+  <component name="ProjectFrameBounds" extendedState="6" fullScreen="true">
     <option name="y" value="23" />
     <option name="width" value="1680" />
     <option name="height" value="1023" />
@@ -264,8 +228,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scratches" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -282,6 +244,8 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
+      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -591,10 +555,9 @@
     <frame x="0" y="0" width="1680" height="1050" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32661784" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.33028084" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.13186814" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.29350105" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.8681319" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32809225" sideWeight="0.490991" order="7" side_tool="false" content_ui="tabs" />
@@ -608,6 +571,7 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.29350105" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -759,7 +723,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/IA_lite.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
+        <state relative-caret-position="15">
           <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
@@ -770,26 +734,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Scripts/Autofluorescence.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="495">
-          <caret line="33" column="3" lean-forward="true" selection-start-line="33" selection-start-column="3" selection-end-line="33" selection-end-column="3" />
+        <state relative-caret-position="450">
+          <caret line="33" column="3" lean-forward="false" selection-start-line="33" selection-start-column="3" selection-end-line="33" selection-end-column="3" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Scripts/QuantificationExample.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/Scripts/QuantificationExample.py" />
     <entry file="file://$PROJECT_DIR$/Scripts/BackgroundCurve.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="29" lean-forward="true" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
+        <state relative-caret-position="330">
+          <caret line="25" column="29" lean-forward="false" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
@@ -798,7 +755,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Scripts/Quantification.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="540">
+        <state relative-caret-position="480">
           <caret line="36" column="7" lean-forward="false" selection-start-line="36" selection-start-column="7" selection-end-line="36" selection-end-column="7" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
@@ -808,8 +765,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/IA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="207">
-          <caret line="1121" column="14" lean-forward="false" selection-start-line="1121" selection-start-column="4" selection-end-line="1121" selection-end-column="14" />
+        <state relative-caret-position="447">
+          <caret line="1137" column="37" lean-forward="false" selection-start-line="1137" selection-start-column="37" selection-end-line="1137" selection-end-column="37" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
             <element signature="e#22154#22820#0" expanded="false" />
