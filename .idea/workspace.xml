@@ -2,17 +2,41 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TestNBs/Data/_0_w2488 SP 535-50 Nelio.TIF" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TestNBs/Data/_0_w3488 SP 630-75 Nelio-AF.TIF" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TestDataset/ROI.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TestNBs/Data/cytbg.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TestNBs/Data/membg.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TestNBs/Quantification.ipynb" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/Old code.py" afterPath="" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ExampleDataset/488 SP 535-50.TIF" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ExampleDataset/488 SP 630-75.TIF" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/IA_lite.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/Autofluorescence.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/BackgroundCurve.py" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ExampleDataset/af_settings.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/ExampleDataset/cytbg.txt" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/Scripts/Quantification.py" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/README.md" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/INFO.md" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/ROI.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/ROI_fitted.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/_0_w1DIC SP Camera.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/_0_w2488 SP 535-50.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/_0_w3488 SP 630-75.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/CytBgGFPaf.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/MemBgGFPaf.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/ROI_fitted.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/_3_w1DIC SP Camera.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/_3_w2488 SP 535-50.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/_3_w3488 SP 630-75.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestDataset2/_3_w4561 SP 630-75 Nelio.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Data/_0_w2488 SP 535-50 Nelio.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Data/_0_w3488 SP 630-75 Nelio-AF.TIF" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Data/cytbg.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Data/membg.txt" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestNBs/Quantification.ipynb" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/TestScripts/coors.txt" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/IA.py" afterPath="$PROJECT_DIR$/IA.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" afterPath="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -26,76 +50,72 @@
       <file leaf-file-name="IA.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/IA.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1875">
-              <caret line="982" column="0" lean-forward="false" selection-start-line="982" selection-start-column="0" selection-end-line="982" selection-end-column="0" />
+            <state relative-caret-position="207">
+              <caret line="1121" column="14" lean-forward="false" selection-start-line="1121" selection-start-column="4" selection-end-line="1121" selection-end-column="14" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
-                <element signature="e#981#16728#0" expanded="false" />
-                <element signature="e#16819#17536#0" expanded="false" />
-                <element signature="e#17589#18199#0" expanded="false" />
-                <element signature="e#18276#18343#0" expanded="false" />
-                <element signature="e#18404#19916#0" expanded="false" />
-                <element signature="e#19959#20173#0" expanded="false" />
-                <element signature="e#20227#20350#0" expanded="false" />
-                <element signature="e#20437#21270#0" expanded="false" />
-                <element signature="e#21317#22849#0" expanded="false" />
-                <element signature="e#22904#23260#0" expanded="false" />
-                <element signature="e#23321#23898#0" expanded="false" />
-                <element signature="e#23955#25189#0" expanded="false" />
-                <element signature="e#25222#25447#0" expanded="false" />
-                <element signature="e#25479#25620#0" expanded="false" />
-                <element signature="e#25679#25906#0" expanded="false" />
-                <element signature="e#25953#26880#0" expanded="false" />
-                <element signature="e#26912#27707#0" expanded="false" />
-                <element signature="e#27752#28331#0" expanded="false" />
-                <element signature="e#28349#29956#0" expanded="false" />
-                <element signature="e#29981#30102#0" expanded="false" />
-                <element signature="e#30147#30585#0" expanded="false" />
-                <element signature="e#30631#31067#0" expanded="false" />
-                <element signature="e#31108#31839#0" expanded="false" />
-                <element signature="e#31869#32249#0" expanded="false" />
-                <element signature="e#32306#33106#0" expanded="false" />
-                <element signature="e#33149#33658#0" expanded="false" />
-                <element signature="e#33689#34390#0" expanded="false" />
-                <element signature="e#34432#34878#0" expanded="false" />
-                <element signature="e#34903#35042#0" expanded="false" />
+                <element signature="e#22154#22820#0" expanded="false" />
+                <element signature="e#22913#24447#0" expanded="false" />
+                <element signature="e#24540#25781#0" expanded="false" />
+                <element signature="e#25824#26038#0" expanded="false" />
+                <element signature="e#26100#26186#0" expanded="false" />
+                <element signature="e#26240#26363#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="_0_w4561 SP 630-75.TIF" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF">
-          <provider selected="true" editor-type-id="images">
-            <state />
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/README.md">
-          <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-            <state split_layout="FIRST">
-              <first_editor relative-caret-position="0">
-                <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-                <folding />
-              </first_editor>
-              <second_editor />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="SegmenterSingle.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py">
+      <file leaf-file-name="IA_lite.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/IA_lite.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="60">
-              <caret line="4" column="9" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="4" selection-end-column="9" />
-              <folding />
+            <state relative-caret-position="240">
+              <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+              <folding>
+                <element signature="e#0#21#0" expanded="true" />
+                <element signature="e#12818#13067#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CytBgGFPaf.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt">
+      <file leaf-file-name="Autofluorescence.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Scripts/Autofluorescence.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="495">
+              <caret line="33" column="3" lean-forward="true" selection-start-line="33" selection-start-column="3" selection-end-line="33" selection-end-column="3" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="BackgroundCurve.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Scripts/BackgroundCurve.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="375">
+              <caret line="25" column="29" lean-forward="true" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Quantification.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Scripts/Quantification.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="540">
+              <caret line="36" column="7" lean-forward="false" selection-start-line="36" selection-start-column="7" selection-end-line="36" selection-end-column="7" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="cytbg.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Scripts/ExampleDataset/cytbg.txt">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="0">
               <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -104,11 +124,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="MemBgGFPaf.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt">
+      <file leaf-file-name="af_settings.txt" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Scripts/ExampleDataset/af_settings.txt">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="15">
+              <caret line="1" column="22" lean-forward="false" selection-start-line="1" selection-start-column="4" selection-end-line="1" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -125,7 +145,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>fix_ends</find>
       <find>thickness=100</find>
       <find>10000</find>
       <find>lambda</find>
@@ -152,9 +171,10 @@
       <find>Profile.total</find>
       <find>Profile.cyt</find>
       <find>Profile.mem</find>
-      <find>rotate_coors</find>
       <find>done</find>
       <find>self.coors</find>
+      <find>rotate_coors</find>
+      <find>cv2</find>
     </findStrings>
     <replaceStrings>
       <replace />
@@ -169,11 +189,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/_AFSettings/Analysis_update.py" />
-        <option value="$PROJECT_DIR$/Experiments/Analysis_cluster.py" />
-        <option value="$PROJECT_DIR$/_BgCurves/Analysis.py" />
-        <option value="$PROJECT_DIR$/_AFSettings/Analysis.py" />
-        <option value="$PROJECT_DIR$/Experiments/Analysis.py" />
         <option value="$PROJECT_DIR$/Old/Dump.py" />
         <option value="$PROJECT_DIR$/Run.sh" />
         <option value="$PROJECT_DIR$/IA2.py" />
@@ -218,8 +233,13 @@
         <option value="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
         <option value="$PROJECT_DIR$/rough2.py" />
         <option value="$PROJECT_DIR$/rough.py" />
-        <option value="$PROJECT_DIR$/IA.py" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/Scripts/ExampleDataset/af_settings.txt" />
+        <option value="$PROJECT_DIR$/IA.py" />
+        <option value="$PROJECT_DIR$/Scripts/Quantification.py" />
+        <option value="$PROJECT_DIR$/IA_lite.py" />
+        <option value="$PROJECT_DIR$/Scripts/Autofluorescence.py" />
+        <option value="$PROJECT_DIR$/Scripts/BackgroundCurve.py" />
       </list>
     </option>
   </component>
@@ -244,6 +264,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -251,12 +273,15 @@
               <item name="MembraneQuant" type="b2602c69:ProjectViewProjectNode" />
               <item name="MembraneQuant" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="MembraneQuant" type="b2602c69:ProjectViewProjectNode" />
+              <item name="MembraneQuant" type="462c0819:PsiDirectoryNode" />
+              <item name="Scripts" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -264,15 +289,16 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/TestDataset" />
-      <recent name="$PROJECT_DIR$/TestScripts" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Scripts" />
+      <recent name="$PROJECT_DIR$/Scripts/ExampleDataset" />
       <recent name="$PROJECT_DIR$/TestDataset" />
       <recent name="$PROJECT_DIR$/TestDataset2" />
       <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/Old" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/TestDataset" />
+      <recent name="$PROJECT_DIR$/TestScripts" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -287,8 +313,8 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.rough2">
-    <configuration name="IA" type="PythonConfigurationType" factoryName="Python" temporary="true">
+  <component name="RunManager" selected="Python.IA_lite">
+    <configuration name="IA_lite" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -300,7 +326,24 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="ImageAnalysis" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IA.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IA_lite.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+    </configuration>
+    <configuration name="Quantification" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Scripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="ImageAnalysis" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Scripts/Quantification.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -318,23 +361,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <module name="ImageAnalysis" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-    </configuration>
-    <configuration name="Segment6" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/TestScripts" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="ImageAnalysis" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -374,19 +400,19 @@
       <option name="EMULATE_TERMINAL" value="false" />
     </configuration>
     <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.IA" />
-      <item index="1" class="java.lang.String" itemvalue="Python.Segment6" />
-      <item index="2" class="java.lang.String" itemvalue="Python.Segment5" />
-      <item index="3" class="java.lang.String" itemvalue="Python.rough" />
-      <item index="4" class="java.lang.String" itemvalue="Python.rough2" />
+      <item index="0" class="java.lang.String" itemvalue="Python.Segment5" />
+      <item index="1" class="java.lang.String" itemvalue="Python.rough" />
+      <item index="2" class="java.lang.String" itemvalue="Python.rough2" />
+      <item index="3" class="java.lang.String" itemvalue="Python.Quantification" />
+      <item index="4" class="java.lang.String" itemvalue="Python.IA_lite" />
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.rough2" />
-        <item index="1" class="java.lang.String" itemvalue="Python.Segment5" />
-        <item index="2" class="java.lang.String" itemvalue="Python.rough" />
-        <item index="3" class="java.lang.String" itemvalue="Python.Segment6" />
-        <item index="4" class="java.lang.String" itemvalue="Python.IA" />
+        <item index="0" class="java.lang.String" itemvalue="Python.IA_lite" />
+        <item index="1" class="java.lang.String" itemvalue="Python.Quantification" />
+        <item index="2" class="java.lang.String" itemvalue="Python.rough2" />
+        <item index="3" class="java.lang.String" itemvalue="Python.Segment5" />
+        <item index="4" class="java.lang.String" itemvalue="Python.rough" />
       </list>
     </recent_temporary>
   </component>
@@ -551,16 +577,24 @@
       <option name="project" value="LOCAL" />
       <updated>1559635738208</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Much cleaner quantification class and added functions for af correlation and bgcurve generation. Started ipynbbs">
+      <created>1565707884786</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1565707884786</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1680" height="1050" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.31196582" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32661784" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.13186814" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.29350105" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.8681319" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32809225" sideWeight="0.490991" order="7" side_tool="false" content_ui="tabs" />
@@ -574,7 +608,6 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.29350105" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -622,7 +655,8 @@
     <MESSAGE value="Changed profile fit method, changed default parameters. Quantifier now saves 2d 'images' of fitted profile and components" />
     <MESSAGE value="Stopped end-fixing, cubic interpolation" />
     <MESSAGE value="Fixes for non-periodic segmentation. Parameters for savgol smoothening" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixes for non-periodic segmentation. Parameters for savgol smoothening" />
+    <MESSAGE value="Much cleaner quantification class and added functions for af correlation and bgcurve generation. Started ipynbbs" />
+    <option name="LAST_COMMIT_MESSAGE" value="Much cleaner quantification class and added functions for af correlation and bgcurve generation. Started ipynbbs" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -631,14 +665,6 @@
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Run.sh" />
-    <entry file="file://$PROJECT_DIR$/_BgCurves/QuantificationControl.py" />
-    <entry file="file://$PROJECT_DIR$/_BgCurves/BackgroundCurves.py" />
-    <entry file="file://$PROJECT_DIR$/_AFSettings/Init.py" />
-    <entry file="file://$PROJECT_DIR$/_AFSettings/Run.py" />
-    <entry file="file://$PROJECT_DIR$/BackgroundCurves/Figs.py" />
-    <entry file="file://$PROJECT_DIR$/BackgroundCurves/Init.py" />
-    <entry file="file://$PROJECT_DIR$/BackgroundCurves/I.py" />
     <entry file="file://$PROJECT_DIR$/BackgroundCurves/Run.py" />
     <entry file="file://$PROJECT_DIR$/Experiments/I.py" />
     <entry file="file://$PROJECT_DIR$/Experiments/Init1.py" />
@@ -653,28 +679,9 @@
     <entry file="file://$PROJECT_DIR$/../SPT-master/Python/src/MovieTracks.py" />
     <entry file="file://$PROJECT_DIR$/TestDataset/info.txt" />
     <entry file="file://$PROJECT_DIR$/TestDataset/INFO.md.py" />
-    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w1DIC SP Camera.TIF">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/INFO.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="SPLIT">
-          <first_editor relative-caret-position="270">
-            <caret line="18" column="0" lean-forward="false" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/ROI_fitted.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w1DIC SP Camera.TIF" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/INFO.md" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/ROI_fitted.txt" />
     <entry file="file:///anaconda/lib/python3.6/site-packages/scipy/optimize/optimize.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="40320">
@@ -696,126 +703,45 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset2/CytBgGFPaf.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset2/CytBgGFPaf.txt" />
     <entry file="file://$PROJECT_DIR$/TestScripts/Quantification.py" />
     <entry file="file://$PROJECT_DIR$/TestScripts/Segment7.py" />
     <entry file="file://$PROJECT_DIR$/OldCode.py" />
     <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1bDouble.py" />
     <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py" />
-    <entry file="file://$PROJECT_DIR$/TestDataset2/MemBgGFPaf.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w2488 SP 535-50.TIF">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset2/MemBgGFPaf.txt" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w2488 SP 535-50.TIF" />
     <entry file="file://$PROJECT_DIR$/TestScripts/straight.tif" />
-    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterDouble.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="34" column="0" lean-forward="false" selection-start-line="34" selection-start-column="0" selection-end-line="34" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w3488 SP 630-75.TIF">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/ROI.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w3488 SP 630-75.TIF" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/ROI.txt" />
     <entry file="file://$PROJECT_DIR$/IA.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="673">
           <caret line="126" column="53" lean-forward="true" selection-start-line="126" selection-start-column="12" selection-end-line="126" selection-end-column="53" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
-            <element signature="e#981#16728#0" expanded="false" />
-            <element signature="e#16819#17536#0" expanded="false" />
-            <element signature="e#17589#18199#0" expanded="false" />
-            <element signature="e#18276#18343#0" expanded="false" />
-            <element signature="e#18404#19916#0" expanded="false" />
-            <element signature="e#19959#20173#0" expanded="false" />
-            <element signature="e#20227#20350#0" expanded="false" />
-            <element signature="e#20437#21270#0" expanded="false" />
-            <element signature="e#21317#22849#0" expanded="false" />
-            <element signature="e#22904#23260#0" expanded="false" />
-            <element signature="e#23321#23898#0" expanded="false" />
-            <element signature="e#23955#25189#0" expanded="false" />
-            <element signature="e#25222#25447#0" expanded="false" />
-            <element signature="e#25479#25620#0" expanded="false" />
-            <element signature="e#25679#25906#0" expanded="false" />
-            <element signature="e#25953#26880#0" expanded="false" />
-            <element signature="e#26912#27707#0" expanded="false" />
-            <element signature="e#27752#28331#0" expanded="false" />
-            <element signature="e#28349#29956#0" expanded="false" />
-            <element signature="e#29981#30102#0" expanded="false" />
-            <element signature="e#30147#30585#0" expanded="false" />
-            <element signature="e#30631#31067#0" expanded="false" />
-            <element signature="e#31108#31839#0" expanded="false" />
-            <element signature="e#31869#32249#0" expanded="false" />
-            <element signature="e#32306#33106#0" expanded="false" />
-            <element signature="e#33149#33658#0" expanded="false" />
-            <element signature="e#33689#34390#0" expanded="false" />
-            <element signature="e#34432#34878#0" expanded="false" />
-            <element signature="e#34903#35042#0" expanded="false" />
+            <element signature="e#22154#22820#0" expanded="false" />
+            <element signature="e#22913#24447#0" expanded="false" />
+            <element signature="e#24540#25781#0" expanded="false" />
+            <element signature="e#25824#26038#0" expanded="false" />
+            <element signature="e#26100#26186#0" expanded="false" />
+            <element signature="e#26240#26363#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt" />
     <entry file="file://$PROJECT_DIR$/IA_190604.py" />
     <entry file="file://$PROJECT_DIR$/Old code.py" />
     <entry file="file://$PROJECT_DIR$/rough2.py" />
-    <entry file="file://$PROJECT_DIR$/README.md">
-      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
-        <state split_layout="FIRST">
-          <first_editor relative-caret-position="0">
-            <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-            <folding />
-          </first_editor>
-          <second_editor />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/ROI.txt">
+    <entry file="file://$PROJECT_DIR$/README.md" />
+    <entry file="file://$PROJECT_DIR$/TestDataset/ROI.txt" />
+    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
+    <entry file="file://$PROJECT_DIR$/TestNBs/Quantification.ipynb" />
+    <entry file="file://$PROJECT_DIR$/Scripts/ExampleDataset/cytbg.txt">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
@@ -823,49 +749,75 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py">
+    <entry file="file://$PROJECT_DIR$/Scripts/ExampleDataset/af_settings.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="9" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="4" selection-end-column="9" />
+        <state relative-caret-position="15">
+          <caret line="1" column="22" lean-forward="false" selection-start-line="1" selection-start-column="4" selection-end-line="1" selection-end-column="22" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/IA_lite.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="16" column="0" lean-forward="false" selection-start-line="16" selection-start-column="0" selection-end-line="16" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#21#0" expanded="true" />
+            <element signature="e#12818#13067#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scripts/Autofluorescence.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="495">
+          <caret line="33" column="3" lean-forward="true" selection-start-line="33" selection-start-column="3" selection-end-line="33" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scripts/QuantificationExample.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scripts/BackgroundCurve.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="375">
+          <caret line="25" column="29" lean-forward="true" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Scripts/Quantification.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="540">
+          <caret line="36" column="7" lean-forward="false" selection-start-line="36" selection-start-column="7" selection-end-line="36" selection-end-column="7" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/IA.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1875">
-          <caret line="982" column="0" lean-forward="false" selection-start-line="982" selection-start-column="0" selection-end-line="982" selection-end-column="0" />
+        <state relative-caret-position="207">
+          <caret line="1121" column="14" lean-forward="false" selection-start-line="1121" selection-start-column="4" selection-end-line="1121" selection-end-column="14" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
-            <element signature="e#981#16728#0" expanded="false" />
-            <element signature="e#16819#17536#0" expanded="false" />
-            <element signature="e#17589#18199#0" expanded="false" />
-            <element signature="e#18276#18343#0" expanded="false" />
-            <element signature="e#18404#19916#0" expanded="false" />
-            <element signature="e#19959#20173#0" expanded="false" />
-            <element signature="e#20227#20350#0" expanded="false" />
-            <element signature="e#20437#21270#0" expanded="false" />
-            <element signature="e#21317#22849#0" expanded="false" />
-            <element signature="e#22904#23260#0" expanded="false" />
-            <element signature="e#23321#23898#0" expanded="false" />
-            <element signature="e#23955#25189#0" expanded="false" />
-            <element signature="e#25222#25447#0" expanded="false" />
-            <element signature="e#25479#25620#0" expanded="false" />
-            <element signature="e#25679#25906#0" expanded="false" />
-            <element signature="e#25953#26880#0" expanded="false" />
-            <element signature="e#26912#27707#0" expanded="false" />
-            <element signature="e#27752#28331#0" expanded="false" />
-            <element signature="e#28349#29956#0" expanded="false" />
-            <element signature="e#29981#30102#0" expanded="false" />
-            <element signature="e#30147#30585#0" expanded="false" />
-            <element signature="e#30631#31067#0" expanded="false" />
-            <element signature="e#31108#31839#0" expanded="false" />
-            <element signature="e#31869#32249#0" expanded="false" />
-            <element signature="e#32306#33106#0" expanded="false" />
-            <element signature="e#33149#33658#0" expanded="false" />
-            <element signature="e#33689#34390#0" expanded="false" />
-            <element signature="e#34432#34878#0" expanded="false" />
-            <element signature="e#34903#35042#0" expanded="false" />
+            <element signature="e#22154#22820#0" expanded="false" />
+            <element signature="e#22913#24447#0" expanded="false" />
+            <element signature="e#24540#25781#0" expanded="false" />
+            <element signature="e#25824#26038#0" expanded="false" />
+            <element signature="e#26100#26186#0" expanded="false" />
+            <element signature="e#26240#26363#0" expanded="false" />
           </folding>
         </state>
       </provider>
