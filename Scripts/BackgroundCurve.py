@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 
-from IA_lite import load_image, def_ROI, af_subtraction, cytbg
+from IA import load_image, def_ROI, af_subtraction, cytbg
 
 """
 Generate curve from single embryo

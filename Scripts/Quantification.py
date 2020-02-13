@@ -7,7 +7,7 @@ import time
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 
-from IA_lite import MembraneQuant, load_image, def_ROI, af_subtraction
+from IA import MembraneQuant, load_image, def_ROI, af_subtraction
 
 # Load images
 gfp = load_image('ExampleDataset/488 SP 535-50.TIF')

@@ -2,7 +2,7 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
-from scipy.optimize import differential_evolution
+from scipy.optimize import differential_evolution, brute
 from scipy.ndimage.interpolation import map_coordinates
 from joblib import Parallel, delayed
 import multiprocessing
@@ -180,7 +180,6 @@ class MembraneQuant:
 
     """
     METHOD 1: Non-uniform cytoplasm
-    - fastest method, however too much freedom so fits can look odd
 
     """
 
@@ -199,8 +198,7 @@ class MembraneQuant:
 
     """
     METHOD 2: Uniform cytoplasm
-    - for most purposes this is best
-    
+
     """
 
     def _fit_profile_1(self, straight, cytbg, membg):
@@ -209,9 +207,10 @@ class MembraneQuant:
 
         """
 
-        res = differential_evolution(self._fit_profile_1_func, bounds=((0, 2 * np.percentile(straight, 95)),),
-                                     args=(straight, cytbg, membg), tol=0.1)
-        return res.x[0]
+        res = iterative_opt(self._fit_profile_1_func, p_range=(0, 2 * np.percentile(straight, 95)),
+                            args=(straight, cytbg, membg), N=5, iterations=7)
+
+        return res[0]
 
     def _fit_profile_1_func(self, c, straight, cytbg, membg):
         if self.parallel:
@@ -233,11 +232,10 @@ class MembraneQuant:
         bounds = (
             ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
             (0, 2 * max(profile)))
-
-        res = differential_evolution(self._fit_profile_2_func, bounds=bounds,
-                                     args=(profile, cytbg, membg, c), tol=0.1)
-        o = (res.x[0] - self.thickness_itp / 2) / self.itp
-        return o, res.x[1]
+        res = iterative_opt_2d(self._fit_profile_2_func, p1_range=bounds[0], p2_range=bounds[1], N=5, iterations=7,
+                               args=(profile, cytbg, membg, c))
+        o = (res[0] - self.thickness_itp / 2) / self.itp
+        return o, res[1]
 
     def _fit_profile_2b(self, profile, cytbg, membg, c):
         """
@@ -248,10 +246,9 @@ class MembraneQuant:
         bounds = (
             ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
             (0, 2 * max(profile)))
-
-        res = differential_evolution(self._fit_profile_2_func, bounds=bounds,
-                                     args=(profile, cytbg, membg, c), tol=0.1)
-        return res.fun
+        res = iterative_opt_2d(self._fit_profile_2_func, p1_range=bounds[0], p2_range=bounds[1], N=5, iterations=7,
+                               args=(profile, cytbg, membg, c))
+        return res[2]
 
     def _fit_profile_2_func(self, l_m, profile, cytbg, membg, c):
         l, m = l_m
@@ -260,18 +257,27 @@ class MembraneQuant:
 
     """
     METHOD 3: Uniform cytoplasm, uniform membrane
-    - slowest method
-    - best method if both membrane and cytoplasmic species can be assumed to be uniform
-    
+
     """
 
     def _fit_profile_ucum(self, straight, cytbg, membg):
-        res = differential_evolution(self._fit_profile_ucum_func, bounds=(
-            (0, 2 * np.percentile(straight, 95)), (0, 2 * np.percentile(straight, 95))),
-                                     args=(straight, cytbg, membg), tol=0.1)
-        return res.x[0], res.x[1]
+        """
+        Fitting global cytoplasmic and cortical concs
+
+        """
+
+        res = iterative_opt_2d(self._fit_profile_ucum_func, p1_range=(0, 2 * np.percentile(straight, 95)),
+                               p2_range=(0, 2 * np.percentile(straight, 95)), args=(straight, cytbg, membg), N=5,
+                               iterations=5)
+
+        return res[0], res[1]
 
     def _fit_profile_ucum_func(self, c_m, straight, cytbg, membg):
+        """
+
+
+        """
+
         c, m = c_m
         if self.parallel:
             mses = np.array(Parallel(n_jobs=multiprocessing.cpu_count())(
@@ -284,21 +290,29 @@ class MembraneQuant:
         return np.mean(mses)
 
     def _fit_profile_ucum_2(self, profile, cytbg, membg, c, m):
-        bounds = (
-            ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),)
+        """
+        Fitting local offsets, returns offsets
 
-        res = differential_evolution(self._fit_profile_ucum_2_func, bounds=bounds,
-                                     args=(profile, cytbg, membg, c, m), tol=0.1)
-        o = (res.x[0] - self.thickness_itp / 2) / self.itp
+        """
+
+        res, fun = iterative_opt(self._fit_profile_ucum_2_func, p_range=(
+            (self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                                 args=(profile, cytbg, membg, c, m), N=5, iterations=3)
+
+        o = (res - self.thickness_itp / 2) / self.itp
         return o
 
     def _fit_profile_ucum_2b(self, profile, cytbg, membg, c, m):
-        bounds = (
-            ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),)
+        """
+        Fitting local offsets, returns error
 
-        res = differential_evolution(self._fit_profile_ucum_2_func, bounds=bounds,
-                                     args=(profile, cytbg, membg, c, m), tol=0.1)
-        return res.fun
+        """
+
+        res, fun = iterative_opt(self._fit_profile_ucum_2_func, p_range=(
+            (self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                                 args=(profile, cytbg, membg, c, m), N=5, iterations=3)
+
+        return fun
 
     def _fit_profile_ucum_2_func(self, l, profile, cytbg, membg, c, m):
         y = self.Profile.total_profile(len(profile), cytbg, membg, l=l, c=c, m=m, o=self.cytbg_offset)
@@ -306,7 +320,7 @@ class MembraneQuant:
 
     """
     Misc
-    
+
     """
 
     def sim_images(self):
@@ -372,7 +386,7 @@ class MembraneQuant:
 
     def reset(self):
         """
-        Resets entire class to it's initial state
+        Resets entire class to its initial state
 
         """
 
@@ -1218,18 +1232,24 @@ def bounded_mean_2d(array, bounds):
     return mean
 
 
-def view_stack(stack, vmin, vmax):
+def view_stack(stack, vmin=None, vmax=None):
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.subplots_adjust(left=0.25, bottom=0.25)
+    ax.set_xlim(0, 512)
+    ax.set_ylim(0, 512)
     axframe = plt.axes([0.25, 0.1, 0.65, 0.03])
     sframe = Slider(axframe, 'Time point', 0, len(stack[:, 0, 0]), valinit=0, valfmt='%d')
 
     def update(i):
+        xlim = ax.get_xlim()
+        ylim = ax.get_ylim()
         ax.clear()
         ax.imshow(stack[int(i), :, :], cmap='gray', vmin=vmin, vmax=vmax)
         ax.set_xticks([])
         ax.set_yticks([])
+        ax.set_xlim(*xlim)
+        ax.set_ylim(*ylim)
 
     sframe.on_changed(update)
     plt.show()
@@ -1442,3 +1462,123 @@ def importall(direcs, key):
         data.extend([np.loadtxt('%s/%s' % (d, key))])
     data = np.array(data)
     return data
+
+
+def iterative_opt(func, p_range, N, iterations, args=()):
+    """
+
+    :param func: function to be minimised
+    :param p_range: initial parameter range
+    :param args:
+    :param N: number of points to be evaluated per iteration
+    :param iterations: number of iterations
+    :return:
+    """
+
+    params = np.linspace(p_range[0], p_range[1], N)
+    func_calls = 0
+
+    for i in range(iterations):
+
+        if i == 0:
+            res = np.zeros([N])
+            for i in range(N):
+                res[i] = func(params[i], *args)
+                func_calls += 1
+
+        else:
+            for i in range(1, N - 1):
+                res[i] = func(params[i], *args)
+                func_calls += 1
+        a = np.argmin(res)
+        fun = res[a]
+
+        if a == 0:
+            params = np.linspace(params[0], params[1], N)
+            res = np.r_[res[0], np.zeros([N - 2]), res[1]]
+        elif a == N - 1:
+            params = np.linspace(params[-2], params[-1], N)
+            res = np.r_[res[-2], np.zeros([N - 2]), res[-1]]
+        else:
+            params = np.linspace(params[a - 1], params[a + 1], N)
+            res = np.r_[res[a - 1], np.zeros([N - 2]), res[a + 1]]
+    return params[a], fun
+
+
+def iterative_opt_2d(func, p1_range, p2_range, N, iterations, args=()):
+    """
+
+    :param func: function to be minimised
+    :param p1_range: initial parameter range
+    :param p2_range: initial parameter range
+    :param args:
+    :param N: number of points to be evaluated per iteration
+    :param iterations: number of iterations
+    :return:
+    """
+
+    params_1 = np.linspace(p1_range[0], p1_range[1], N)
+    params_2 = np.linspace(p2_range[0], p2_range[1], N)
+    func_calls = 0
+
+    for i in range(iterations):
+        res = np.zeros([N, N])
+
+        for p1 in range(N):
+            for p2 in range(N):
+                res[p1, p2] = func((params_1[p1], params_2[p2]), *args)
+                func_calls += 1
+
+        a = np.where(res == np.min(res))
+        a_1 = a[0][0]
+        a_2 = a[1][0]
+
+        if a_1 == 0:
+            params_1 = np.linspace(params_1[0], params_1[1], N)
+        elif a_1 == N - 1:
+            params_1 = np.linspace(params_1[-2], params_1[-1], N)
+        else:
+            params_1 = np.linspace(params_1[a_1 - 1], params_1[a_1 + 1], N)
+
+        if a_2 == 0:
+            params_2 = np.linspace(params_2[0], params_2[1], N)
+        elif a_2 == N - 1:
+            params_2 = np.linspace(params_2[-2], params_2[-1], N)
+        else:
+            params_2 = np.linspace(params_2[a_2 - 1], params_2[a_2 + 1], N)
+
+    return params_1[a[0][0]], params_2[a[1][0]], res[a][0]
+
+
+def iterative_opt_multi(func, bounds, N, iterations, args=()):
+    """
+
+    :param func: function to minimise
+    :param bounds: tuple of tuples specifying lower and upper bound for each parameter
+    :param N: number of parameters to test per iteration (N**len(bounds))
+    :param iterations: number of iterations
+    :param args: optional additional arguments for func
+    :return:
+
+    Evaluates function on a grid of N**len(bounds) parameter combinations, before further exploration around the global
+    minimum
+    Assumes smooth funnel-like energy landscape with single minimum
+    Not suitable for functions with a large number of parameters, use something like scipy.differential_evolution
+    instead
+
+    """
+
+    for i in range(iterations):
+        x0 = brute(func, bounds, Ns=N, args=args)
+        bounds = list(bounds)
+        for i, x in enumerate(x0):
+            bounds[i] = list(bounds[i])
+            gap = (bounds[i][1] - bounds[i][0]) / N
+            if x - gap > bounds[i][0]:
+                bounds[i][0] = x - gap
+            if x + gap < bounds[i][1]:
+                bounds[i][1] = x + gap
+            bounds[i] = tuple(bounds[i])
+        bounds = tuple(bounds)
+
+    return x0
