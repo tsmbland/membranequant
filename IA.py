@@ -721,6 +721,10 @@ class StackQuantGUI:
         Clear cache
 
         """
+        if not os.path.isdir(os.path.dirname(os.path.realpath(__file__)) + '/.caches'):
+            os.mkdir(os.path.dirname(os.path.realpath(__file__)) + '/.caches')
+        if not os.path.isdir(os.path.dirname(os.path.realpath(__file__)) + '/.caches/StackQuantGUI'):
+            os.mkdir(os.path.dirname(os.path.realpath(__file__)) + '/.caches/StackQuantGUI')
         self.cachedirec = os.path.dirname(os.path.realpath(__file__)) + '/.caches/StackQuantGUI'
         shutil.rmtree(self.cachedirec)
         os.mkdir(self.cachedirec)

@@ -9,7 +9,6 @@ matplotlib.use("TkAgg")
 from IA import StackQuantGUI
 import matplotlib.pyplot as plt
 
-plt.ion()
-
 if __name__ == '__main__':
+    plt.ion()
     StackQuantGUI()

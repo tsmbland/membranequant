@@ -1,9 +1,24 @@
+INSTRUCTIONS
+
+1) Import tif file. Can be a single frame or a stack from a single channel.
+
+2) Specify fitting parameters (see parameter definitions below).
+
+3) Specify an initial ROI by clicking points around the membrane. This does not have to be exact. For good quality images with a strong signal 4 points is usually sufficient. (NB not yet compatible with the zoom button. If you want to zoom in, increase the window size instead).
+
+4) Run quantification (see methods below).
+
+5) View results. It is helpful to look at local fits to see how well the programme is performing. You may have to adjust parameters and redo quantification (see troubleshooting section below).
+
+6) Save results to csv file. Can be imported into another programme for plotting/analysis.
+
+
 METHODS
 
-Quantification works by taking cross sections across the membrane, and fitting the resulting profile as the sum of a cytoplasmic signal component and a membrane signal component
+Quantification works by taking cross sections across the membrane, and fitting the resulting profile as the sum of a cytoplasmic signal component and a membrane signal component.
 
 Basic mode:
-Membrane signal is assumed to follow a gaussian function, and cytoplasmic signal assumed to follow an error function. The width of these functions is specified by the Sigma parameter
+Membrane signal is assumed to follow a gaussian function, and cytoplasmic signal assumed to follow an error function. The width of these functions is specified by the Sigma parameter.
 
 Advanced mode:
 Use measured cytoplasmic and/or membrane profiles. These should be obtained under the same imaging conditions as the image to be quantified, and pre-processed in the same way. Takes txt files of intensity values which should be at the same resolution as the image.
@@ -12,56 +27,56 @@ Use measured cytoplasmic and/or membrane profiles. These should be obtained unde
 PARAMETERS
 
 Sigma:
-Width of gaussian and error functions, specific to the microscope setup and imaging conditions (related to the point spread function). Can be measured by imaging beads or estimated by trial and error by looking at local fits
+Width of gaussian and error functions, specific to the microscope setup and imaging conditions (related to the point spread function). Can be measured by imaging beads or estimated by trial and error by looking at local fits.
 
 Number of fits:
-The programme will perform this many fits at evenly spaced intervals around the ROI specified
+The programme will perform this many fits at evenly spaced intervals around the ROI specified.
 
 Rolling average window:
-Performs local averaging according to this window (in pixel units)
+Performs local averaging according to this window (in pixel units).
 
 Start frame:
-First frame to quantify (n.b. numbering starts at 0)
+First frame to quantify (n.b. numbering starts at 0).
 
 End frame:
-Last frame to quantify
+Last frame to quantify.
 
 Iterations:
-If greater than 1, the programme will iteratively use fitting results to adjust the specified ROI, and will re-do quantification with the new ROI
+If greater than 1, the programme will iteratively use fitting results to adjust the specified ROI, and will re-do quantification with the new ROI.
 
 Thickness:
-Width of cross sections taken (in pixel units)
+Width of cross sections taken (in pixel units).
 
 ROI freedom:
-Measure of how much the fitted membrane is permitted to stray from the ROI (max=1, equivalent to 0.5 * Thickness pixel units)
+Measure of how much the fitted membrane is permitted to stray from the ROI (max=1, equivalent to 0.5 * Thickness pixel units).
 
 Periodic ROI:
-Specifies whether inputted ROI forms a complete loop (i.e. to quantify the entire cell). If unchecked, will only quantify the region between the first and last points
+Specifies whether inputted ROI forms a complete loop (i.e. to quantify the entire cell). If unchecked, will only quantify the region between the first and last points clicked.
 
 Subtract background:
-If checked, the programme will estimate and remove background signal prior to quantification. If images have been pre-processed to remove background signal, this should be left unchecked
+If checked, the programme will estimate and remove background signal prior to quantification. If images have been pre-processed to remove background signal, this should be left unchecked.
 
 Parallel processing:
-If checked, will quantify different frames in parallel on different CPUs 
+If checked, will quantify different frames in parallel on different CPUs.
 
 Uniform cytoplasm/membrane:
-In some cases can improve fits by globally fitting a uniform cytoplasm and/or membrane concentration. Should not be used without good reason
+In some cases can improve fits by globally fitting a uniform cytoplasm and/or membrane concentration. Should not be used without good reason.
 
 
 TROUBLESHOOTING
 
 If fits look bad, there are a number of things you can try:
 
-- Adjust Sigma (decrease if fits look too wide, increase if fits look too narrow)
+- Adjust Sigma (decrease if fits look too wide, increase if fits look too narrow).
 
-- Improve the accuracy of the manual ROI and reduce the ROI freedom. Note this will cause problems if the embryo moves a lot between frames. If this is the case then it may be best to perform separate analysis on small groups of frames
+- Improve the accuracy of the manual ROI and reduce the ROI freedom. Note this will cause problems if the embryo moves a lot between frames. If this is the case then it may be best to perform separate analyses on small groups of frames.
 
-- Increase the rolling average window. Reduces noise at the cost of reducing spatial information
+- Increase the rolling average window. Reduces noise at the cost of reducing spatial information.
 
-- Pre-process images, e.g. gaussian filter, background subtraction, flatness correction, autofluorescence removal
+- Pre-process images (e.g. gaussian filter, background subtraction, flatness correction, autofluorescence removal).
 
-- Use advanced mode with measured cytoplasmic and/or membrane profiles
+- Use advanced mode with measured cytoplasmic and/or membrane profiles.
 
-If quantification is taking a long time to run, reduce the number of fits or iterations
+If quantification is taking a long time to run, reduce the number of fits or iterations.
 
-If you get some weird error, try turning parallel processing off
+If you get some weird error, try turning parallel processing off.
