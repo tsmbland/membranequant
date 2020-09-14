@@ -1,138 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Faster fitting methods">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/OpenGUI.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/docs/GUIhelp.txt" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/requirements.txt" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ExampleScripts/Autofluorescence.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ExampleScripts/BackgroundCurve.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ExampleScripts/ExampleDataset/488 SP 535-50.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ExampleScripts/ExampleDataset/488 SP 630-75.TIF" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ExampleScripts/ExampleDataset/af_settings.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ExampleScripts/ExampleDataset/cytbg.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ExampleScripts/ExampleDataset/slit_100_0.txt" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/ExampleScripts/Quantification.py" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/IA.py" afterPath="$PROJECT_DIR$/IA.py" />
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IA.py" beforeDir="false" afterPath="$PROJECT_DIR$/IA.py" afterDir="false" />
     </list>
-    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
-    <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="IA.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/IA.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="535">
-              <caret line="2620" column="0" lean-forward="false" selection-start-line="2620" selection-start-column="0" selection-end-line="2620" selection-end-column="0" />
-              <folding>
-                <element signature="e#0#18#0" expanded="true" />
-                <element signature="e#1107#21892#0" expanded="false" />
-                <element signature="e#10159#10804#0" expanded="false" />
-                <element signature="e#10810#10858#0" expanded="false" />
-                <element signature="e#11337#11536#0" expanded="false" />
-                <element signature="e#11636#12017#0" expanded="false" />
-                <element signature="e#12075#12588#0" expanded="false" />
-                <element signature="e#12640#13387#0" expanded="false" />
-                <element signature="e#13440#14124#0" expanded="false" />
-                <element signature="e#14186#14380#0" expanded="false" />
-                <element signature="e#14501#15014#0" expanded="false" />
-                <element signature="e#15077#15652#0" expanded="false" />
-                <element signature="e#15712#16103#0" expanded="false" />
-                <element signature="e#16164#16501#0" expanded="false" />
-                <element signature="e#16569#16744#0" expanded="false" />
-                <element signature="e#16807#17966#0" expanded="false" />
-                <element signature="e#18002#19160#0" expanded="false" />
-                <element signature="e#19191#19315#0" expanded="false" />
-                <element signature="e#19350#20465#0" expanded="false" />
-                <element signature="e#21917#24391#0" expanded="false" />
-                <element signature="e#24419#45925#0" expanded="false" />
-                <element signature="e#45956#47482#0" expanded="false" />
-                <element signature="e#47580#48873#0" expanded="false" />
-                <element signature="e#48891#54271#0" expanded="false" />
-                <element signature="e#54355#54464#0" expanded="false" />
-                <element signature="e#54501#56498#0" expanded="false" />
-                <element signature="e#56537#58125#0" expanded="false" />
-                <element signature="e#58150#62760#0" expanded="false" />
-                <element signature="e#62789#62806#0" expanded="false" />
-                <element signature="e#62914#64052#0" expanded="false" />
-                <element signature="e#64131#65455#0" expanded="false" />
-                <element signature="e#65525#66660#0" expanded="false" />
-                <element signature="e#66761#67472#0" expanded="false" />
-                <element signature="e#67532#68189#0" expanded="false" />
-                <element signature="e#68264#68329#0" expanded="false" />
-                <element signature="e#68407#70345#0" expanded="false" />
-                <element signature="e#70414#71080#0" expanded="false" />
-                <element signature="e#71173#72707#0" expanded="false" />
-                <element signature="e#72800#74041#0" expanded="false" />
-                <element signature="e#74084#74298#0" expanded="false" />
-                <element signature="e#74360#74446#0" expanded="false" />
-                <element signature="e#74498#74617#0" expanded="false" />
-                <element signature="e#74690#74935#0" expanded="false" />
-                <element signature="e#74968#75158#0" expanded="false" />
-                <element signature="e#75218#75445#0" expanded="false" />
-                <element signature="e#75530#76401#0" expanded="false" />
-                <element signature="e#76446#77972#0" expanded="false" />
-                <element signature="e#78026#78413#0" expanded="false" />
-                <element signature="e#78473#79050#0" expanded="false" />
-                <element signature="e#79107#80003#0" expanded="false" />
-                <element signature="e#80060#81294#0" expanded="false" />
-                <element signature="e#81337#82351#0" expanded="false" />
-                <element signature="e#82379#83146#0" expanded="false" />
-                <element signature="e#83189#83752#0" expanded="false" />
-                <element signature="e#83797#84200#0" expanded="false" />
-                <element signature="e#84226#84600#0" expanded="false" />
-                <element signature="e#84657#85457#0" expanded="false" />
-                <element signature="e#85500#86009#0" expanded="false" />
-                <element signature="e#86031#86253#0" expanded="false" />
-                <element signature="e#86316#86757#0" expanded="false" />
-                <element signature="e#86789#86938#0" expanded="false" />
-                <element signature="e#86969#87191#0" expanded="false" />
-                <element signature="e#87194#87238#0" expanded="false" />
-                <element signature="e#89188#89317#0" expanded="false" />
-                <element signature="e#89358#89466#0" expanded="false" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="OpenGUI.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/OpenGUI.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="210">
-              <caret line="15" column="0" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="requirements.txt" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/requirements.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="GUIhelp.txt" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/docs/GUIhelp.txt">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="123" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -141,157 +17,31 @@
       </list>
     </option>
   </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>saveimg</find>
-      <find>fit_spline</find>
-      <find>rotate_coo</find>
-      <find>cytbg_offset</find>
-      <find>cyt_profile</find>
-      <find>mem_profile</find>
-      <find>pickle</find>
-      <find>lstsq</find>
-      <find>total_profile</find>
-      <find>(c * cytbg[int(l):int(l)</find>
-      <find>cyt_pr</find>
-      <find>mem_pr</find>
-      <find>y = (c * cytbg</find>
-      <find>resolution</find>
-      <find>n_jobs=multiprocessing.cpu_count()</find>
-      <find>interp</find>
-      <find>savgol_window</find>
-      <find>start_frame</find>
-      <find>, state='readonly'</find>
-      <find>'disable</find>
-      <find>end</find>
-      <find>Slider</find>
-      <find>print(</find>
-      <find>imshow(</find>
-      <find>Text</find>
-      <find>freedom</find>
-      <find>cv2</find>
-      <find>polycrop</find>
-      <find>self.direc</find>
-      <find>coors</find>
-    </findStrings>
-    <replaceStrings>
-      <replace />
-    </replaceStrings>
-    <dirStrings>
-      <dir>$PROJECT_DIR$/Experiments</dir>
-    </dirStrings>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="IdeDocumentHistory">
-    <option name="CHANGED_PATHS">
-      <list>
-        <option value="$PROJECT_DIR$/BackgroundCurves/Run.py" />
-        <option value="$PROJECT_DIR$/Experiments/I.py" />
-        <option value="$PROJECT_DIR$/Experiments/Init1.py" />
-        <option value="$PROJECT_DIR$/Experiments/Run.py" />
-        <option value="$PROJECT_DIR$/roipoly.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Quantification.py" />
-        <option value="$PROJECT_DIR$/TestDataset/INFO.md.py" />
-        <option value="$PROJECT_DIR$/TestDataset/INFO.md" />
-        <option value="/anaconda/lib/python3.6/site-packages/numpy/core/numeric.py" />
-        <option value="/anaconda/lib/python3.6/site-packages/numpy/lib/index_tricks.py" />
-        <option value="/anaconda/lib/python3.6/site-packages/scipy/optimize/optimize.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Segment0.py" />
-        <option value="$PROJECT_DIR$/OldCode.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Segment1.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Segment2.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Segment6.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Segment7.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Segment5.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Segmenter2Single.py" />
-        <option value="$PROJECT_DIR$/TestScripts/Segmenter2Double.py" />
-        <option value="$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
-        <option value="$PROJECT_DIR$/Old code.py" />
-        <option value="$PROJECT_DIR$/ROUGH2.py" />
-        <option value="$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
-        <option value="$PROJECT_DIR$/README.md" />
-        <option value="$PROJECT_DIR$/Scripts/ExampleDataset/af_settings.txt" />
-        <option value="$PROJECT_DIR$/IA_lite.py" />
-        <option value="$PROJECT_DIR$/Scripts/Quantification.py" />
-        <option value="$PROJECT_DIR$/Scripts/BackgroundCurve.py" />
-        <option value="$PROJECT_DIR$/Scripts/Autofluorescence.py" />
-        <option value="$PROJECT_DIR$/Neural netowork.py" />
-        <option value="$PROJECT_DIR$/Neural network.py" />
-        <option value="$PROJECT_DIR$/IA2.py" />
-        <option value="$PROJECT_DIR$/ROugh3.py" />
-        <option value="$PROJECT_DIR$/Rough2.py" />
-        <option value="$PROJECT_DIR$/Rough3.py" />
-        <option value="$PROJECT_DIR$/Rough4.py" />
-        <option value="$PROJECT_DIR$/IA_speedy.py" />
-        <option value="$PROJECT_DIR$/IA_pro.py" />
-        <option value="$PROJECT_DIR$/GradientDescent.py" />
-        <option value="$PROJECT_DIR$/Rough5.py" />
-        <option value="$PROJECT_DIR$/Rough.py" />
-        <option value="$PROJECT_DIR$/rough2.py" />
-        <option value="$PROJECT_DIR$/IArough.py" />
-        <option value="$PROJECT_DIR$/IAold.py" />
-        <option value="$PROJECT_DIR$/ExampleScripts/Quantification.py" />
-        <option value="$PROJECT_DIR$/rough.py" />
-        <option value="$PROJECT_DIR$/GUI.py" />
-        <option value="$PROJECT_DIR$/docs/GUIhelp.txt" />
-        <option value="$PROJECT_DIR$/IA.py" />
-      </list>
-    </option>
-  </component>
   <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="y" value="23" />
     <option name="width" value="1680" />
-    <option name="height" value="1027" />
+    <option name="height" value="1050" />
   </component>
+  <component name="ProjectId" id="1cj3YPZ1cJupSWPnHnDFoLvYP6j" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
-  <component name="ProjectView">
-    <navigator currentView="ProjectPane" proportions="" version="1">
-      <flattenPackages />
-      <showMembers />
-      <showModules />
-      <showLibraryContents />
-      <hideEmptyPackages />
-      <abbreviatePackageNames />
-      <autoscrollToSource />
-      <autoscrollFromSource />
-      <sortByType />
-      <manualOrder />
-      <foldersAlwaysOnTop value="true" />
-    </navigator>
-    <panes>
-      <pane id="ProjectPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="MembraneQuant" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MembraneQuant" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MembraneQuant" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MembraneQuant" type="462c0819:PsiDirectoryNode" />
-              <item name=".caches" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MembraneQuant" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MembraneQuant" type="462c0819:PsiDirectoryNode" />
-              <item name="docs" type="462c0819:PsiDirectoryNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
-    </panes>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/TestDataset" />
+      <recent name="$PROJECT_DIR$/TestScripts" />
+    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/Scripts/ExampleDataset" />
@@ -299,26 +49,10 @@
       <recent name="$PROJECT_DIR$/TestDataset" />
       <recent name="$PROJECT_DIR$/TestDataset2" />
     </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/TestDataset" />
-      <recent name="$PROJECT_DIR$/TestScripts" />
-    </key>
-  </component>
-  <component name="RunDashboard">
-    <option name="ruleStates">
-      <list>
-        <RuleState>
-          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
-        </RuleState>
-        <RuleState>
-          <option name="name" value="StatusDashboardGroupingRule" />
-        </RuleState>
-      </list>
-    </option>
   </component>
   <component name="RunManager" selected="Python.GUI">
     <configuration name="GUI" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -329,13 +63,17 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="ImageAnalysis" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OpenGUI.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
     <configuration name="IA" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -346,13 +84,17 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="ImageAnalysis" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IA.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
     <configuration name="Quantification" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -363,13 +105,17 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="ImageAnalysis" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ExampleScripts/Quantification.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
-    <configuration name="Rough" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="Test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -380,13 +126,17 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="ImageAnalysis" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Rough.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
     <configuration name="rough" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
@@ -397,31 +147,31 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="ImageAnalysis" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/rough.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
     </configuration>
-    <list size="5">
-      <item index="0" class="java.lang.String" itemvalue="Python.Rough" />
-      <item index="1" class="java.lang.String" itemvalue="Python.rough" />
-      <item index="2" class="java.lang.String" itemvalue="Python.Quantification" />
-      <item index="3" class="java.lang.String" itemvalue="Python.IA" />
-      <item index="4" class="java.lang.String" itemvalue="Python.GUI" />
+    <list>
+      <item itemvalue="Python.GUI" />
+      <item itemvalue="Python.IA" />
+      <item itemvalue="Python.Quantification" />
+      <item itemvalue="Python.Test" />
+      <item itemvalue="Python.rough" />
     </list>
     <recent_temporary>
-      <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.GUI" />
-        <item index="1" class="java.lang.String" itemvalue="Python.IA" />
-        <item index="2" class="java.lang.String" itemvalue="Python.rough" />
-        <item index="3" class="java.lang.String" itemvalue="Python.Quantification" />
-        <item index="4" class="java.lang.String" itemvalue="Python.Rough" />
+      <list>
+        <item itemvalue="Python.GUI" />
+        <item itemvalue="Python.Test" />
+        <item itemvalue="Python.IA" />
+        <item itemvalue="Python.rough" />
+        <item itemvalue="Python.Quantification" />
       </list>
     </recent_temporary>
-  </component>
-  <component name="ShelveChangesManager" show_recycled="false">
-    <option name="remove_strategy" value="false" />
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -595,54 +345,22 @@
       <option name="project" value="LOCAL" />
       <updated>1581592595526</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="Many changes including improved support for stacks and a GUI">
+      <created>1590771053825</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1590771053825</updated>
+    </task>
+    <task id="LOCAL-00025" summary="Minor bug fixes and improvements">
+      <created>1591003218774</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1591003218774</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
-  </component>
-  <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1680" height="1050" extended-state="0" />
-    <layout>
-      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2851038" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26842684" sideWeight="0.13614164" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.29350105" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2672956" sideWeight="0.86385834" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32914045" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32809225" sideWeight="0.490991" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32914045" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-    </layout>
-    <layout-to-restore>
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26939204" sideWeight="0.13186814" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32809225" sideWeight="0.490991" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.26939204" sideWeight="0.8681319" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32914045" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.22832723" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4004193" sideWeight="0.46734235" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Data View" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-    </layout-to-restore>
-  </component>
-  <component name="VcsContentAnnotationSettings">
-    <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions" />
@@ -667,268 +385,49 @@
     <MESSAGE value="Fixes for non-periodic segmentation. Parameters for savgol smoothening" />
     <MESSAGE value="Much cleaner quantification class and added functions for af correlation and bgcurve generation. Started ipynbbs" />
     <MESSAGE value="Faster fitting methods" />
-    <option name="LAST_COMMIT_MESSAGE" value="Faster fitting methods" />
+    <MESSAGE value="Many changes including improved support for stacks and a GUI" />
+    <MESSAGE value="Minor bug fixes and improvements" />
+    <option name="LAST_COMMIT_MESSAGE" value="Minor bug fixes and improvements" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="304" y="187" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1591258593885">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="304" y="187" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1591258593885" />
+    <state x="528" y="268" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1591263301860">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="528" y="268" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1591263301860" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1599559697415">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1599559697415" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1591189141618" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1599559697414">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1599559697414" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1591189141617" />
+    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1599559697414">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1599559697414" />
+    <state width="1659" height="227" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1591189141616" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1599559697415">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1599559697415" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1591189141617" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>2195</line>
-          <option name="timeStamp" value="53" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>2544</line>
+          <line>2708</line>
           <option name="timeStamp" value="60" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="63" />
     </breakpoint-manager>
-    <watches-manager />
-  </component>
-  <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/TestDataset/INFO.md" />
-    <entry file="file://$PROJECT_DIR$/TestDataset/ROI_fitted.txt" />
-    <entry file="file:///anaconda/lib/python3.6/site-packages/scipy/optimize/optimize.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="40320">
-          <caret line="2688" column="0" lean-forward="false" selection-start-line="2688" selection-start-column="0" selection-end-line="2688" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///anaconda/lib/python3.6/site-packages/numpy/core/numeric.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30765">
-          <caret line="2070" column="0" lean-forward="false" selection-start-line="2070" selection-start-column="0" selection-end-line="2070" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file:///anaconda/lib/python3.6/site-packages/numpy/lib/index_tricks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2565">
-          <caret line="186" column="0" lean-forward="false" selection-start-line="186" selection-start-column="0" selection-end-line="186" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset2/CytBgGFPaf.txt" />
-    <entry file="file://$PROJECT_DIR$/TestScripts/Quantification.py" />
-    <entry file="file://$PROJECT_DIR$/TestScripts/Segment7.py" />
-    <entry file="file://$PROJECT_DIR$/OldCode.py" />
-    <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1bDouble.py" />
-    <entry file="file://$PROJECT_DIR$/TestScripts/Segmenter1aSingle.py" />
-    <entry file="file://$PROJECT_DIR$/TestDataset2/MemBgGFPaf.txt" />
-    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w2488 SP 535-50.TIF" />
-    <entry file="file://$PROJECT_DIR$/TestScripts/straight.tif" />
-    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterDouble.py" />
-    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w3488 SP 630-75.TIF" />
-    <entry file="file://$PROJECT_DIR$/TestDataset/ROI.txt" />
-    <entry file="file://$PROJECT_DIR$/IA.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="673">
-          <caret line="126" column="53" lean-forward="true" selection-start-line="126" selection-start-column="12" selection-end-line="126" selection-end-column="53" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#1107#21892#0" expanded="false" />
-            <element signature="e#10159#10804#0" expanded="false" />
-            <element signature="e#10810#10858#0" expanded="false" />
-            <element signature="e#11337#11536#0" expanded="false" />
-            <element signature="e#11636#12017#0" expanded="false" />
-            <element signature="e#12075#12588#0" expanded="false" />
-            <element signature="e#12640#13387#0" expanded="false" />
-            <element signature="e#13440#14124#0" expanded="false" />
-            <element signature="e#14186#14380#0" expanded="false" />
-            <element signature="e#14501#15014#0" expanded="false" />
-            <element signature="e#15077#15652#0" expanded="false" />
-            <element signature="e#15712#16103#0" expanded="false" />
-            <element signature="e#16164#16501#0" expanded="false" />
-            <element signature="e#16569#16744#0" expanded="false" />
-            <element signature="e#16807#17966#0" expanded="false" />
-            <element signature="e#18002#19160#0" expanded="false" />
-            <element signature="e#19191#19315#0" expanded="false" />
-            <element signature="e#19350#20465#0" expanded="false" />
-            <element signature="e#21917#24391#0" expanded="false" />
-            <element signature="e#24419#45925#0" expanded="false" />
-            <element signature="e#45956#47482#0" expanded="false" />
-            <element signature="e#47580#48873#0" expanded="false" />
-            <element signature="e#48891#54271#0" expanded="false" />
-            <element signature="e#54355#54464#0" expanded="false" />
-            <element signature="e#54501#56498#0" expanded="false" />
-            <element signature="e#56537#58125#0" expanded="false" />
-            <element signature="e#58150#62760#0" expanded="false" />
-            <element signature="e#62789#62806#0" expanded="false" />
-            <element signature="e#62914#64052#0" expanded="false" />
-            <element signature="e#64131#65455#0" expanded="false" />
-            <element signature="e#65525#66660#0" expanded="false" />
-            <element signature="e#66761#67472#0" expanded="false" />
-            <element signature="e#67532#68189#0" expanded="false" />
-            <element signature="e#68264#68329#0" expanded="false" />
-            <element signature="e#68407#70345#0" expanded="false" />
-            <element signature="e#70414#71080#0" expanded="false" />
-            <element signature="e#71173#72707#0" expanded="false" />
-            <element signature="e#72800#74041#0" expanded="false" />
-            <element signature="e#74084#74298#0" expanded="false" />
-            <element signature="e#74360#74446#0" expanded="false" />
-            <element signature="e#74498#74617#0" expanded="false" />
-            <element signature="e#74690#74935#0" expanded="false" />
-            <element signature="e#74968#75158#0" expanded="false" />
-            <element signature="e#75218#75445#0" expanded="false" />
-            <element signature="e#75530#76401#0" expanded="false" />
-            <element signature="e#76446#77972#0" expanded="false" />
-            <element signature="e#78026#78413#0" expanded="false" />
-            <element signature="e#78473#79050#0" expanded="false" />
-            <element signature="e#79107#80003#0" expanded="false" />
-            <element signature="e#80060#81294#0" expanded="false" />
-            <element signature="e#81337#82351#0" expanded="false" />
-            <element signature="e#82379#83146#0" expanded="false" />
-            <element signature="e#83189#83752#0" expanded="false" />
-            <element signature="e#83797#84200#0" expanded="false" />
-            <element signature="e#84226#84600#0" expanded="false" />
-            <element signature="e#84657#85457#0" expanded="false" />
-            <element signature="e#85500#86009#0" expanded="false" />
-            <element signature="e#86031#86253#0" expanded="false" />
-            <element signature="e#86316#86757#0" expanded="false" />
-            <element signature="e#86789#86938#0" expanded="false" />
-            <element signature="e#86969#87191#0" expanded="false" />
-            <element signature="e#87194#87238#0" expanded="false" />
-            <element signature="e#89188#89317#0" expanded="false" />
-            <element signature="e#89358#89466#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/TestDataset/_0_w4561 SP 630-75.TIF" />
-    <entry file="file://$PROJECT_DIR$/TestDataset/CytBgGFPaf.txt" />
-    <entry file="file://$PROJECT_DIR$/TestDataset/MemBgGFPaf.txt" />
-    <entry file="file://$PROJECT_DIR$/IA_190604.py" />
-    <entry file="file://$PROJECT_DIR$/Old code.py" />
-    <entry file="file://$PROJECT_DIR$/README.md" />
-    <entry file="file://$PROJECT_DIR$/TestDataset/ROI.txt" />
-    <entry file="file://$PROJECT_DIR$/TestScripts/SegmenterSingle.py" />
-    <entry file="file://$PROJECT_DIR$/TestNBs/Quantification.ipynb" />
-    <entry file="file://$PROJECT_DIR$/Scripts/QuantificationExample.py" />
-    <entry file="file://$PROJECT_DIR$/ExampleScripts/Quantification.py" />
-    <entry file="file://$PROJECT_DIR$/ExampleScripts/ExampleDataset/af_settings.txt" />
-    <entry file="file://$PROJECT_DIR$/IA_lite.py" />
-    <entry file="file://$PROJECT_DIR$/IA2.py" />
-    <entry file="file://$PROJECT_DIR$/ExampleScripts/ExampleDataset/slit_100_0.txt" />
-    <entry file="file://$PROJECT_DIR$/ExampleScripts/ExampleDataset/cytbg.txt" />
-    <entry file="file://$PROJECT_DIR$/IA_pro.py" />
-    <entry file="file:///anaconda/lib/python3.6/site-packages/numpy/core/fromnumeric.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1095">
-          <caret line="87" column="0" lean-forward="false" selection-start-line="87" selection-start-column="0" selection-end-line="87" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/IA_speedy.py" />
-    <entry file="file://$PROJECT_DIR$/GradientDescent.py" />
-    <entry file="file://$PROJECT_DIR$/Neural network.py" />
-    <entry file="file://$PROJECT_DIR$/Rough4.py" />
-    <entry file="file://$PROJECT_DIR$/Rough3.py" />
-    <entry file="file://$PROJECT_DIR$/Rough5.py" />
-    <entry file="file://$PROJECT_DIR$/rough2.py" />
-    <entry file="file://$PROJECT_DIR$/ExampleScripts/Autofluorescence.py" />
-    <entry file="file://$PROJECT_DIR$/ExampleScripts/Quantification.py" />
-    <entry file="file://$PROJECT_DIR$/ExampleScripts/BackgroundCurve.py" />
-    <entry file="file://$PROJECT_DIR$/rough.py" />
-    <entry file="file://$PROJECT_DIR$/docs/GUIhelp.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="123" lean-forward="false" selection-start-line="2" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/IA.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="535">
-          <caret line="2620" column="0" lean-forward="false" selection-start-line="2620" selection-start-column="0" selection-end-line="2620" selection-end-column="0" />
-          <folding>
-            <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#1107#21892#0" expanded="false" />
-            <element signature="e#10159#10804#0" expanded="false" />
-            <element signature="e#10810#10858#0" expanded="false" />
-            <element signature="e#11337#11536#0" expanded="false" />
-            <element signature="e#11636#12017#0" expanded="false" />
-            <element signature="e#12075#12588#0" expanded="false" />
-            <element signature="e#12640#13387#0" expanded="false" />
-            <element signature="e#13440#14124#0" expanded="false" />
-            <element signature="e#14186#14380#0" expanded="false" />
-            <element signature="e#14501#15014#0" expanded="false" />
-            <element signature="e#15077#15652#0" expanded="false" />
-            <element signature="e#15712#16103#0" expanded="false" />
-            <element signature="e#16164#16501#0" expanded="false" />
-            <element signature="e#16569#16744#0" expanded="false" />
-            <element signature="e#16807#17966#0" expanded="false" />
-            <element signature="e#18002#19160#0" expanded="false" />
-            <element signature="e#19191#19315#0" expanded="false" />
-            <element signature="e#19350#20465#0" expanded="false" />
-            <element signature="e#21917#24391#0" expanded="false" />
-            <element signature="e#24419#45925#0" expanded="false" />
-            <element signature="e#45956#47482#0" expanded="false" />
-            <element signature="e#47580#48873#0" expanded="false" />
-            <element signature="e#48891#54271#0" expanded="false" />
-            <element signature="e#54355#54464#0" expanded="false" />
-            <element signature="e#54501#56498#0" expanded="false" />
-            <element signature="e#56537#58125#0" expanded="false" />
-            <element signature="e#58150#62760#0" expanded="false" />
-            <element signature="e#62789#62806#0" expanded="false" />
-            <element signature="e#62914#64052#0" expanded="false" />
-            <element signature="e#64131#65455#0" expanded="false" />
-            <element signature="e#65525#66660#0" expanded="false" />
-            <element signature="e#66761#67472#0" expanded="false" />
-            <element signature="e#67532#68189#0" expanded="false" />
-            <element signature="e#68264#68329#0" expanded="false" />
-            <element signature="e#68407#70345#0" expanded="false" />
-            <element signature="e#70414#71080#0" expanded="false" />
-            <element signature="e#71173#72707#0" expanded="false" />
-            <element signature="e#72800#74041#0" expanded="false" />
-            <element signature="e#74084#74298#0" expanded="false" />
-            <element signature="e#74360#74446#0" expanded="false" />
-            <element signature="e#74498#74617#0" expanded="false" />
-            <element signature="e#74690#74935#0" expanded="false" />
-            <element signature="e#74968#75158#0" expanded="false" />
-            <element signature="e#75218#75445#0" expanded="false" />
-            <element signature="e#75530#76401#0" expanded="false" />
-            <element signature="e#76446#77972#0" expanded="false" />
-            <element signature="e#78026#78413#0" expanded="false" />
-            <element signature="e#78473#79050#0" expanded="false" />
-            <element signature="e#79107#80003#0" expanded="false" />
-            <element signature="e#80060#81294#0" expanded="false" />
-            <element signature="e#81337#82351#0" expanded="false" />
-            <element signature="e#82379#83146#0" expanded="false" />
-            <element signature="e#83189#83752#0" expanded="false" />
-            <element signature="e#83797#84200#0" expanded="false" />
-            <element signature="e#84226#84600#0" expanded="false" />
-            <element signature="e#84657#85457#0" expanded="false" />
-            <element signature="e#85500#86009#0" expanded="false" />
-            <element signature="e#86031#86253#0" expanded="false" />
-            <element signature="e#86316#86757#0" expanded="false" />
-            <element signature="e#86789#86938#0" expanded="false" />
-            <element signature="e#86969#87191#0" expanded="false" />
-            <element signature="e#87194#87238#0" expanded="false" />
-            <element signature="e#89188#89317#0" expanded="false" />
-            <element signature="e#89358#89466#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/OpenGUI.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="210">
-          <caret line="15" column="0" lean-forward="false" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/requirements.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
   </component>
 </project>
