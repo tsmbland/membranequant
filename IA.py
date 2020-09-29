@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from scipy.signal import savgol_filter
-from scipy.optimize import differential_evolution, brute, curve_fit, least_squares
+from scipy.optimize import curve_fit
 from scipy.ndimage import convolve
 from scipy.ndimage.interpolation import map_coordinates
 from scipy.ndimage.filters import gaussian_filter
@@ -10,7 +10,6 @@ from scipy.interpolate import splprep, splev, CubicSpline
 from scipy.linalg import lstsq
 from scipy.special import erf
 from skimage import io
-from joblib import Parallel, delayed
 import multiprocessing
 import cv2
 import os
@@ -20,6 +19,10 @@ import glob
 import pandas as pd
 import tkinter as tk
 from tkinter import filedialog, messagebox
+import tensorflow as tf
+from tensorflow.keras.layers import Dense
+from tensorflow.keras import Sequential
+from tensorflow.keras.optimizers import Adam
 
 """
 Functions for segmentation and quantification of membrane and cytoplasmic protein concentrations from midplane confocal 
@@ -32,7 +35,19 @@ To do:
 - why is fitting slower in parallel?
 - More annotations, detailed docstrings for functions etc.
 - Kymographs
-- Try Tiffile for loading tifs instead of skimage io 
+- be more consistent with interpolation method specification. have 'order' parameter instead of 'method'
+
+This version:
+- tensorflow version
+
+To do:
+- free sigma
+- terminate when learning stops
+- ability to take multiple images simultaneously
+- ability to take pretrained model
+- when models aren't pretrained, retrain model pretrained with gaus / erf
+- learning rate as parameter
+- fix straighten function
 
 """
 
@@ -74,10 +89,6 @@ class ImageQuant:
     uni_mem            globally fit uniform membrane
     bg_subtract        if True, will estimate and subtract background signal prior to quantification
 
-    Computation:
-    parallel           TRUE = perform fitting in parallel
-    cores              number of cores to use if parallel is True (if none will use all available)
-
     Saving:
     save_path          destination to save results, will create if it doesn't already exist
 
@@ -85,9 +96,10 @@ class ImageQuant:
     """
 
     def __init__(self, img, cytbg=None, membg=None, sigma=None, roi=None, freedom=0.5,
-                 periodic=True, thickness=50, itp=10, rol_ave=10, parallel=False, cores=None,
+                 periodic=True, thickness=50, rol_ave=10,
                  resolution_cyt=1, rotate=False, zerocap=True, nfits=None,
-                 iterations=1, interp='cubic', save_path=None, bg_subtract=False, uni_cyt=False, uni_mem=False):
+                 iterations=1, interp='cubic', save_path=None, bg_subtract=False, uni_cyt=False, uni_mem=False,
+                 parallel=None, cores=None, lr=0.01):
 
         # Image / stack
         self.img = img
@@ -101,21 +113,12 @@ class ImageQuant:
         self.bg_subtract = bg_subtract
 
         # Fitting mode
-        if not uni_cyt and not uni_mem:
-            self.method = 0
-        elif uni_cyt and not uni_mem:
-            self.method = 1
-        elif uni_cyt and uni_mem:
-            self.method = 2
-        else:
-            self.method = None
-            raise Exception('Uniform membrane not supported with non-uniform cytoplasm')
+        self.uni_cyt = uni_cyt
+        self.uni_mem = uni_mem
 
         # Fitting parameters
         self.iterations = iterations
         self.thickness = thickness
-        self.itp = itp
-        self.thickness_itp = int(itp * self.thickness)
         self.freedom = freedom
         self.rol_ave = rol_ave
         self.resolution_cyt = resolution_cyt
@@ -124,37 +127,14 @@ class ImageQuant:
         self.sigma = sigma
         self.nfits = nfits
         self.interp = interp
+        self.lr = lr
 
         # Saving
         self.save_path = save_path
 
-        # Background curves
-        if cytbg is None:
-            self.cytbg = (1 + error_func(np.arange(thickness * 2), thickness, self.sigma)) / 2
-            self.cytbg_itp = (1 + error_func(np.arange(2 * self.thickness_itp), self.thickness_itp,
-                                             self.sigma * self.itp)) / 2
-        else:
-            self.cytbg = cytbg
-            self.cytbg_itp = interp_1d_array(self.cytbg, 2 * self.thickness_itp)
-        if membg is None:
-            self.membg = gaus(np.arange(thickness * 2), thickness, self.sigma)
-            self.membg_itp = gaus(np.arange(2 * self.thickness_itp), self.thickness_itp, self.sigma * self.itp)
-        else:
-            self.membg = membg
-            self.membg_itp = interp_1d_array(self.membg, 2 * self.thickness_itp)
-
-        # Check for appropriate thickness
-        if len(self.cytbg) != len(self.membg):
-            raise Exception('Error: cytbg and membg must be the same length, and thickness must be half this length')
-        elif self.thickness != 0.5 * len(self.cytbg):
-            raise Exception('Error: thickness must be exactly half the length of the background curves')
-
-        # Computation
-        self.parallel = parallel
-        if cores is not None:
-            self.cores = cores
-        else:
-            self.cores = multiprocessing.cpu_count()
+        # # Background curves
+        self.cytbg = cytbg
+        self.membg = membg
 
         # Results containers
         self.offsets = None
@@ -176,6 +156,9 @@ class ImageQuant:
 
         if self.roi is not None:
             self.reset_res()
+
+        # Set seed for reproducibility
+        tf.random.set_seed(1)
 
     """
     Run
@@ -199,6 +182,21 @@ class ImageQuant:
         if self.save_path is not None:
             self.save()
 
+    def approximate_bg_curve(self, curve, lr=0.01, epochs=1000):
+        """
+        Todo: start with models pretrained on erf / gaussian
+
+        """
+
+        model = Sequential()
+        model.add(Dense(4, input_shape=(1,), activation='tanh'))
+        model.add(Dense(4, activation='tanh'))
+        model.add(Dense(4, activation='tanh'))
+        model.add(Dense(1, activation='sigmoid'))
+        model.compile(optimizer=Adam(learning_rate=lr), loss='mse')
+        model.fit(x=np.linspace(0, 1, len(curve)), y=curve, epochs=epochs, verbose=0)
+        return model
+
     def fit(self):
 
         # Specify number of fits
@@ -219,63 +217,14 @@ class ImageQuant:
             self.straight_filtered = self.straight
 
         # Interpolate
-        straight = interp_2d_array(self.straight_filtered, self.thickness_itp, method=self.interp)
-        straight = interp_2d_array(straight, self.nfits, ax=0, method=self.interp)
+        straight_filtered_itp = interp_2d_array(self.straight_filtered, self.nfits, ax=0, method=self.interp)
+
+        # Normalise
+        self.norm = np.max(straight_filtered_itp)
+        self.y = straight_filtered_itp / self.norm
 
         # Fit
-        if self.method == 0:
-            """
-            Non-uniform cytoplasm and non-uniform membrane
-            
-            """
-
-            if self.parallel:
-                results = np.array(Parallel(n_jobs=self.cores)(
-                    delayed(self._fit_profile)(straight[:, x]) for x in range(len(straight[0, :]))))
-                self.offsets = results[:, 0]
-                self.cyts = results[:, 1]
-                self.mems = results[:, 2]
-            else:
-                for x in range(len(straight[0, :])):
-                    self.offsets[x], self.cyts[x], self.mems[x] = self._fit_profile(straight[:, x])
-
-        elif self.method == 1:
-            """
-            Uniform cytoplasm, non-uniform membrane
-            
-            """
-            # Fit uniform cytoplasm
-            c = self._fit_profile_1(straight)
-            self.cyts[:] = c
-
-            # Fit local membranes
-            if self.parallel:
-                results = np.array(Parallel(n_jobs=self.cores)(
-                    delayed(self._fit_profile_2)(straight[:, x], c) for x in range(len(straight[0, :]))))
-                self.offsets = results[:, 0]
-                self.mems = results[:, 1]
-            else:
-                for x in range(len(straight[0, :])):
-                    self.offsets[x], self.mems[x] = self._fit_profile_2(straight[:, x], c)
-
-        elif self.method == 2:
-            """
-            Uniform cytoplasm and uniform membrane
-            
-            """
-
-            # Fit uniform cytoplasm, uniform membrane
-            c, m = self._fit_profile_ucum(straight)
-            self.mems[:] = m
-            self.cyts[:] = c
-
-            # Fit local offsets
-            if self.parallel:
-                self.offsets = np.array(Parallel(n_jobs=self.cores)(
-                    delayed(self._fit_profile_ucum_2)(straight[:, x], c, m) for x in range(len(straight[0, :]))))
-            else:
-                for x in range(len(straight[0, :])):
-                    self.offsets[x] = self._fit_profile_ucum_2(straight[:, x], c, m)
+        self._fit()
 
         # Interpolate
         self.offsets_full = interp_1d_array(self.offsets, len(self.roi[:, 0]), method=self.interp)
@@ -283,180 +232,93 @@ class ImageQuant:
         self.mems_full = interp_1d_array(self.mems, len(self.roi[:, 0]), method=self.interp)
 
     """
-    METHOD 0: Non-uniform cytoplasm
+    Fitting
 
     """
 
-    def _fit_profile(self, profile):
+    def _fit(self):
+
+        # Approximate bg curves
+        if self.cytbg is not None:
+            self.model_cyt = self.approximate_bg_curve(self.cytbg)
+        if self.membg is not None:
+            self.model_mem = self.approximate_bg_curve(self.membg)
+
+        # Create tensors
+        offsets = tf.Variable(self.offsets)
+        if self.uni_cyt:
+            cyts = tf.Variable(self.cyts[0])
+        else:
+            cyts = tf.Variable(self.cyts)
+        if self.uni_mem:
+            mems = tf.Variable(self.mems[0])
+        else:
+            mems = tf.Variable(self.mems)
+        var_list = [offsets, cyts, mems]
+
+        # Loss function
+        def calc_loss():
+
+            # Concentration bounds
+            if self.zerocap:
+                mems_ = tf.math.maximum(mems, 0)
+                cyts_ = tf.math.maximum(cyts, 0)
+            else:
+                mems_ = mems
+                cyts_ = cyts
+
+            # Offset bounds
+            offsets_ = tf.math.maximum(offsets, -self.freedom * self.thickness / 2)
+            offsets_ = tf.math.minimum(offsets_, self.freedom * self.thickness / 2)
+
+            # Alignment
+            positions = tf.reshape(tf.reshape(tf.tile(np.arange(self.thickness, dtype=np.float64), [self.nfits]),
+                                              [self.nfits, self.thickness]) + tf.expand_dims(offsets_, -1), [-1])
+
+            # Mem curve
+            if self.membg is None:
+                # Default
+                mem_curve = tf.math.exp(-((positions - self.thickness / 2) ** 2) / (2 * self.sigma ** 2))
+            else:
+                # Custom
+                mem_curve = tf.cast(self.model_mem((positions + self.thickness / 2) / (self.thickness * 2)), tf.float64)
+
+            # Cyt curve:
+            if self.membg is None:
+                # Default
+                cyt_curve = (1 + tf.math.erf((positions - self.thickness / 2) / self.sigma)) / 2
+            else:
+                # Custom
+                cyt_curve = tf.cast(self.model_cyt((positions + self.thickness / 2) / (self.thickness * 2)), tf.float64)
+
+            # Reshape
+            cyt_curve_ = tf.reshape(cyt_curve, [self.nfits, self.thickness])
+            mem_curve_ = tf.reshape(mem_curve, [self.nfits, self.thickness])
+
+            # Calculate y^
+            mem_total = mem_curve_ * tf.expand_dims(mems_, axis=-1)
+            cyt_total = cyt_curve_ * tf.expand_dims(cyts_, axis=-1)
+
+            # Calculate loss
+            yhat = tf.math.add(mem_total, cyt_total)
+            loss = tf.math.reduce_mean((yhat - self.y.T) ** 2)
+            return loss
+
+        # Run optimisation
+        opt = tf.keras.optimizers.Adam(learning_rate=self.lr)
+        # losses = np.zeros(1000)
+        for i in range(1000):
+            # losses[i] = calc_loss()
+            opt.minimize(calc_loss, var_list=var_list)
+
+        # Concentration bounds
         if self.zerocap:
-            bounds = (
-                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
-                (0, 2 * max(profile)), (0, 2 * max(profile)))
-        else:
-            bounds = (
-                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
-                (-0.2 * max(profile), 2 * max(profile)), (-0.2 * max(profile), 2 * max(profile)))
-        res = differential_evolution(self._mse, bounds=bounds, args=(profile,), tol=0.2)
-        o = (res.x[0] - self.thickness_itp / 2) / self.itp
-        return o, res.x[1], res.x[2]
+            mems = tf.math.maximum(mems, 0)
+            cyts = tf.math.maximum(cyts, 0)
 
-    # def _fit_profile(self, profile, cytbg, membg):
-    #     # This works but is slower
-    #     bounds = (
-    #         ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
-    #         (0, 2 * max(profile)), (0, 2 * max(profile)))
-    #     res = iterative_opt_multi(self._mse, bounds=bounds, args=(profile, cytbg, membg), N=5, iterations=4)
-    #     o = (res[0] - self.thickness_itp / 2) / self.itp
-    #     return o, res[1], res[2]
-
-    def _mse(self, l_c_m, profile):
-        l, c, m = l_c_m
-        y = (c * self.cytbg_itp[int(l):int(l) + self.thickness_itp]) + (
-                m * self.membg_itp[int(l):int(l) + self.thickness_itp])
-        return np.mean((profile - y) ** 2)
-
-    """
-    METHOD 1: Uniform cytoplasm
-
-    """
-
-    def _fit_profile_1(self, straight):
-        """
-        For finding optimal global cytoplasm
-
-        """
-
-        if self.zerocap:
-            bounds = (0, 2 * np.percentile(straight, 95))
-        else:
-            bounds = (-0.2 * np.percentile(straight, 95), 2 * np.percentile(straight, 95))
-
-        res = iterative_opt(self._fit_profile_1_func, p_range=bounds, args=(straight,), N=5, iterations=7)
-
-        return res[0]
-
-    def _fit_profile_1_func(self, c, straight):
-        if self.parallel:
-            mses = np.array(Parallel(n_jobs=self.cores)(
-                delayed(self._fit_profile_2b)(straight[:, x * self.resolution_cyt], c)
-                for x in range(len(straight[0, :]) // self.resolution_cyt)))
-        else:
-            mses = np.zeros(len(straight[0, :]) // self.resolution_cyt)
-            for x in range(len(straight[0, :]) // self.resolution_cyt):
-                mses[x] = self._fit_profile_2b(straight[:, x * self.resolution_cyt], c)
-        return np.mean(mses)
-
-    def _fit_profile_2(self, profile, c):
-        """
-        For finding optimal local membrane, alignment
-        Returns offset
-
-        """
-
-        if self.zerocap:
-            bounds = (
-                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
-                (0, 2 * max(profile)))
-        else:
-            bounds = (
-                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
-                (-0.2 * max(profile), 2 * max(profile)))
-        res = iterative_opt_2d(self._fit_profile_2_func, p1_range=bounds[0], p2_range=bounds[1], N=5, iterations=7,
-                               args=(profile, c))
-        o = (res[0] - self.thickness_itp / 2) / self.itp
-        return o, res[1]
-
-    def _fit_profile_2b(self, profile, c):
-        """
-        For finding optimal local membrane, alignment
-        Returns _mse
-
-        """
-        if self.zerocap:
-            bounds = (
-                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
-                (0, 2 * max(profile)))
-        else:
-            bounds = (
-                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
-                (-0.2 * max(profile), 2 * max(profile)))
-        res = iterative_opt_2d(self._fit_profile_2_func, p1_range=bounds[0], p2_range=bounds[1], N=5, iterations=7,
-                               args=(profile, c))
-        return res[2]
-
-    def _fit_profile_2_func(self, l_m, profile, c):
-        l, m = l_m
-        y = (c * self.cytbg_itp[int(l):int(l) + self.thickness_itp]) + (
-                m * self.membg_itp[int(l):int(l) + self.thickness_itp])
-        return np.mean((profile - y) ** 2)
-
-    """
-    METHOD 2: Uniform cytoplasm, uniform membrane
-
-    """
-
-    def _fit_profile_ucum(self, straight):
-        """
-        Fitting global cytoplasmic and cortical concs
-
-        """
-
-        if self.zerocap:
-            bounds = (0, 2 * np.percentile(straight, 95))
-        else:
-            bounds = (-0.2 * np.percentile(straight, 95), 2 * np.percentile(straight, 95))
-        res = iterative_opt_2d(self._fit_profile_ucum_func, p1_range=bounds,
-                               p2_range=(0, 2 * np.percentile(straight, 95)), args=(straight,), N=5,
-                               iterations=5)
-
-        return res[0], res[1]
-
-    def _fit_profile_ucum_func(self, c_m, straight):
-        """
-
-
-        """
-
-        c, m = c_m
-        if self.parallel:
-            mses = np.array(Parallel(n_jobs=self.cores)(
-                delayed(self._fit_profile_ucum_2b)(straight[:, x * self.resolution_cyt], c, m)
-                for x in range(len(straight[0, :]) // self.resolution_cyt)))
-        else:
-            mses = np.zeros(len(straight[0, :]) // self.resolution_cyt)
-            for x in range(len(straight[0, :]) // self.resolution_cyt):
-                mses[x] = self._fit_profile_ucum_2b(straight[:, x * self.resolution_cyt], c, m)
-        return np.mean(mses)
-
-    def _fit_profile_ucum_2(self, profile, c, m):
-        """
-        Fitting local offsets, returns offsets
-
-        """
-
-        res, fun = iterative_opt(self._fit_profile_ucum_2_func, p_range=(
-            (self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
-                                 args=(profile, c, m), N=5, iterations=3)
-
-        o = (res - self.thickness_itp / 2) / self.itp
-        return o
-
-    def _fit_profile_ucum_2b(self, profile, c, m):
-        """
-        Fitting local offsets, returns error
-
-        """
-
-        res, fun = iterative_opt(self._fit_profile_ucum_2_func, p_range=(
-            (self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
-                                 args=(profile, c, m), N=5, iterations=3)
-
-        return fun
-
-    def _fit_profile_ucum_2_func(self, l, profile, c, m):
-        y = (c * self.cytbg_itp[int(l):int(l) + self.thickness_itp]) + (
-                m * self.membg_itp[int(l):int(l) + self.thickness_itp])
-        return np.mean((profile - y) ** 2)
+        self.mems[:] = mems.numpy() * self.norm
+        self.cyts[:] = cyts.numpy() * self.norm
+        self.offsets[:] = offsets.numpy()
 
     """
     Misc
@@ -467,21 +329,31 @@ class ImageQuant:
         """
         Creates simulated images based on fit results
 
+        Todo: do without a loop
+
         """
         for x in range(len(self.roi[:, 0])):
             c = self.cyts_full[x]
             m = self.mems_full[x]
-            l = int(self.offsets_full[x] * self.itp + (self.thickness_itp / 2))
-            self.straight_cyt[:, x] = interp_1d_array(c * self.cytbg_itp[l:l + self.thickness_itp], self.thickness,
-                                                      method=self.interp)
-            self.straight_mem[:, x] = interp_1d_array(m * self.membg_itp[l:l + self.thickness_itp], self.thickness,
-                                                      method=self.interp)
-            self.straight_fit[:, x] = interp_1d_array(
-                (c * self.cytbg_itp[l:l + self.thickness_itp]) + (m * self.membg_itp[l:l + self.thickness_itp]),
-                self.thickness, method=self.interp)
-            self.straight_resids[:, x] = self.straight[:, x] - self.straight_fit[:, x]
-            self.straight_resids_pos[:, x] = np.clip(self.straight_resids[:, x], a_min=0, a_max=None)
-            self.straight_resids_neg[:, x] = abs(np.clip(self.straight_resids[:, x], a_min=None, a_max=0))
+            o = self.offsets_full[x]
+
+            itp_pos = np.linspace(o, o + self.thickness, self.thickness)
+
+            if self.cytbg is None:
+                self.straight_cyt[:, x] = c * (1 + erf((itp_pos - self.thickness / 2) / self.sigma)) / 2
+            else:
+                self.straight_cyt[:, x] = c * np.squeeze(self.model_cyt(
+                    (itp_pos + self.thickness / 2) / (self.thickness * 2)))
+            if self.membg is None:
+                self.straight_mem[:, x] = m * np.exp(-((itp_pos - self.thickness / 2) ** 2) / (2 * self.sigma ** 2))
+            else:
+                self.straight_mem[:, x] = m * np.squeeze(self.model_mem(
+                    (itp_pos + self.thickness / 2) / (self.thickness * 2)))
+
+        self.straight_fit = self.straight_cyt + self.straight_mem
+        self.straight_resids = self.straight - self.straight_fit
+        self.straight_resids_pos = np.clip(self.straight_resids, a_min=0, a_max=None)
+        self.straight_resids_neg = abs(np.clip(self.straight_resids, a_min=None, a_max=0))
 
     def adjust_roi(self):
         """
@@ -1254,190 +1126,6 @@ def compile_res(direc):
 ######### REFERENCE PROFILES #########
 
 
-class GenerateProfile:
-    """
-    Class for getting cytoplasmic or membrane profiles from images expressing only cytoplasmic or membrane protein
-
-    Images are initially segmented by fitting to an error function (cytoplasm) or gaussian (membrane). Profiles are
-    then averaged from segmented images to get the true profile shape.
-
-    Fitting parameters:
-    sigma0          sigma of initial guess error function/gaussian
-    thickness       width of the final cross profile. Note this must be 2x the thickness used in ImageQuant
-    itp             interpolation
-    periodic        set to True if roi forms a complete loop (i.e. whole cell)
-    freedom         roi freedom. See ImageQuant
-    rol_ave         rolling average
-    nfits           number of fits. Profile will be more accurate if this is high
-    interp          interpolation type
-
-    To do:
-    - Normalise on a local scale, then average?
-    - Plot mean profile +- std
-
-    """
-
-    def __init__(self, img, roi, profile_type, sigma0=3, thickness=100, itp=10, periodic=True, freedom=0.5,
-                 rol_ave=10, nfits=None, interp='cubic', bg_subtract=False, iterations=1, parallel=True, cores=None):
-
-        # Image
-        self.img = img
-
-        # ROI
-        self.roi = roi
-
-        # Parameters
-        self.profile_type = profile_type
-        self.iterations = iterations
-        self.thickness = thickness
-        self.itp = itp
-        self.thickness_itp = int(itp * self.thickness)
-        self.periodic = periodic
-        self.freedom = freedom
-        self.rol_ave = rol_ave
-        self.interp = interp
-        self.nfits = nfits
-        self.bg_subtract = bg_subtract
-
-        # Profile
-        if self.profile_type == 'cytoplasm':
-            self.profile = (1 + error_func(np.arange(thickness), thickness / 2, sigma0)) / 2
-            self.profile_itp = (1 + error_func(np.arange(self.thickness_itp), self.thickness_itp / 2,
-                                               sigma0 * self.itp)) / 2
-        elif self.profile_type == 'membrane':
-            self.profile = gaus(np.arange(thickness), thickness / 2, sigma0)
-            self.profile_itp = gaus(np.arange(self.thickness_itp), self.thickness_itp / 2, sigma0 * self.itp)
-        else:
-            raise Exception("profile_type must be 'cytoplasm' or 'membrane")
-        self.profile0 = self.profile
-
-        # Internal variables
-        self.straight = None
-        self.straight_filtered = None
-        self.straight_fit = None
-        self.offsets = None
-        self.amplitudes = None
-        self.offsets_full = None
-        self.amplitudes_full = None
-
-        # Computation
-        self.parallel = parallel
-        if cores is not None:
-            self.cores = cores
-        else:
-            self.cores = multiprocessing.cpu_count()
-
-    def run(self):
-
-        # Straighten with initial ROI
-        self.straight = straighten(self.img, self.roi, self.thickness)
-
-        for i in range(self.iterations):
-            # Background subtract
-            if self.bg_subtract:
-                self.straight -= np.mean(self.straight[:5, :])
-
-            # Specify number of fits
-            if self.nfits is None:
-                self.nfits = len(self.roi[:, 0])
-            self.offsets = np.zeros(self.nfits)
-            self.amplitudes = np.zeros(self.nfits)
-
-            # Smoothen
-            if self.rol_ave != 0:
-                self.straight_filtered = rolling_ave_2d(self.straight, self.rol_ave, self.periodic)
-            else:
-                self.straight_filtered = self.straight
-
-            # Interpolate
-            straight = interp_2d_array(self.straight_filtered, self.thickness_itp, method=self.interp)
-            straight = interp_2d_array(straight, self.nfits, ax=0, method=self.interp)
-
-            # Optimise amplitudes and offsets
-            self.fit(straight[int(0.25 * self.thickness_itp):int(0.75 * self.thickness_itp), :])
-
-            # Adjust roi according to offsets
-            self.adjust_roi()
-
-            # Re-straighten with new roi
-            self.straight = straighten(self.img, self.roi, self.thickness)
-
-            # Average
-            self.profile = np.mean(self.straight, axis=1)
-
-            # Normalise
-            self.profile /= max(self.profile)
-
-            # Interpolate
-            self.profile_itp = interp_1d_array(self.profile, n=self.thickness_itp, method=self.interp)
-
-    def adjust_roi(self):
-
-        # Offset coordinates
-        self.roi = offset_coordinates(self.roi, self.offsets_full)
-
-        # Filter
-        if self.periodic:
-            self.roi = np.vstack(
-                (savgol_filter(self.roi[:, 0], 19, 1, mode='wrap'),
-                 savgol_filter(self.roi[:, 1], 19, 1, mode='wrap'))).T
-        elif not self.periodic:
-            self.roi = np.vstack(
-                (savgol_filter(self.roi[:, 0], 19, 1, mode='nearest'),
-                 savgol_filter(self.roi[:, 1], 19, 1, mode='nearest'))).T
-
-        # Interpolate to one px distance between points
-        self.roi = interp_roi(self.roi, self.periodic)
-
-    """
-    Fitting
-
-    """
-
-    def fit(self, straight):
-
-        # Fit
-        if self.parallel:
-            results = np.array(Parallel(n_jobs=self.cores)(
-                delayed(self._fit_profile)(straight[:, x]) for x in range(len(straight[0, :]))))
-            self.offsets = results[:, 0]
-            self.amplitudes = results[:, 1]
-        else:
-            for x in range(len(straight[0, :])):
-                self.offsets[x], self.amplitudes[x] = self._fit_profile(straight[:, x])
-
-        # Interpolate
-        self.offsets_full = interp_1d_array(self.offsets, len(self.roi[:, 0]), method=self.interp)
-        self.amplitudes_full = interp_1d_array(self.amplitudes, len(self.roi[:, 0]), method=self.interp)
-
-    def _fit_profile(self, profile):
-        bounds = (
-            ((self.thickness_itp / 4) * (1 - self.freedom), (self.thickness_itp / 4) * (1 + self.freedom)),
-            (0, 2 * max(profile)))
-
-        res = iterative_opt_2d(self._mse, p1_range=bounds[0], p2_range=bounds[1], args=(profile,), N=5, iterations=7)
-        o = (res[0] - self.thickness_itp / 4) / self.itp
-        return o, res[1]
-
-    def _mse(self, l_a, profile):
-        l, a = l_a
-        y = a * self.profile_itp[int(l):int(l) + int(self.thickness_itp / 2)]
-        return np.mean((profile - y) ** 2)
-
-    """
-    Other
-    
-    """
-
-    def plot_segmentation(self):
-        fig, ax = plt.subplots()
-        ax.imshow(self.img, cmap='gray')
-        ax.plot(self.roi[:, 0], self.roi[:, 1], c='lime')
-        ax.set_xticks([])
-        ax.set_yticks([])
-        plt.show()
-
-
 ########### INTERACTIVE #############
 
 def view_stack(img, start_frame=0, end_frame=None):
@@ -1882,125 +1570,6 @@ def plot_fits(direc):
 
 ########## FITTING ALGORITHMS ###########
 
-def iterative_opt(func, p_range, N, iterations, args=()):
-    """
-
-    :param func: function to be minimised
-    :param p_range: initial parameter range
-    :param args:
-    :param N: number of points to be evaluated per iteration
-    :param iterations: number of iterations
-    :return:
-    """
-
-    params = np.linspace(p_range[0], p_range[1], N)
-    func_calls = 0
-
-    for i in range(iterations):
-
-        if i == 0:
-            res = np.zeros([N])
-            for i in range(N):
-                res[i] = func(params[i], *args)
-                func_calls += 1
-
-        else:
-            for i in range(1, N - 1):
-                res[i] = func(params[i], *args)
-                func_calls += 1
-        a = np.argmin(res)
-        fun = res[a]
-
-        if a == 0:
-            params = np.linspace(params[0], params[1], N)
-            res = np.r_[res[0], np.zeros([N - 2]), res[1]]
-        elif a == N - 1:
-            params = np.linspace(params[-2], params[-1], N)
-            res = np.r_[res[-2], np.zeros([N - 2]), res[-1]]
-        else:
-            params = np.linspace(params[a - 1], params[a + 1], N)
-            res = np.r_[res[a - 1], np.zeros([N - 2]), res[a + 1]]
-    return params[a], fun
-
-
-def iterative_opt_2d(func, p1_range, p2_range, N, iterations, args=()):
-    """
-
-    :param func: function to be minimised
-    :param p1_range: initial parameter range
-    :param p2_range: initial parameter range
-    :param args:
-    :param N: number of points to be evaluated per iteration
-    :param iterations: number of iterations
-    :return:
-    """
-
-    params_1 = np.linspace(p1_range[0], p1_range[1], N)
-    params_2 = np.linspace(p2_range[0], p2_range[1], N)
-    func_calls = 0
-
-    for i in range(iterations):
-        res = np.zeros([N, N])
-
-        for p1 in range(N):
-            for p2 in range(N):
-                res[p1, p2] = func((params_1[p1], params_2[p2]), *args)
-                func_calls += 1
-
-        a = np.where(res == np.min(res))
-        a_1 = a[0][0]
-        a_2 = a[1][0]
-
-        if a_1 == 0:
-            params_1 = np.linspace(params_1[0], params_1[1], N)
-        elif a_1 == N - 1:
-            params_1 = np.linspace(params_1[-2], params_1[-1], N)
-        else:
-            params_1 = np.linspace(params_1[a_1 - 1], params_1[a_1 + 1], N)
-
-        if a_2 == 0:
-            params_2 = np.linspace(params_2[0], params_2[1], N)
-        elif a_2 == N - 1:
-            params_2 = np.linspace(params_2[-2], params_2[-1], N)
-        else:
-            params_2 = np.linspace(params_2[a_2 - 1], params_2[a_2 + 1], N)
-
-    return params_1[a[0][0]], params_2[a[1][0]], res[a][0]
-
-
-def iterative_opt_multi(func, bounds, N, iterations, args=()):
-    """
-
-    :param func: function to minimise
-    :param bounds: tuple of tuples specifying lower and upper bound for each parameter
-    :param N: number of parameters to test per iteration (N**len(bounds))
-    :param iterations: number of iterations
-    :param args: optional additional arguments for func
-    :return:
-
-    Evaluates function on a grid of N**len(bounds) parameter combinations, before further exploration around the global
-    minimum
-    Assumes smooth funnel-like energy landscape with single minimum
-    Not suitable for functions with a large number of parameters, use something like scipy.differential_evolution
-    instead
-
-    """
-
-    for i in range(iterations):
-        x0 = brute(func, bounds, Ns=N, args=args)
-        bounds = list(bounds)
-        for i, x in enumerate(x0):
-            bounds[i] = list(bounds[i])
-            gap = (bounds[i][1] - bounds[i][0]) / N
-            if x - gap > bounds[i][0]:
-                bounds[i][0] = x - gap
-            if x + gap < bounds[i][1]:
-                bounds[i][1] = x + gap
-            bounds[i] = tuple(bounds[i])
-        bounds = tuple(bounds)
-
-    return x0
-
 
 ######## AF/BACKGROUND REMOVAL #######
 
@@ -2060,6 +1629,8 @@ def af_correlation_pbyp(img1, img2, mask, sigma=0, plot=None, c=None, intercept0
         plt.plot(xline, yline, c='r')
         plt.xlim(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99))
         plt.ylim(np.percentile(ydata, 0.01), np.percentile(ydata, 99.99))
+        plt.xlabel('AF channel')
+        plt.ylabel('GFP channel')
 
     # Heatmap
     elif plot == 'heatmap':
@@ -2314,6 +1885,36 @@ def save_img_jpeg(img, direc, cmin=None, cmax=None):
 ########### MISC FUNCTIONS ###########
 
 
+def straighten_in_progress(img, roi, thickness, interp='cubic'):
+    """
+    Creates straightened image based on coordinates
+
+    :param img:
+    :param roi: Coordinates. Should be 1 pixel length apart in a loop
+    :param thickness:
+    :return:
+
+    """
+
+    offsets = np.linspace(thickness / 2, -thickness / 2, thickness)
+    newcoors_x = np.zeros([thickness, len(roi[:, 0])])
+    newcoors_y = np.zeros([thickness, len(roi[:, 0])])
+
+    for section in range(thickness):
+        sectioncoors = offset_coordinates(roi, offsets[section])
+        newcoors_x[section, :] = sectioncoors[:, 0]
+        newcoors_y[section, :] = sectioncoors[:, 1]
+    if interp == 'linear':
+        straight = map_coordinates(img.T, [newcoors_x, newcoors_y], order=3)
+    elif interp == 'cubic':
+        straight = map_coordinates(img.T, [newcoors_x, newcoors_y], order=1)
+
+    # If there are nans in array, fill in
+    ...
+
+    return straight
+
+
 def straighten(img, roi, thickness):
     """
     Creates straightened image based on coordinates
@@ -2341,6 +1942,7 @@ def straighten(img, roi, thickness):
     return img2
 
 
+
 def offset_coordinates(roi, offsets):
     """
     Reads in coordinates, adjusts according to offsets
@@ -2351,6 +1953,9 @@ def offset_coordinates(roi, offsets):
 
     To save this in a fiji readable format run:
     np.savetxt(filename, newcoors, fmt='%.4f', delimiter='\t')
+
+    To do:
+    - ability to take list of offsets > will be faster when performing multiple offsets (e.g straightening algorithm)
 
     """
 
@@ -2386,6 +1991,91 @@ def offset_coordinates(roi, offsets):
     newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
 
     return newcoors
+
+
+def interp_roi(roi, periodic=True):
+    """
+    Interpolates coordinates to one pixel distances (or as close as possible to one pixel)
+    Linear interpolation
+
+    :param roi:
+    :return:
+    """
+
+    if periodic:
+        c = np.append(roi, [roi[0, :]], axis=0)
+    else:
+        c = roi
+
+    # Calculate distance between points in pixel units
+    distances = ((np.diff(c[:, 0]) ** 2) + (np.diff(c[:, 1]) ** 2)) ** 0.5
+    distances_cumsum = np.append([0], np.cumsum(distances))
+    px = sum(distances) / round(sum(distances))  # effective pixel size
+    newpoints = np.zeros((int(round(sum(distances))), 2))
+    newcoors_distances_cumsum = 0
+
+    # Get one pixel spaced positions
+    for d in range(int(round(sum(distances)))):
+        index = sum(distances_cumsum - newcoors_distances_cumsum <= 0) - 1
+        newpoints[d, :] = (
+                roi[index, :] + ((newcoors_distances_cumsum - distances_cumsum[index]) / distances[index]) * (
+                c[index + 1, :] - c[index, :]))
+        newcoors_distances_cumsum += px
+    return newpoints
+
+
+def rotate_roi(roi):
+    """
+    Rotates coordinate array so that most posterior point is at the beginning
+
+    """
+
+    # PCA to find long axis
+    M = (roi - np.mean(roi.T, axis=1)).T
+    [latent, coeff] = np.linalg.eig(np.cov(M))
+    score = np.dot(coeff.T, M)
+
+    # Find most extreme points
+    a = np.argmin(np.minimum(score[0, :], score[1, :]))
+    b = np.argmax(np.maximum(score[0, :], score[1, :]))
+
+    # Find the one closest to user defined posterior
+    dista = np.hypot((roi[0, 0] - roi[a, 0]), (roi[0, 1] - roi[a, 1]))
+    distb = np.hypot((roi[0, 0] - roi[b, 0]), (roi[0, 1] - roi[b, 1]))
+
+    # Rotate coordinates
+    if dista < distb:
+        newcoors = np.roll(roi, len(roi[:, 0]) - a, 0)
+    else:
+        newcoors = np.roll(roi, len(roi[:, 0]) - b, 0)
+
+    return newcoors
+
+
+def spline_roi(roi, periodic=True):
+    """
+    Fits a spline to points specifying the coordinates of the cortex, then interpolates to pixel distances
+
+    :param roi:
+    :return:
+    """
+
+    # Append the starting x,y coordinates
+    if periodic:
+        x = np.r_[roi[:, 0], roi[0, 0]]
+        y = np.r_[roi[:, 1], roi[0, 1]]
+    else:
+        x = roi[:, 0]
+        y = roi[:, 1]
+
+    # Fit spline
+    tck, u = splprep([x, y], s=0, per=periodic)
+
+    # Evaluate spline
+    xi, yi = splev(np.linspace(0, 1, 1000), tck)
+
+    # Interpolate
+    return interp_roi(np.vstack((xi, yi)).T, periodic=periodic)
 
 
 def interp_1d_array(array, n, method='cubic'):
@@ -2492,93 +2182,6 @@ def rolling_ave_2d(array, window, periodic=True):
             else:
                 ave[:, x] = np.mean(np.append(array[:, starts[x]:], array[:, :ends[x]], axis=1), axis=1)
         return ave
-
-
-def interp_roi(roi, periodic=True):
-    """
-    Interpolates coordinates to one pixel distances (or as close as possible to one pixel)
-    Linear interpolation
-
-    Ability to specify number of points
-
-    :param roi:
-    :return:
-    """
-
-    if periodic:
-        c = np.append(roi, [roi[0, :]], axis=0)
-    else:
-        c = roi
-
-    # Calculate distance between points in pixel units
-    distances = ((np.diff(c[:, 0]) ** 2) + (np.diff(c[:, 1]) ** 2)) ** 0.5
-    distances_cumsum = np.append([0], np.cumsum(distances))
-    px = sum(distances) / round(sum(distances))  # effective pixel size
-    newpoints = np.zeros((int(round(sum(distances))), 2))
-    newcoors_distances_cumsum = 0
-
-    for d in range(int(round(sum(distances)))):
-        index = sum(distances_cumsum - newcoors_distances_cumsum <= 0) - 1
-        newpoints[d, :] = (
-                roi[index, :] + ((newcoors_distances_cumsum - distances_cumsum[index]) / distances[index]) * (
-                c[index + 1, :] - c[index, :]))
-        newcoors_distances_cumsum += px
-
-    return newpoints
-
-
-def rotate_roi(roi):
-    """
-    Rotates coordinate array so that most posterior point is at the beginning
-
-    """
-
-    # PCA to find long axis
-    M = (roi - np.mean(roi.T, axis=1)).T
-    [latent, coeff] = np.linalg.eig(np.cov(M))
-    score = np.dot(coeff.T, M)
-
-    # Find most extreme points
-    a = np.argmin(np.minimum(score[0, :], score[1, :]))
-    b = np.argmax(np.maximum(score[0, :], score[1, :]))
-
-    # Find the one closest to user defined posterior
-    dista = np.hypot((roi[0, 0] - roi[a, 0]), (roi[0, 1] - roi[a, 1]))
-    distb = np.hypot((roi[0, 0] - roi[b, 0]), (roi[0, 1] - roi[b, 1]))
-
-    # Rotate coordinates
-    if dista < distb:
-        newcoors = np.roll(roi, len(roi[:, 0]) - a, 0)
-    else:
-        newcoors = np.roll(roi, len(roi[:, 0]) - b, 0)
-
-    return newcoors
-
-
-def spline_roi(roi, periodic=True):
-    """
-    Fits a spline to points specifying the coordinates of the cortex, then interpolates to pixel distances
-
-    :param roi:
-    :return:
-    """
-
-    # Append the starting x,y coordinates
-    if periodic:
-        x = np.r_[roi[:, 0], roi[0, 0]]
-        y = np.r_[roi[:, 1], roi[0, 1]]
-    else:
-        x = roi[:, 0]
-        y = roi[:, 1]
-
-    # Fit spline
-    tck, u = splprep([x, y], s=0, per=periodic)
-
-    # Evaluate spline
-    xi, yi = splev(np.linspace(0, 1, 1000), tck)
-
-    # Interpolate
-    return interp_roi(np.vstack((xi, yi)).T, periodic=periodic)
 
 
 def polycrop(img, polyline, enlarge):

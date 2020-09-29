@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="4">
+      <change afterPath="$PROJECT_DIR$/Scripts/AF_Correlation.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Scripts/Membrane_Quantification.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IA.py" beforeDir="false" afterPath="$PROJECT_DIR$/IA.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OpenGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/OpenGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,10 +26,6 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
-    <option name="width" value="1680" />
-    <option name="height" value="1050" />
-  </component>
   <component name="ProjectId" id="1cj3YPZ1cJupSWPnHnDFoLvYP6j" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -38,6 +40,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/Scripts" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/TestDataset" />
       <recent name="$PROJECT_DIR$/TestScripts" />
@@ -166,9 +169,9 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.GUI" />
-        <item itemvalue="Python.Test" />
-        <item itemvalue="Python.IA" />
         <item itemvalue="Python.rough" />
+        <item itemvalue="Python.IA" />
+        <item itemvalue="Python.Test" />
         <item itemvalue="Python.Quantification" />
       </list>
     </recent_temporary>
@@ -359,8 +362,18 @@
       <option name="project" value="LOCAL" />
       <updated>1591003218774</updated>
     </task>
-    <option name="localTasksCounter" value="26" />
+    <task id="LOCAL-00026" summary="Minor bug fixes and improvements">
+      <created>1600096997205</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1600096997205</updated>
+    </task>
+    <option name="localTasksCounter" value="27" />
     <servers />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="requirements.txt" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions" />
@@ -390,42 +403,59 @@
     <option name="LAST_COMMIT_MESSAGE" value="Minor bug fixes and improvements" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="304" y="187" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1591258593885">
+    <state x="542" y="334" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1600271168321">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="304" y="187" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1591258593885" />
-    <state x="528" y="268" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog" timestamp="1591263301860">
+    <state x="542" y="334" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1680.1050@0.0.1680.1050" timestamp="1600271168321" />
+    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1601314944705">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="528" y="268" key="#com.intellij.openapi.updateSettings.impl.PluginUpdateInfoDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1591263301860" />
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1599559697415">
+    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1601314944705" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1601381750262">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1599559697415" />
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1591189141618" />
-    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1599559697414">
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1601381750262" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751459" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1601381750260">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1599559697414" />
-    <state width="1659" height="227" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1591189141617" />
-    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1599559697414">
+    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1601381750260" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751457" />
+    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1601381750259">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1599559697414" />
-    <state width="1659" height="227" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1591189141616" />
-    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1599559697415">
+    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1601381750259" />
+    <state width="1659" height="227" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751456" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1601381750261">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1599559697415" />
-    <state width="1659" height="227" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1591189141617" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1601381750261" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751458" />
+    <state x="277" y="291" key="SettingsEditor" timestamp="1600270041031">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="277" y="291" key="SettingsEditor/0.0.1680.1050@0.0.1680.1050" timestamp="1600270041031" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1600096999982">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1600096999982" />
+    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1601040557613">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1601040557613" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>2708</line>
+          <line>2311</line>
           <option name="timeStamp" value="60" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/IA.py</url>
+          <line>1912</line>
+          <option name="timeStamp" value="62" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
