@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Changed optimisation method. Now based on tensorflow with Adam optimiser, which gives good performance increases over previous methods. Also now allows infinitely precise alignment, removing previous itp parameter. Stable, but some improvements still to be made. May need further work playing with hyperparameters (e.g. learning rate), will need to test on more images">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IA.py" beforeDir="false" afterPath="$PROJECT_DIR$/IA.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OpenGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/OpenGUI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -370,14 +371,20 @@
       <option name="project" value="LOCAL" />
       <updated>1601386996047</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly.">
+      <created>1601543801839</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1601543801839</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="requirements.txt" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions" />
     <MESSAGE value="Re-segmented and analysed all data" />
     <MESSAGE value="changes to scriots" />
     <MESSAGE value="Changes to scripts" />
@@ -402,49 +409,50 @@
     <MESSAGE value="Many changes including improved support for stacks and a GUI" />
     <MESSAGE value="Minor bug fixes and improvements" />
     <MESSAGE value="Changed optimisation method. Now based on tensorflow with Adam optimiser, which gives good performance increases over previous methods. Also now allows infinitely precise alignment, removing previous itp parameter. Stable, but some improvements still to be made. May need further work playing with hyperparameters (e.g. learning rate), will need to test on more images" />
-    <option name="LAST_COMMIT_MESSAGE" value="Changed optimisation method. Now based on tensorflow with Adam optimiser, which gives good performance increases over previous methods. Also now allows infinitely precise alignment, removing previous itp parameter. Stable, but some improvements still to be made. May need further work playing with hyperparameters (e.g. learning rate), will need to test on more images" />
+    <MESSAGE value="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly." />
+    <option name="LAST_COMMIT_MESSAGE" value="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly." />
   </component>
   <component name="WindowStateProjectService">
     <state x="542" y="334" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1600271168321">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="542" y="334" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1680.1050@0.0.1680.1050" timestamp="1600271168321" />
-    <state x="578" y="279" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1601491692168">
+    <state x="578" y="279" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1601543815235">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="578" y="279" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1601491692168" />
-    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1601386995605">
+    <state x="578" y="279" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1601543815235" />
+    <state x="0" y="101" key="CommitChangelistDialog2" timestamp="1601543801384">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1601386995605" />
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1601543399577">
+    <state x="0" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1601543801384" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1601560321075">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1601543399577" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1601560321075" />
     <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751459" />
-    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1601543399576">
+    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1601560321073">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1601543399576" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1601560321073" />
     <state width="1659" height="227" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751457" />
-    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1601543399575">
+    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1601560321073">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1601543399575" />
+    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1601560321073" />
     <state width="1659" height="227" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751456" />
-    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1601543399577">
+    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1601560321074">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1601543399577" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1601560321074" />
     <state width="1659" height="227" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751458" />
     <state x="277" y="291" key="SettingsEditor" timestamp="1600270041031">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="277" y="291" key="SettingsEditor/0.0.1680.1050@0.0.1680.1050" timestamp="1600270041031" />
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1601387000531">
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1601543803509">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1601387000531" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1601543803509" />
     <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1601040557613">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
@@ -455,13 +463,18 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>2289</line>
+          <line>2380</line>
           <option name="timeStamp" value="60" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>1891</line>
+          <line>1982</line>
           <option name="timeStamp" value="62" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/IA.py</url>
+          <line>1176</line>
+          <option name="timeStamp" value="65" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -69,10 +69,7 @@ class ImageQuant:
     freedom            amount of freedom allowed in ROI (0=min, 1=max, max offset is +- 0.5 * freedom * thickness)
     periodic           True if coordinates form a closed loop
     thickness          thickness of cross section over which to perform quantification
-    itp                amount to interpolate image prior to segmentation (this many points per pixel in original image)
     rol_ave            width of rolling average
-    resolution_cyt     for cytoplasmic fitting. Can get large performance increase by increasing this, at small cost to
-                       accuracy
     rotate             if True, will automatically rotate ROI so that the first/last points are at the end of the long
                        axis
     zerocap            if True, prevents negative membane and cytoplasm values
@@ -89,11 +86,9 @@ class ImageQuant:
 
     """
 
-    def __init__(self, img, cytbg=None, membg=None, sigma=None, roi=None, freedom=0.5,
-                 periodic=True, thickness=50, rol_ave=10,
-                 resolution_cyt=1, rotate=False, zerocap=True, nfits=None,
-                 iterations=1, interp='cubic', save_path=None, bg_subtract=False, uni_cyt=False, uni_mem=False,
-                 parallel=None, cores=None, lr=0.01):
+    def __init__(self, img, cytbg=None, membg=None, sigma=None, roi=None, freedom=0.5, periodic=True, thickness=50,
+                 rol_ave=10, rotate=False, zerocap=True, nfits=None, iterations=1, interp='cubic', save_path=None,
+                 bg_subtract=False, uni_cyt=False, uni_mem=False, lr=0.01):
 
         # Image / stack
         self.img = img
@@ -115,7 +110,6 @@ class ImageQuant:
         self.thickness = thickness
         self.freedom = freedom
         self.rol_ave = rol_ave
-        self.resolution_cyt = resolution_cyt
         self.rotate = rotate
         self.zerocap = zerocap
         self.sigma = sigma
@@ -150,9 +144,6 @@ class ImageQuant:
 
         if self.roi is not None:
             self.reset_res()
-
-        # Set seed for reproducibility
-        tf.random.set_seed(1)
 
     """
     Run
@@ -412,8 +403,6 @@ class ImageQuant:
         np.savetxt(self.save_path + '/offsets.txt', self.offsets, fmt='%.4f', delimiter='\t')
         np.savetxt(self.save_path + '/cyts.txt', self.cyts, fmt='%.4f', delimiter='\t')
         np.savetxt(self.save_path + '/mems.txt', self.mems, fmt='%.4f', delimiter='\t')
-        # np.savetxt(direc + '/cyts_1000.txt', interp_1d_array(self.cyts, 1000), fmt='%.4f', delimiter='\t')
-        # np.savetxt(direc + '/mems_1000.txt', interp_1d_array(self.mems, 1000), fmt='%.4f', delimiter='\t')
         np.savetxt(self.save_path + '/roi.txt', self.roi, fmt='%.4f', delimiter='\t')
         save_img(self.img, self.save_path + '/img.tif')
         save_img(self.straight, self.save_path + '/straight.tif')
@@ -473,8 +462,7 @@ class StackQuant:
 
         # Single frame
         if not self.stack:
-            ImageQuant(self.img, parallel=False, cores=None, save_path=self.save_path,
-                       **self.kwargs).run()
+            ImageQuant(self.img, save_path=self.save_path, **self.kwargs).run()
 
         # Stack
         else:
@@ -494,8 +482,7 @@ class StackQuant:
         os.mkdir(direc)
 
         # Run
-        ImageQuant(img=self.img[i, :, :], parallel=False, cores=None, save_path=direc,
-                   **self.kwargs).run()
+        ImageQuant(img=self.img[i, :, :], save_path=direc, **self.kwargs).run()
 
     def view_stack(self):
         view_stack(self.img)
@@ -1103,6 +1090,101 @@ def compile_res(direc):
 
 
 ######### REFERENCE PROFILES #########
+
+class ExtractProfiles:
+    """
+    Gradient descent fitting of cytbg and membg to images of polarised cells
+    Assumes uniform cytoplasmic component and spatially varying membrane component
+
+    """
+
+    def __init__(self, images, rois, thickness=100, iterations=3, sigma=2, learning_rate=0.001, nfits=100, rol_ave=10,
+                 resolution_cyt=1):
+
+        # Input data (lists)
+        self.images = images
+        self.rois = rois
+
+        # Parameters
+        self.thickness = int(thickness)
+        self.iterations = iterations
+        self.learning_rate = learning_rate
+        self.loss = np.zeros([1000 * self.iterations])
+        self.nfits = nfits
+        self.rol_ave = rol_ave
+        self.itp = 10
+        self.interp = 'cubic'
+        self.resolution_cyt = resolution_cyt
+
+        # Normalise images
+        self.images_norm = [x / np.mean(x.flatten()[np.argsort(x.flatten())[-100:]]) for x in self.images]
+
+        # Internal
+        self.y = np.zeros([len(self.images), self.nfits, self.thickness])
+        self.mems = np.zeros([len(self.images), self.nfits])
+        self.cyts = np.zeros([len(self.images)])
+        self.it = 0
+
+        # Output
+        self.cyt_curve = (1 + error_func(np.arange(thickness), thickness / 2, sigma)) / 2
+        self.mem_curve = gaus(np.arange(thickness), thickness / 2, sigma)
+
+    def fit(self, i):
+        # Set up quantifier A
+        m = ImageQuant(img=self.images_norm[i], membg=self.mem_curve, cytbg=self.cyt_curve, roi=self.rois[i],
+                       nfits=self.nfits, freedom=0.2, periodic=True, thickness=int(self.thickness / 2),
+                       rol_ave=self.rol_ave, uni_cyt=True, uni_mem=False,
+                       zerocap=True, iterations=1, interp=self.interp)
+
+        # Fit
+        m.fit()
+        self.mems[i, :] = m.mems
+        self.cyts[i] = m.cyts[0]
+
+        # Adjust roi
+        m.adjust_roi()
+        self.rois[i] = m.roi
+
+        # Re-straighten with new ROI
+        y = straighten(m.img, self.rois[i], self.thickness)
+        y = rolling_ave_2d(y, m.rol_ave, m.periodic)
+        self.y[i, :, :] = interp_2d_array(y, self.nfits, ax=0, method=m.interp).T
+
+    def optimise(self):
+        # Create tensors
+        mem_curve = tf.Variable(self.mem_curve)
+        cyt_curve = tf.Variable(self.cyt_curve)
+
+        # Loss function
+        def calc_loss():
+            mem_curve_norm = mem_curve
+            cyt_curve_norm = cyt_curve
+            mem_total = tf.tensordot(self.mems, mem_curve_norm, axes=0)
+            cyt_total = tf.tensordot(tf.reshape(tf.tile(self.cyts, [self.nfits]), [tf.shape(self.cyts)[0], self.nfits]),
+                                     cyt_curve_norm, axes=0)
+            yhat = tf.math.add(mem_total, cyt_total)
+            loss = tf.math.reduce_mean((yhat - self.y) ** 2)
+            return loss
+
+        # Run optimisation
+        opt = tf.keras.optimizers.Adam(learning_rate=self.learning_rate)
+        for i in range(1000):
+            # self.loss[i + (self.it * 1000)] = calc_loss()  # inefficient: calculating loss twice
+            opt.minimize(calc_loss, var_list=[mem_curve, cyt_curve])  #
+
+        # Normalise
+        self.mem_curve = mem_curve.numpy()
+        self.cyt_curve = cyt_curve.numpy()
+        self.mem_curve /= max(self.mem_curve)
+        self.cyt_curve /= max(self.cyt_curve)
+
+    def run(self):
+        for it in range(self.iterations):
+            print(it)
+            self.it = it
+            for i in range(len(self.images)):
+                self.fit(i)
+            self.optimise()
 
 
 ########### INTERACTIVE #############
