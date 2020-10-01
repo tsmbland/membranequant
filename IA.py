@@ -20,9 +20,7 @@ import pandas as pd
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import tensorflow as tf
-from tensorflow.keras.layers import Dense
-from tensorflow.keras import Sequential
-from tensorflow.keras.optimizers import Adam
+import tensorflow_probability as tfp
 
 """
 Functions for segmentation and quantification of membrane and cytoplasmic protein concentrations from midplane confocal 
@@ -43,10 +41,6 @@ This version:
 To do:
 - free sigma
 - terminate when learning stops
-- ability to take multiple images simultaneously
-- ability to take pretrained model
-- when models aren't pretrained, retrain model pretrained with gaus / erf
-- learning rate as parameter
 - fix straighten function
 
 """
@@ -182,21 +176,6 @@ class ImageQuant:
         if self.save_path is not None:
             self.save()
 
-    def approximate_bg_curve(self, curve, lr=0.01, epochs=1000):
-        """
-        Todo: start with models pretrained on erf / gaussian
-
-        """
-
-        model = Sequential()
-        model.add(Dense(4, input_shape=(1,), activation='tanh'))
-        model.add(Dense(4, activation='tanh'))
-        model.add(Dense(4, activation='tanh'))
-        model.add(Dense(1, activation='sigmoid'))
-        model.compile(optimizer=Adam(learning_rate=lr), loss='mse')
-        model.fit(x=np.linspace(0, 1, len(curve)), y=curve, epochs=epochs, verbose=0)
-        return model
-
     def fit(self):
 
         # Specify number of fits
@@ -238,12 +217,6 @@ class ImageQuant:
 
     def _fit(self):
 
-        # Approximate bg curves
-        if self.cytbg is not None:
-            self.model_cyt = self.approximate_bg_curve(self.cytbg)
-        if self.membg is not None:
-            self.model_mem = self.approximate_bg_curve(self.membg)
-
         # Create tensors
         offsets = tf.Variable(self.offsets)
         if self.uni_cyt:
@@ -256,60 +229,12 @@ class ImageQuant:
             mems = tf.Variable(self.mems)
         var_list = [offsets, cyts, mems]
 
-        # Loss function
-        def calc_loss():
-
-            # Concentration bounds
-            if self.zerocap:
-                mems_ = tf.math.maximum(mems, 0)
-                cyts_ = tf.math.maximum(cyts, 0)
-            else:
-                mems_ = mems
-                cyts_ = cyts
-
-            # Offset bounds
-            offsets_ = tf.math.maximum(offsets, -self.freedom * self.thickness / 2)
-            offsets_ = tf.math.minimum(offsets_, self.freedom * self.thickness / 2)
-
-            # Alignment
-            positions = tf.reshape(tf.reshape(tf.tile(np.arange(self.thickness, dtype=np.float64), [self.nfits]),
-                                              [self.nfits, self.thickness]) + tf.expand_dims(offsets_, -1), [-1])
-
-            # Mem curve
-            if self.membg is None:
-                # Default
-                mem_curve = tf.math.exp(-((positions - self.thickness / 2) ** 2) / (2 * self.sigma ** 2))
-            else:
-                # Custom
-                mem_curve = tf.cast(self.model_mem((positions + self.thickness / 2) / (self.thickness * 2)), tf.float64)
-
-            # Cyt curve:
-            if self.membg is None:
-                # Default
-                cyt_curve = (1 + tf.math.erf((positions - self.thickness / 2) / self.sigma)) / 2
-            else:
-                # Custom
-                cyt_curve = tf.cast(self.model_cyt((positions + self.thickness / 2) / (self.thickness * 2)), tf.float64)
-
-            # Reshape
-            cyt_curve_ = tf.reshape(cyt_curve, [self.nfits, self.thickness])
-            mem_curve_ = tf.reshape(mem_curve, [self.nfits, self.thickness])
-
-            # Calculate y^
-            mem_total = mem_curve_ * tf.expand_dims(mems_, axis=-1)
-            cyt_total = cyt_curve_ * tf.expand_dims(cyts_, axis=-1)
-
-            # Calculate loss
-            yhat = tf.math.add(mem_total, cyt_total)
-            loss = tf.math.reduce_mean((yhat - self.y.T) ** 2)
-            return loss
-
         # Run optimisation
         opt = tf.keras.optimizers.Adam(learning_rate=self.lr)
         # losses = np.zeros(1000)
         for i in range(1000):
             # losses[i] = calc_loss()
-            opt.minimize(calc_loss, var_list=var_list)
+            opt.minimize(lambda: self._loss_function(cyts, mems, offsets), var_list=var_list)
 
         # Concentration bounds
         if self.zerocap:
@@ -319,6 +244,56 @@ class ImageQuant:
         self.mems[:] = mems.numpy() * self.norm
         self.cyts[:] = cyts.numpy() * self.norm
         self.offsets[:] = offsets.numpy()
+
+    def _sim_img(self, cyts, mems, offsets):
+        # Concentration bounds
+        if self.zerocap:
+            mems_ = tf.math.maximum(mems, 0)
+            cyts_ = tf.math.maximum(cyts, 0)
+        else:
+            mems_ = mems
+            cyts_ = cyts
+
+        # Offset bounds
+        offsets_ = tf.math.maximum(offsets, -self.freedom * self.thickness / 2)
+        offsets_ = tf.math.minimum(offsets_, self.freedom * self.thickness / 2)
+
+        # Alignment
+        positions = tf.reshape(tf.reshape(tf.tile(np.arange(self.thickness, dtype=np.float64), [self.nfits]),
+                                          [self.nfits, self.thickness]) + tf.expand_dims(offsets_, -1), [-1])
+
+        # Mem curve
+        if self.membg is None:
+            # Default
+            mem_curve = tf.math.exp(-((positions - self.thickness / 2) ** 2) / (2 * self.sigma ** 2))
+        else:
+            # Custom
+            mem_curve = tfp.math.interp_regular_1d_grid(y_ref=self.membg, x_ref_min=0, x_ref_max=1,
+                                                        x=(positions + self.thickness / 2) / (self.thickness * 2))
+
+        # Cyt curve:
+        if self.membg is None:
+            # Default
+            cyt_curve = (1 + tf.math.erf((positions - self.thickness / 2) / self.sigma)) / 2
+        else:
+            # Custom
+            cyt_curve = tfp.math.interp_regular_1d_grid(y_ref=self.cytbg, x_ref_min=0, x_ref_max=1,
+                                                        x=(positions + self.thickness / 2) / (self.thickness * 2))
+
+        # Reshape
+        cyt_curve_ = tf.reshape(cyt_curve, [self.nfits, self.thickness])
+        mem_curve_ = tf.reshape(mem_curve, [self.nfits, self.thickness])
+
+        # Calculate y^
+        mem_total = mem_curve_ * tf.expand_dims(mems_, axis=-1)
+        cyt_total = cyt_curve_ * tf.expand_dims(cyts_, axis=-1)
+        yhat = tf.math.add(mem_total, cyt_total)
+        return yhat
+
+    def _loss_function(self, cyts, mems, offsets):
+        yhat = self._sim_img(cyts, mems, offsets)
+        loss = tf.math.reduce_mean((yhat - self.y.T) ** 2)
+        return loss
 
     """
     Misc
@@ -342,13 +317,17 @@ class ImageQuant:
             if self.cytbg is None:
                 self.straight_cyt[:, x] = c * (1 + erf((itp_pos - self.thickness / 2) / self.sigma)) / 2
             else:
-                self.straight_cyt[:, x] = c * np.squeeze(self.model_cyt(
-                    (itp_pos + self.thickness / 2) / (self.thickness * 2)))
+                self.straight_cyt[:, x] = c * np.squeeze(
+                    tfp.math.interp_regular_1d_grid(y_ref=self.cytbg, x_ref_min=0, x_ref_max=1,
+                                                    x=(itp_pos + self.thickness / 2) / (
+                                                            self.thickness * 2)))
             if self.membg is None:
                 self.straight_mem[:, x] = m * np.exp(-((itp_pos - self.thickness / 2) ** 2) / (2 * self.sigma ** 2))
             else:
-                self.straight_mem[:, x] = m * np.squeeze(self.model_mem(
-                    (itp_pos + self.thickness / 2) / (self.thickness * 2)))
+                self.straight_mem[:, x] = m * np.squeeze(
+                    tfp.math.interp_regular_1d_grid(y_ref=self.membg, x_ref_min=0, x_ref_max=1,
+                                                    x=(itp_pos + self.thickness / 2) / (
+                                                            self.thickness * 2)))
 
         self.straight_fit = self.straight_cyt + self.straight_mem
         self.straight_resids = self.straight - self.straight_fit
@@ -1940,7 +1919,6 @@ def straighten(img, roi, thickness):
         # newcoors_x[section, :] = sectioncoors[:, 0]
         # newcoors_y[section, :] = sectioncoors[:, 1]
     return img2
-
 
 
 def offset_coordinates(roi, offsets):
