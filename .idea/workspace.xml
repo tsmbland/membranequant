@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly.">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="New function for approximating bg curves from images">
+      <change afterPath="$PROJECT_DIR$/IAv2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IA.py" beforeDir="false" afterPath="$PROJECT_DIR$/IA.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OpenGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/OpenGUI.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -378,14 +378,20 @@
       <option name="project" value="LOCAL" />
       <updated>1601543801839</updated>
     </task>
-    <option name="localTasksCounter" value="29" />
+    <task id="LOCAL-00029" summary="New function for approximating bg curves from images">
+      <created>1601562679018</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1601562679018</updated>
+    </task>
+    <option name="localTasksCounter" value="30" />
     <servers />
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="requirements.txt" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Re-segmented and analysed all data" />
     <MESSAGE value="changes to scriots" />
     <MESSAGE value="Changes to scripts" />
     <MESSAGE value="Changes to make more compatible with server" />
@@ -410,7 +416,8 @@
     <MESSAGE value="Minor bug fixes and improvements" />
     <MESSAGE value="Changed optimisation method. Now based on tensorflow with Adam optimiser, which gives good performance increases over previous methods. Also now allows infinitely precise alignment, removing previous itp parameter. Stable, but some improvements still to be made. May need further work playing with hyperparameters (e.g. learning rate), will need to test on more images" />
     <MESSAGE value="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly." />
-    <option name="LAST_COMMIT_MESSAGE" value="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly." />
+    <MESSAGE value="New function for approximating bg curves from images" />
+    <option name="LAST_COMMIT_MESSAGE" value="New function for approximating bg curves from images" />
   </component>
   <component name="WindowStateProjectService">
     <state x="542" y="334" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1600271168321">
@@ -421,10 +428,10 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="578" y="279" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1601543815235" />
-    <state x="0" y="101" key="CommitChangelistDialog2" timestamp="1601543801384">
+    <state x="0" y="101" key="CommitChangelistDialog2" timestamp="1601562678815">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="0" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1601543801384" />
+    <state x="0" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1601562678815" />
     <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1601560321075">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
@@ -463,18 +470,13 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>2380</line>
+          <line>2653</line>
           <option name="timeStamp" value="60" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>1982</line>
+          <line>2255</line>
           <option name="timeStamp" value="62" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>1176</line>
-          <option name="timeStamp" value="65" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
