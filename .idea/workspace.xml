@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="New function for approximating bg curves from images">
-      <change afterPath="$PROJECT_DIR$/IAv2.py" afterDir="false" />
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Reverting to the old fitting algorithms as they seem more reliable. Kept the tensorflow algorithms separate in IAv2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/IA.py" beforeDir="false" afterPath="$PROJECT_DIR$/IA.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IAv2.py" beforeDir="false" afterPath="$PROJECT_DIR$/IAv2.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,7 +48,7 @@
       <recent name="$PROJECT_DIR$/TestDataset2" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.GUI">
+  <component name="RunManager" selected="Python.rough">
     <configuration name="GUI" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -91,7 +91,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Quantification" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="IAv2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -99,11 +99,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/ExampleScripts" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/ExampleScripts/Quantification.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IAv2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -157,17 +157,17 @@
     <list>
       <item itemvalue="Python.GUI" />
       <item itemvalue="Python.IA" />
-      <item itemvalue="Python.Quantification" />
       <item itemvalue="Python.Test" />
       <item itemvalue="Python.rough" />
+      <item itemvalue="Python.IAv2" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.GUI" />
         <item itemvalue="Python.rough" />
+        <item itemvalue="Python.GUI" />
+        <item itemvalue="Python.IAv2" />
         <item itemvalue="Python.IA" />
         <item itemvalue="Python.Test" />
-        <item itemvalue="Python.Quantification" />
       </list>
     </recent_temporary>
   </component>
@@ -385,14 +385,20 @@
       <option name="project" value="LOCAL" />
       <updated>1601562679018</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="Reverting to the old fitting algorithms as they seem more reliable. Kept the tensorflow algorithms separate in IAv2">
+      <created>1601567858170</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1601567858170</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="requirements.txt" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="changes to scriots" />
     <MESSAGE value="Changes to scripts" />
     <MESSAGE value="Changes to make more compatible with server" />
     <MESSAGE value="Changes to analysis scripts: more class based, save data as txt files, analysis results in separate directory to main data folder. Changes to figure scripts: now saves plots as png" />
@@ -417,7 +423,8 @@
     <MESSAGE value="Changed optimisation method. Now based on tensorflow with Adam optimiser, which gives good performance increases over previous methods. Also now allows infinitely precise alignment, removing previous itp parameter. Stable, but some improvements still to be made. May need further work playing with hyperparameters (e.g. learning rate), will need to test on more images" />
     <MESSAGE value="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly." />
     <MESSAGE value="New function for approximating bg curves from images" />
-    <option name="LAST_COMMIT_MESSAGE" value="New function for approximating bg curves from images" />
+    <MESSAGE value="Reverting to the old fitting algorithms as they seem more reliable. Kept the tensorflow algorithms separate in IAv2" />
+    <option name="LAST_COMMIT_MESSAGE" value="Reverting to the old fitting algorithms as they seem more reliable. Kept the tensorflow algorithms separate in IAv2" />
   </component>
   <component name="WindowStateProjectService">
     <state x="542" y="334" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1600271168321">
@@ -428,29 +435,29 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="578" y="279" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1601543815235" />
-    <state x="0" y="101" key="CommitChangelistDialog2" timestamp="1601562678815">
+    <state x="392" y="152" key="CommitChangelistDialog2" timestamp="1601583705536">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="0" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1601562678815" />
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1601560321075">
+    <state x="392" y="152" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1601583705536" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1603127563550">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1601560321075" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1603127563550" />
     <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751459" />
-    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1601560321073">
+    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1603127563549">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1601560321073" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1603127563549" />
     <state width="1659" height="227" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751457" />
-    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1601560321073">
+    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1603127563548">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1601560321073" />
+    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1603127563548" />
     <state width="1659" height="227" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751456" />
-    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1601560321074">
+    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1603127563549">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1601560321074" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1603127563549" />
     <state width="1659" height="227" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751458" />
     <state x="277" y="291" key="SettingsEditor" timestamp="1600270041031">
       <screen x="0" y="0" width="1680" height="1050" />
@@ -460,23 +467,19 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1601543803509" />
-    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1601040557613">
+    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1602625379057">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1601040557613" />
+    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1602625379057" />
+    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.1680.1027@0.23.1680.1027" timestamp="1601630019832" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>2653</line>
+          <line>2375</line>
           <option name="timeStamp" value="60" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/IA.py</url>
-          <line>2255</line>
-          <option name="timeStamp" value="62" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
