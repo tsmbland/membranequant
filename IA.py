@@ -2,17 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from scipy.signal import savgol_filter
-from scipy.optimize import curve_fit
 from scipy.ndimage.interpolation import map_coordinates
-from scipy.ndimage.filters import gaussian_filter
 from scipy.interpolate import splprep, splev, CubicSpline
+from scipy.optimize import differential_evolution
+from joblib import Parallel, delayed
 from scipy.special import erf
 from skimage import io
 import multiprocessing
 import cv2
 import os
 import shutil
-import random
 import glob
 import pandas as pd
 import tkinter as tk
@@ -26,7 +25,6 @@ images of C. elegans zygotes
 
 
 To do:
-- New rotated_embryo function
 - More annotations, detailed docstrings for functions etc.
 - Kymographs
 - be more consistent with interpolation method specification.
@@ -34,7 +32,6 @@ To do:
 - monitor performance with profiler
 - improve tf fitting algorithm
 - prevent from calculating loss twice
-- separate script for autofluorescence?
 - stop fitting when loss stops increasing
 - straighten should take spline, specify number of points, calculate exact gradients
 
@@ -44,7 +41,7 @@ To do:
 ############# QUANT CLASS ############
 
 
-class ImageQuant:
+class ImageQuant2:
     """
     Quantification works by taking cross sections across the membrane, and fitting the resulting profile as the sum of
     a cytoplasmic signal component and a membrane signal component
@@ -82,7 +79,7 @@ class ImageQuant:
     """
 
     def __init__(self, img, cytbg=None, membg=None, sigma=None, roi=None, freedom=0.5, periodic=True, thickness=50,
-                 rol_ave=10, rotate=False, zerocap=True, nfits=None, iterations=1, interp='cubic', save_path=None,
+                 rol_ave=10, rotate=False, zerocap=True, nfits=100, iterations=1, interp='cubic', save_path=None,
                  bg_subtract=False, uni_cyt=False, uni_mem=False, lr=0.01, parallel=None, cores=None):
 
         # Image / stack
@@ -389,6 +386,616 @@ class ImageQuant:
         save_img(self.straight_resids, self.save_path + '/straight_resids.tif')
         save_img(self.straight_resids_pos, self.save_path + '/straight_resids_pos.tif')
         save_img(self.straight_resids_neg, self.save_path + '/straight_resids_neg.tif')
+
+
+class ImageQuant:
+    """
+    Quantification works by taking cross sections across the membrane, and fitting the resulting profile as the sum of
+    a cytoplasmic signal component and a membrane signal component
+
+    Input data:
+    img                image
+
+    Background curves:
+    cytbg              cytoplasmic background curve, should be 2x as thick as thickness parameter
+    membg              membrane background curve, as above
+    sigma              if either of above are not specified, assume gaussian/error function with width set by sigma
+
+    ROI:
+    roi                coordinates defining cortex. Can use output from def_roi function
+
+    Fitting parameters:
+    freedom            amount of freedom allowed in ROI (0=min, 1=max, max offset is +- 0.5 * freedom * thickness)
+    periodic           True if coordinates form a closed loop
+    thickness          thickness of cross section over which to perform quantification
+    itp                amount to interpolate image prior to segmentation (this many points per pixel in original image)
+    rol_ave            width of rolling average
+    resolution_cyt     for cytoplasmic fitting. Can get large performance increase by increasing this, at small cost to
+                       accuracy
+    rotate             if True, will automatically rotate ROI so that the first/last points are at the end of the long
+                       axis
+    zerocap            if True, prevents negative membane and cytoplasm values
+    nfits              performs this many fits at regular intervals around ROI
+    iterations         if >1, adjusts ROI and re-fits
+    interp             interpolation type (linear or cubic)
+    uni_cyt            globally fit uniform cytoplasm
+    uni_mem            globally fit uniform membrane
+    bg_subtract        if True, will estimate and subtract background signal prior to quantification
+
+    Computation:
+    parallel           TRUE = perform fitting in parallel
+    cores              number of cores to use if parallel is True (if none will use all available)
+
+    Saving:
+    save_path          destination to save results, will create if it doesn't already exist
+
+
+    """
+
+    def __init__(self, img, cytbg=None, membg=None, sigma=None, roi=None, freedom=0.5,
+                 periodic=True, thickness=50, itp=10, rol_ave=10, parallel=False, cores=None,
+                 resolution_cyt=1, rotate=False, zerocap=True, nfits=None,
+                 iterations=1, interp='cubic', save_path=None, bg_subtract=False, uni_cyt=False, uni_mem=False):
+
+        # Image / stack
+        self.img = img
+
+        # ROI
+        self.roi_init = roi
+        self.roi = roi
+        self.periodic = periodic
+
+        # Background subtraction
+        self.bg_subtract = bg_subtract
+
+        # Fitting mode
+        if not uni_cyt and not uni_mem:
+            self.method = 0
+        elif uni_cyt and not uni_mem:
+            self.method = 1
+        elif uni_cyt and uni_mem:
+            self.method = 2
+        else:
+            self.method = None
+            raise Exception('Uniform membrane not supported with non-uniform cytoplasm')
+
+        # Fitting parameters
+        self.iterations = iterations
+        self.thickness = thickness
+        self.itp = itp
+        self.thickness_itp = int(itp * self.thickness)
+        self.freedom = freedom
+        self.rol_ave = rol_ave
+        self.resolution_cyt = resolution_cyt
+        self.rotate = rotate
+        self.zerocap = zerocap
+        self.sigma = sigma
+        self.nfits = nfits
+        self.interp = interp
+
+        # Saving
+        self.save_path = save_path
+
+        # Background curves
+        if cytbg is None:
+            self.cytbg = (1 + error_func(np.arange(thickness * 2), thickness, self.sigma)) / 2
+            self.cytbg_itp = (1 + error_func(np.arange(2 * self.thickness_itp), self.thickness_itp,
+                                             self.sigma * self.itp)) / 2
+        else:
+            self.cytbg = cytbg
+            self.cytbg_itp = interp_1d_array(self.cytbg, 2 * self.thickness_itp, method=self.interp)
+        if membg is None:
+            self.membg = gaus(np.arange(thickness * 2), thickness, self.sigma)
+            self.membg_itp = gaus(np.arange(2 * self.thickness_itp), self.thickness_itp, self.sigma * self.itp)
+        else:
+            self.membg = membg
+            self.membg_itp = interp_1d_array(self.membg, 2 * self.thickness_itp, method=self.interp)
+
+        # Check for appropriate thickness
+        if len(self.cytbg) != len(self.membg):
+            raise Exception('Error: cytbg and membg must be the same length, and thickness must be half this length')
+        elif self.thickness != 0.5 * len(self.cytbg):
+            raise Exception('Error: thickness must be exactly half the length of the background curves')
+
+        # Computation
+        self.parallel = parallel
+        if cores is not None:
+            self.cores = cores
+        else:
+            self.cores = multiprocessing.cpu_count()
+
+        # Results containers
+        self.offsets = None
+        self.cyts = None
+        self.mems = None
+        self.offsets_full = None
+        self.cyts_full = None
+        self.mems_full = None
+
+        # Simulated images
+        self.straight = None
+        self.straight_filtered = None
+        self.straight_fit = None
+        self.straight_mem = None
+        self.straight_cyt = None
+        self.straight_resids = None
+        self.straight_resids_pos = None
+        self.straight_resids_neg = None
+
+        if self.roi is not None:
+            self.reset_res()
+
+    """
+    Run
+
+    """
+
+    def run(self):
+
+        # Fitting
+        self.fit()
+        if self.iterations > 1:
+            for i in range(self.iterations - 1):
+                self.adjust_roi()
+                self.reset_res()
+                self.fit()
+
+        # Simulate images
+        self.sim_images()
+
+        # Save
+        if self.save_path is not None:
+            self.save()
+
+    def fit(self):
+
+        # Specify number of fits
+        if self.nfits is None:
+            self.nfits = len(self.roi[:, 0])
+
+        # Straighten image
+        self.straight = straighten(self.img, self.roi, self.thickness)
+
+        # Background subtract
+        if self.bg_subtract:
+            self.straight -= np.mean(self.straight[:5, :])
+
+        # Smoothen
+        if self.rol_ave != 0:
+            self.straight_filtered = rolling_ave_2d(self.straight, self.rol_ave, self.periodic)
+        else:
+            self.straight_filtered = self.straight
+
+        # Interpolate
+        straight = interp_2d_array(self.straight_filtered, self.thickness_itp, method=self.interp)
+        straight = interp_2d_array(straight, self.nfits, ax=0, method=self.interp)
+
+        # Fit
+        if self.method == 0:
+            """
+            Non-uniform cytoplasm and non-uniform membrane
+
+            """
+
+            if self.parallel:
+                results = np.array(Parallel(n_jobs=self.cores)(
+                    delayed(self._fit_profile)(straight[:, x]) for x in range(len(straight[0, :]))))
+                self.offsets = results[:, 0]
+                self.cyts = results[:, 1]
+                self.mems = results[:, 2]
+            else:
+                for x in range(len(straight[0, :])):
+                    self.offsets[x], self.cyts[x], self.mems[x] = self._fit_profile(straight[:, x])
+
+        elif self.method == 1:
+            """
+            Uniform cytoplasm, non-uniform membrane
+
+            """
+            # Fit uniform cytoplasm
+            c = self._fit_profile_1(straight)
+            self.cyts[:] = c
+
+            # Fit local membranes
+            if self.parallel:
+                results = np.array(Parallel(n_jobs=self.cores)(
+                    delayed(self._fit_profile_2)(straight[:, x], c) for x in range(len(straight[0, :]))))
+                self.offsets = results[:, 0]
+                self.mems = results[:, 1]
+            else:
+                for x in range(len(straight[0, :])):
+                    self.offsets[x], self.mems[x] = self._fit_profile_2(straight[:, x], c)
+
+        elif self.method == 2:
+            """
+            Uniform cytoplasm and uniform membrane
+
+            """
+
+            # Fit uniform cytoplasm, uniform membrane
+            c, m = self._fit_profile_ucum(straight)
+            self.mems[:] = m
+            self.cyts[:] = c
+
+            # Fit local offsets
+            if self.parallel:
+                self.offsets = np.array(Parallel(n_jobs=self.cores)(
+                    delayed(self._fit_profile_ucum_2)(straight[:, x], c, m) for x in range(len(straight[0, :]))))
+            else:
+                for x in range(len(straight[0, :])):
+                    self.offsets[x] = self._fit_profile_ucum_2(straight[:, x], c, m)
+
+        # Interpolate
+        self.offsets_full = interp_1d_array(self.offsets, len(self.roi[:, 0]), method='linear')
+        self.cyts_full = interp_1d_array(self.cyts, len(self.roi[:, 0]), method='linear')
+        self.mems_full = interp_1d_array(self.mems, len(self.roi[:, 0]), method='linear')
+
+    """
+    METHOD 0: Non-uniform cytoplasm
+
+    """
+
+    def _fit_profile(self, profile):
+        if self.zerocap:
+            bounds = (
+                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                (0, 2 * max(profile)), (0, 2 * max(profile)))
+        else:
+            bounds = (
+                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                (-0.2 * max(profile), 2 * max(profile)), (-0.2 * max(profile), 2 * max(profile)))
+        res = differential_evolution(self._mse, bounds=bounds, args=(profile,), tol=0.2)
+        o = (res.x[0] - self.thickness_itp / 2) / self.itp
+        return o, res.x[1], res.x[2]
+
+    def _mse(self, l_c_m, profile):
+        l, c, m = l_c_m
+        y = (c * self.cytbg_itp[int(l):int(l) + self.thickness_itp]) + (
+                m * self.membg_itp[int(l):int(l) + self.thickness_itp])
+        return np.mean((profile - y) ** 2)
+
+    """
+    METHOD 1: Uniform cytoplasm
+
+    """
+
+    def _fit_profile_1(self, straight):
+        """
+        For finding optimal global cytoplasm
+
+        """
+
+        if self.zerocap:
+            bounds = (0, 2 * np.percentile(straight, 95))
+        else:
+            bounds = (-0.2 * np.percentile(straight, 95), 2 * np.percentile(straight, 95))
+
+        res = self.iterative_opt(self._fit_profile_1_func, p_range=bounds, args=(straight,), N=5, iterations=7)
+
+        return res[0]
+
+    def _fit_profile_1_func(self, c, straight):
+        if self.parallel:
+            mses = np.array(Parallel(n_jobs=self.cores)(
+                delayed(self._fit_profile_2b)(straight[:, x * self.resolution_cyt], c)
+                for x in range(len(straight[0, :]) // self.resolution_cyt)))
+        else:
+            mses = np.zeros(len(straight[0, :]) // self.resolution_cyt)
+            for x in range(len(straight[0, :]) // self.resolution_cyt):
+                mses[x] = self._fit_profile_2b(straight[:, x * self.resolution_cyt], c)
+        return np.mean(mses)
+
+    def _fit_profile_2(self, profile, c):
+        """
+        For finding optimal local membrane, alignment
+        Returns offset
+
+        """
+
+        if self.zerocap:
+            bounds = (
+                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                (0, 2 * max(profile)))
+        else:
+            bounds = (
+                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                (-0.2 * max(profile), 2 * max(profile)))
+        res = self.iterative_opt_2d(self._fit_profile_2_func, p1_range=bounds[0], p2_range=bounds[1], N=5, iterations=7,
+                                    args=(profile, c))
+        o = (res[0] - self.thickness_itp / 2) / self.itp
+        return o, res[1]
+
+    def _fit_profile_2b(self, profile, c):
+        """
+        For finding optimal local membrane, alignment
+        Returns _mse
+
+        """
+        if self.zerocap:
+            bounds = (
+                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                (0, 2 * max(profile)))
+        else:
+            bounds = (
+                ((self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                (-0.2 * max(profile), 2 * max(profile)))
+        res = self.iterative_opt_2d(self._fit_profile_2_func, p1_range=bounds[0], p2_range=bounds[1], N=5, iterations=7,
+                                    args=(profile, c))
+        return res[2]
+
+    def _fit_profile_2_func(self, l_m, profile, c):
+        l, m = l_m
+        y = (c * self.cytbg_itp[int(l):int(l) + self.thickness_itp]) + (
+                m * self.membg_itp[int(l):int(l) + self.thickness_itp])
+        return np.mean((profile - y) ** 2)
+
+    """
+    METHOD 2: Uniform cytoplasm, uniform membrane
+
+    """
+
+    def _fit_profile_ucum(self, straight):
+        """
+        Fitting global cytoplasmic and cortical concs
+
+        """
+
+        if self.zerocap:
+            bounds = (0, 2 * np.percentile(straight, 95))
+        else:
+            bounds = (-0.2 * np.percentile(straight, 95), 2 * np.percentile(straight, 95))
+        res = self.iterative_opt_2d(self._fit_profile_ucum_func, p1_range=bounds,
+                                    p2_range=(0, 2 * np.percentile(straight, 95)), args=(straight,), N=5,
+                                    iterations=5)
+
+        return res[0], res[1]
+
+    def _fit_profile_ucum_func(self, c_m, straight):
+        """
+
+
+        """
+
+        c, m = c_m
+        if self.parallel:
+            mses = np.array(Parallel(n_jobs=self.cores)(
+                delayed(self._fit_profile_ucum_2b)(straight[:, x * self.resolution_cyt], c, m)
+                for x in range(len(straight[0, :]) // self.resolution_cyt)))
+        else:
+            mses = np.zeros(len(straight[0, :]) // self.resolution_cyt)
+            for x in range(len(straight[0, :]) // self.resolution_cyt):
+                mses[x] = self._fit_profile_ucum_2b(straight[:, x * self.resolution_cyt], c, m)
+        return np.mean(mses)
+
+    def _fit_profile_ucum_2(self, profile, c, m):
+        """
+        Fitting local offsets, returns offsets
+
+        """
+
+        res, fun = self.iterative_opt(self._fit_profile_ucum_2_func, p_range=(
+            (self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                                      args=(profile, c, m), N=5, iterations=3)
+
+        o = (res - self.thickness_itp / 2) / self.itp
+        return o
+
+    def _fit_profile_ucum_2b(self, profile, c, m):
+        """
+        Fitting local offsets, returns error
+
+        """
+
+        res, fun = self.iterative_opt(self._fit_profile_ucum_2_func, p_range=(
+            (self.thickness_itp / 2) * (1 - self.freedom), (self.thickness_itp / 2) * (1 + self.freedom)),
+                                      args=(profile, c, m), N=5, iterations=3)
+
+        return fun
+
+    def _fit_profile_ucum_2_func(self, l, profile, c, m):
+        y = (c * self.cytbg_itp[int(l):int(l) + self.thickness_itp]) + (
+                m * self.membg_itp[int(l):int(l) + self.thickness_itp])
+        return np.mean((profile - y) ** 2)
+
+    """
+    Misc
+
+    """
+
+    def sim_images(self):
+        """
+        Creates simulated images based on fit results
+
+        """
+        for x in range(len(self.roi[:, 0])):
+            c = self.cyts_full[x]
+            m = self.mems_full[x]
+            l = int(self.offsets_full[x] * self.itp + (self.thickness_itp / 2))
+            self.straight_cyt[:, x] = interp_1d_array(c * self.cytbg_itp[l:l + self.thickness_itp], self.thickness,
+                                                      method=self.interp)
+            self.straight_mem[:, x] = interp_1d_array(m * self.membg_itp[l:l + self.thickness_itp], self.thickness,
+                                                      method=self.interp)
+            self.straight_fit[:, x] = interp_1d_array(
+                (c * self.cytbg_itp[l:l + self.thickness_itp]) + (m * self.membg_itp[l:l + self.thickness_itp]),
+                self.thickness, method=self.interp)
+            self.straight_resids[:, x] = self.straight[:, x] - self.straight_fit[:, x]
+            self.straight_resids_pos[:, x] = np.clip(self.straight_resids[:, x], a_min=0, a_max=None)
+            self.straight_resids_neg[:, x] = abs(np.clip(self.straight_resids[:, x], a_min=None, a_max=0))
+
+    def adjust_roi(self):
+        """
+        Can do after a preliminary fit to refine coordinates
+        Must refit after doing this
+
+        """
+
+        # Offset coordinates
+        self.roi = offset_coordinates(self.roi, self.offsets_full)
+
+        # Filter
+        if self.periodic:
+            self.roi = np.vstack(
+                (savgol_filter(self.roi[:, 0], 19, 1, mode='wrap'),
+                 savgol_filter(self.roi[:, 1], 19, 1, mode='wrap'))).T
+        elif not self.periodic:
+            self.roi = np.vstack(
+                (savgol_filter(self.roi[:, 0], 19, 1, mode='nearest'),
+                 savgol_filter(self.roi[:, 1], 19, 1, mode='nearest'))).T
+
+        # Interpolate to one px distance between points
+        self.roi = interp_roi(self.roi, self.periodic)
+
+        # Rotate
+        if self.periodic:
+            if self.rotate:
+                self.roi = rotate_roi(self.roi)
+
+    def reset(self):
+        """
+        Resets entire class to its initial state
+
+        """
+
+        self.roi = self.roi_init
+        self.reset_res()
+
+    def reset_res(self):
+        """
+        Clears results
+
+        """
+
+        if self.nfits is None:
+            self.nfits = len(self.roi[:, 0])
+
+        # Results
+        self.offsets = np.zeros(self.nfits)
+        self.cyts = np.zeros(self.nfits)
+        self.mems = np.zeros(self.nfits)
+
+        # Interpolated results
+        self.offsets_full = np.zeros(len(self.roi[:, 0]))
+        self.cyts_full = np.zeros(len(self.roi[:, 0]))
+        self.mems_full = np.zeros(len(self.roi[:, 0]))
+
+        # Simulated images
+        self.straight = np.zeros([self.thickness, len(self.roi[:, 0])])
+        self.straight_filtered = np.zeros([self.thickness, len(self.roi[:, 0])])
+        self.straight_fit = np.zeros([self.thickness, len(self.roi[:, 0])])
+        self.straight_mem = np.zeros([self.thickness, len(self.roi[:, 0])])
+        self.straight_cyt = np.zeros([self.thickness, len(self.roi[:, 0])])
+        self.straight_resids = np.zeros([self.thickness, len(self.roi[:, 0])])
+        self.straight_resids_pos = np.zeros([self.thickness, len(self.roi[:, 0])])
+        self.straight_resids_neg = np.zeros([self.thickness, len(self.roi[:, 0])])
+
+    def save(self):
+        """
+        Save all results to save_path
+
+        """
+
+        if not os.path.isdir(self.save_path):
+            os.mkdir(self.save_path)
+
+        np.savetxt(self.save_path + '/offsets.txt', self.offsets, fmt='%.4f', delimiter='\t')
+        np.savetxt(self.save_path + '/cyts.txt', self.cyts, fmt='%.4f', delimiter='\t')
+        np.savetxt(self.save_path + '/mems.txt', self.mems, fmt='%.4f', delimiter='\t')
+        # np.savetxt(direc + '/cyts_1000.txt', interp_1d_array(self.cyts, 1000), fmt='%.4f', delimiter='\t')
+        # np.savetxt(direc + '/mems_1000.txt', interp_1d_array(self.mems, 1000), fmt='%.4f', delimiter='\t')
+        np.savetxt(self.save_path + '/roi.txt', self.roi, fmt='%.4f', delimiter='\t')
+        save_img(self.img, self.save_path + '/img.tif')
+        save_img(self.straight, self.save_path + '/straight.tif')
+        save_img(self.straight_filtered, self.save_path + '/straight_filtered.tif')
+        save_img(self.straight_fit, self.save_path + '/straight_fit.tif')
+        save_img(self.straight_mem, self.save_path + '/straight_mem.tif')
+        save_img(self.straight_cyt, self.save_path + '/straight_cyt.tif')
+        save_img(self.straight_resids, self.save_path + '/straight_resids.tif')
+        save_img(self.straight_resids_pos, self.save_path + '/straight_resids_pos.tif')
+        save_img(self.straight_resids_neg, self.save_path + '/straight_resids_neg.tif')
+
+    def iterative_opt(self, func, p_range, N, iterations, args=()):
+        """
+
+        :param func: function to be minimised
+        :param p_range: initial parameter range
+        :param args:
+        :param N: number of points to be evaluated per iteration
+        :param iterations: number of iterations
+        :return:
+        """
+
+        params = np.linspace(p_range[0], p_range[1], N)
+        func_calls = 0
+
+        for i in range(iterations):
+
+            if i == 0:
+                res = np.zeros([N])
+                for i in range(N):
+                    res[i] = func(params[i], *args)
+                    func_calls += 1
+
+            else:
+                for i in range(1, N - 1):
+                    res[i] = func(params[i], *args)
+                    func_calls += 1
+            a = np.argmin(res)
+            fun = res[a]
+
+            if a == 0:
+                params = np.linspace(params[0], params[1], N)
+                res = np.r_[res[0], np.zeros([N - 2]), res[1]]
+            elif a == N - 1:
+                params = np.linspace(params[-2], params[-1], N)
+                res = np.r_[res[-2], np.zeros([N - 2]), res[-1]]
+            else:
+                params = np.linspace(params[a - 1], params[a + 1], N)
+                res = np.r_[res[a - 1], np.zeros([N - 2]), res[a + 1]]
+        return params[a], fun
+
+    def iterative_opt_2d(self, func, p1_range, p2_range, N, iterations, args=()):
+        """
+
+        :param func: function to be minimised
+        :param p1_range: initial parameter range
+        :param p2_range: initial parameter range
+        :param args:
+        :param N: number of points to be evaluated per iteration
+        :param iterations: number of iterations
+        :return:
+        """
+
+        params_1 = np.linspace(p1_range[0], p1_range[1], N)
+        params_2 = np.linspace(p2_range[0], p2_range[1], N)
+        func_calls = 0
+
+        for i in range(iterations):
+            res = np.zeros([N, N])
+
+            for p1 in range(N):
+                for p2 in range(N):
+                    res[p1, p2] = func((params_1[p1], params_2[p2]), *args)
+                    func_calls += 1
+
+            a = np.where(res == np.min(res))
+            a_1 = a[0][0]
+            a_2 = a[1][0]
+
+            if a_1 == 0:
+                params_1 = np.linspace(params_1[0], params_1[1], N)
+            elif a_1 == N - 1:
+                params_1 = np.linspace(params_1[-2], params_1[-1], N)
+            else:
+                params_1 = np.linspace(params_1[a_1 - 1], params_1[a_1 + 1], N)
+
+            if a_2 == 0:
+                params_2 = np.linspace(params_2[0], params_2[1], N)
+            elif a_2 == N - 1:
+                params_2 = np.linspace(params_2[-2], params_2[-1], N)
+            else:
+                params_2 = np.linspace(params_2[a_2 - 1], params_2[a_2 + 1], N)
+
+        return params_1[a[0][0]], params_2[a[1][0]], res[a][0]
 
 
 class StackQuant:
@@ -1183,11 +1790,14 @@ class GenerateProfile:
     """
     Class for getting cytoplasmic or membrane profiles from images expressing only cytoplasmic or membrane protein
 
-    Todo: test
+    To do:
+    - test
+    - option for periodic
 
     """
 
-    def __init__(self, img, roi, thickness=100, iterations=3, sigma=3, nfits=100, rol_ave=10, profile_type='cyt'):
+    def __init__(self, img, roi, thickness=100, iterations=3, sigma=3, nfits=100, rol_ave=10, profile_type='cyt',
+                 periodic=True, bg_subtract=False):
         # Input data (lists)
         self.img = img
         self.roi = roi
@@ -1202,6 +1812,8 @@ class GenerateProfile:
         self.interp = 'cubic'
         self.sigma = sigma
         self.profile_type = profile_type
+        self.periodic = periodic
+        self.bg_subtract = bg_subtract
 
         # Output
         self.profile = None
@@ -1216,9 +1828,9 @@ class GenerateProfile:
 
         # Set up quantifier
         m = ImageQuant(img=self.img, sigma=self.sigma, cytbg=cyt, membg=mem, roi=self.roi,
-                       nfits=self.nfits, freedom=0.2, periodic=True, thickness=int(self.thickness / 2),
+                       nfits=self.nfits, freedom=0.2, periodic=self.periodic, thickness=int(self.thickness / 2),
                        rol_ave=self.rol_ave, uni_cyt=False, uni_mem=False,
-                       zerocap=True, iterations=1, interp=self.interp)
+                       zerocap=True, iterations=1, interp=self.interp, bg_subtract=self.bg_subtract)
 
         # Fit
         m.run()
@@ -1229,6 +1841,10 @@ class GenerateProfile:
 
         # Re-straighten with new ROI
         y = straighten(m.img, self.roi, self.thickness)
+
+        # Background subtract
+        if self.bg_subtract:
+            y -= np.mean(y[:5, :])
 
         # Average
         self.profile = np.mean(y, axis=1)
@@ -1792,184 +2408,6 @@ def plot_fits(direc):
     FitPlotter(direc)
 
 
-######## AF/BACKGROUND REMOVAL #######
-
-
-def make_mask(shape, roi):
-    return cv2.fillPoly(np.zeros(shape) * np.nan, [np.int32(roi)], 1)
-
-
-def af_correlation(img1, img2, mask, sigma=0, plot=None, c=None, intercept0=False):
-    """
-
-    Calculates pixel-by-pixel correlation between two channels
-    Takes 3d image stacks shape [512, 512, n]
-
-    :param img1: gfp channel
-    :param img2: af channel
-    :param mask: from make_mask function
-    :param sigma: gaussian filter width
-    :param plot: type of plot to show
-    :param c: colour on plot
-    :return:
-    """
-
-    # Gaussian filter
-    if len(img1.shape) == 3:
-        img1 = gaussian_filter(img1, sigma=[sigma, sigma, 0])
-        img2 = gaussian_filter(img2, sigma=[sigma, sigma, 0])
-    else:
-        img1 = gaussian_filter(img1, sigma=sigma)
-        img2 = gaussian_filter(img2, sigma=sigma)
-
-    # Mask
-    img1 *= mask
-    img2 *= mask
-
-    # Flatten
-    xdata = img2.flatten()
-    ydata = img1.flatten()
-
-    # Remove nans
-    xdata = xdata[~np.isnan(xdata)]
-    ydata = ydata[~np.isnan(ydata)]
-
-    # Fit to line
-    if not intercept0:
-        popt, pcov = curve_fit(lambda x, slope, intercept: slope * x + intercept, xdata, ydata)
-        a = popt
-    else:
-        popt, pcov = curve_fit(lambda x, slope: slope * x, xdata, ydata)
-        a = [popt[0], 0]
-
-    # Scatter plot
-    if plot == 'scatter':
-        plt.scatter(xdata, ydata, s=0.001, c=c)
-        xline = np.linspace(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99), 20)
-        yline = a[0] * xline + a[1]
-        plt.plot(xline, yline, c='r')
-        plt.xlim(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99))
-        plt.ylim(np.percentile(ydata, 0.01), np.percentile(ydata, 99.99))
-        plt.xlabel('AF channel')
-        plt.ylabel('GFP channel')
-
-    # Heatmap
-    elif plot == 'heatmap':
-        xline = np.linspace(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99), 20)
-        yline = a[0] * xline + a[1]
-        plt.plot(xline, yline, c='r')
-        heatmap, xedges, yedges = np.histogram2d(xdata, ydata, bins=500)
-        extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
-        plt.xlim(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99))
-        plt.ylim(np.percentile(ydata, 0.01), np.percentile(ydata, 99.99))
-        plt.imshow(heatmap.T, extent=extent, origin='lower', aspect='auto', cmap='Greys')
-    else:
-        pass
-
-    return a, xdata, ydata
-
-
-def af_correlation_3channel(img1, img2, img3, mask, sigma=0, plot=None, ax=None, c=None, intercept0=False):
-    """
-    AF correlation taking into account red channel
-
-    :param img1: GFP channel
-    :param img2: AF channel
-    :param img3: RFP channel
-    :param mask:
-    :param plot:
-    :return:
-    """
-
-    # Gaussian filter
-    if len(img1.shape) == 3:
-        img1 = gaussian_filter(img1, sigma=[sigma, sigma, 0])
-        img2 = gaussian_filter(img2, sigma=[sigma, sigma, 0])
-        img3 = gaussian_filter(img3, sigma=[sigma, sigma, 0])
-    else:
-        img1 = gaussian_filter(img1, sigma=sigma)
-        img2 = gaussian_filter(img2, sigma=sigma)
-        img3 = gaussian_filter(img3, sigma=sigma)
-
-    # Mask
-    img1 *= mask
-    img2 *= mask
-    img3 *= mask
-
-    # Flatten
-    xdata = img2.flatten()
-    ydata = img3.flatten()
-    zdata = img1.flatten()
-
-    # Remove nans
-    xdata = xdata[~np.isnan(xdata)]
-    ydata = ydata[~np.isnan(ydata)]
-    zdata = zdata[~np.isnan(zdata)]
-
-    # Fit to surface
-    if not intercept0:
-        popt, pcov = curve_fit(lambda x, slope1, slope2, intercept: slope1 * x[0] + slope2 * x[1] + intercept,
-                               np.vstack((xdata, ydata)), zdata)
-        p = popt
-    else:
-        popt, pcov = curve_fit(lambda x, slope1, slope2: slope1 * x[0] + slope2 * x[1], np.vstack((xdata, ydata)),
-                               zdata)
-        p = [popt[0], popt[1], 0]
-
-    # Scatter plot
-    if plot == 'scatter':
-        # Set up figure
-        if not ax:
-            ax = plt.figure().add_subplot(111, projection='3d')
-
-        # Plot surface
-        xx, yy = np.meshgrid([np.percentile(xdata, 0.01), np.percentile(xdata, 99.99)],
-                             [np.percentile(ydata, 0.01), np.percentile(ydata, 99.99)])
-        zz = p[0] * xx + p[1] * yy + p[2]
-        ax.plot_surface(xx, yy, zz, alpha=0.2, color=c)
-
-        # Scatter plot
-        set = random.sample(range(len(xdata)), 10000)
-        ax.scatter(xdata[set], ydata[set], zdata[set], s=1, c=c)
-
-        # Tidy plot
-        ax.set_xlim(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99))
-        ax.set_ylim(np.percentile(ydata, 0.01), np.percentile(ydata, 99.99))
-        ax.set_zlim(np.percentile(zdata, 0.01), np.percentile(zdata, 99.99))
-        ax.set_xlabel('AF')
-        ax.set_ylabel('RFP')
-        ax.set_zlabel('GFP')
-
-    return p, xdata, ydata, zdata
-
-
-def af_subtraction(ch1, ch2, m, c):
-    """
-    Subtract ch2 from ch1
-    ch2 is first adjusted to m * ch2 + c
-
-    :param ch1:
-    :param ch2:
-    :param m:
-    :param c:
-    :return:
-    """
-
-    af = m * ch2 + c
-    signal = ch1 - af
-    return signal
-
-
-def af_subtraction_3channel(ch1, ch2, ch3, m1, m2, c):
-    """
-
-    """
-
-    af = m1 * ch2 + m2 * ch3 + c
-    signal = ch1 - af
-    return signal
-
-
 ########## IMAGE HANDLING ###########
 
 
@@ -2241,7 +2679,7 @@ def rolling_ave_2d(array, window, periodic=True):
     if window == 1:
         return array
     if not periodic:
-        array_padded = np.c_[array[:, int(window / 2)][:, :-1], array, array[:, -int(window / 2):][:, :-1]]
+        array_padded = np.c_[array[:, :int(window / 2)][:, :-1], array, array[:, -int(window / 2):][:, :-1]]
     else:
         array_padded = np.c_[array[:, -int(window / 2):], array, array[:, :int(window / 2)]]
     cumsum = np.cumsum(array_padded, axis=1)
@@ -2373,115 +2811,54 @@ def calc_sa(normcoors):
     return 2 * np.pi * r2 * r2 * (1 + (r1 / (r2 * e)) * np.arcsin(e))
 
 
-def rotated_embryo(img, coors, l, h=None):
+def rotated_embryo(img, roi, l=None, h=None):
     """
-
-    Need to develop a new method for this
-    Ability to specify interpolation type
-
     Takes an image and rotates according to coordinates so that anterior is on left, posterior on right
 
     :param img:
-    :param coors:
-    :param l: length of each side in returned image
+    :param roi:
     :return:
+
+    To do:
+    - ensure correct orientation (posterior on right)
+    - ability to specify height and width of image
+    - interpolation type
+
     """
 
-    def offset_line(line, offset):
-        """
+    # PCA on ROI coordinates
+    [latent, coeff] = np.linalg.eig(np.cov(roi.T))
 
-        :param line: in the form [[x,y],[x,y]]
-        :param offset:
-        :return:
-        """
+    # Transform ROI
+    roi_transformed = np.dot(coeff.T, roi.T)
 
-        xcoors = line[:, 0]
-        ycoors = line[:, 1]
+    # Force long axis orientation
+    x_range = (min(roi_transformed[0, :]) - max(roi_transformed[0, :]))
+    y_range = (min(roi_transformed[1, :]) - max(roi_transformed[1, :]))
+    if x_range > y_range:
+        img = img.T
+        roi_transformed = np.flipud(roi_transformed)
+        coeff = coeff.T
 
-        # Create coordinates
-        rise = ycoors[1] - ycoors[0]
-        run = xcoors[1] - xcoors[0]
-        bisectorgrad = rise / run
-        tangentgrad = -1 / bisectorgrad
+    # Coordinate grid
+    centre_x = (min(roi_transformed[0, :]) + max(roi_transformed[0, :])) / 2
+    xvals = np.arange(int(centre_x - l / 2), int(centre_x + l / 2))
+    centre_y = (min(roi_transformed[1, :]) + max(roi_transformed[1, :])) // 2
+    yvals = np.arange(int(centre_y - h / 2), int(centre_y + h / 2))
+    xvals_grid = np.tile(xvals, [len(yvals), 1])
+    yvals_grid = np.tile(yvals, [len(xvals), 1]).T
 
-        xchange = ((offset ** 2) / (1 + tangentgrad ** 2)) ** 0.5
-        ychange = xchange / abs(bisectorgrad)
-        newxs = xcoors + np.sign(rise) * np.sign(offset) * xchange
-        newys = ycoors - np.sign(run) * np.sign(offset) * ychange
+    # Transform coordinate grid back
+    [xvals_back, yvals_back] = np.dot(coeff, np.array([xvals_grid.flatten(), yvals_grid.flatten()]))
+    xvals_back_grid = np.reshape(xvals_back, [len(yvals), len(xvals)])
+    yvals_back_grid = np.reshape(yvals_back, [len(yvals), len(xvals)])
 
-        newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
-        return newcoors
+    # Map coordinates using linear interpolation
+    zvals = map_coordinates(img.T, [xvals_back_grid, yvals_back_grid], order=1)
 
-    def extend_line(line, extend):
-        """
-
-
-        :param line: in the form [[x,y],[x,y]]
-        :param extend: e.g. 1.1 = 10% longer
-        :return:
-        """
-
-        xcoors = line[:, 0]
-        ycoors = line[:, 1]
-
-        len = np.hypot((xcoors[0] - xcoors[1]), (ycoors[0] - ycoors[1]))
-        extension = (extend - 1) * len * 0.5
-
-        rise = ycoors[1] - ycoors[0]
-        run = xcoors[1] - xcoors[0]
-        bisectorgrad = rise / run
-        tangentgrad = -1 / bisectorgrad
-
-        xchange = ((extension ** 2) / (1 + bisectorgrad ** 2)) ** 0.5
-        ychange = xchange / abs(tangentgrad)
-        newxs = xcoors - np.sign(rise) * np.sign(tangentgrad) * xchange * np.array([-1, 1])
-        newys = ycoors - np.sign(run) * np.sign(tangentgrad) * ychange * np.array([-1, 1])
-        newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
-        return newcoors
-
-    if not h:
-        h = l
-
-    # PCA
-    M = (coors - np.mean(coors.T, axis=1)).T
-    [latent, coeff] = np.linalg.eig(np.cov(M))
-    score = np.dot(coeff.T, M)
-
-    # Find ends
-    a = np.argmin(np.minimum(score[0, :], score[1, :]))
-    b = np.argmax(np.maximum(score[0, :], score[1, :]))
-
-    # Find the one closest to user defined posterior
-    dista = np.hypot((coors[0, 0] - coors[a, 0]), (coors[0, 1] - coors[a, 1]))
-    distb = np.hypot((coors[0, 0] - coors[b, 0]), (coors[0, 1] - coors[b, 1]))
-
-    if dista < distb:
-        line0 = np.array([coors[a, :], coors[b, :]])
-    else:
-        line0 = np.array([coors[b, :], coors[a, :]])
-
-    # Extend line
-    length = np.hypot((line0[0, 0] - line0[1, 0]), (line0[0, 1] - line0[1, 1]))
-    line0 = extend_line(line0, l / length)
-
-    # Thicken line
-    line1 = offset_line(line0, h / 2)
-    line2 = offset_line(line0, -h / 2)
-    end1 = np.array(
-        [np.linspace(line1[0, 0], line2[0, 0], h), np.linspace(line1[0, 1], line2[0, 1], h)]).T
-    end2 = np.array(
-        [np.linspace(line1[1, 0], line2[1, 0], h), np.linspace(line1[1, 1], line2[1, 1], h)]).T
-
-    # Get cross section
-    num_points = l
-    zvals = np.zeros([h, l])
-    for section in range(h):
-        xvalues = np.linspace(end1[section, 0], end2[section, 0], num_points)
-        yvalues = np.linspace(end1[section, 1], end2[section, 1], num_points)
-        zvals[section, :] = map_coordinates(img.T, [xvalues, yvalues], order=1)
-
-    # Mirror
-    zvals = np.fliplr(zvals)
+    # Force posterior on right
+    if roi_transformed[0, 0] < roi_transformed[0, roi_transformed.shape[1] // 2]:
+        zvals = np.fliplr(zvals)
 
     return zvals
 
@@ -2506,7 +2883,6 @@ def error_func(x, centre, width):
 def direcslist(dest, levels=0, exclude=('!',), exclusive=None):
     """
     Gives a list of directories in a given directory (full path)
-
 
     :param dest:
     :param levels:
