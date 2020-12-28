@@ -2,16 +2,27 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/autofluorescence.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/membranequant/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/membranequant/_notes.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/membranequant/gui.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/membranequant/interactive.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/membranequant/training.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/autofluorescence.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/quantification_local.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/quantification_whole_embryo.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/straighten.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/training.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IA.py" beforeDir="false" afterPath="$PROJECT_DIR$/IA.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IAv2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Scripts/AF_Correlation.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/AF_Correlation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Scripts/Membrane_Quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/Membrane_Quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/IA.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OpenGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/open_gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/GUIhelp.txt" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/gui_help.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/AF_Correlation.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/AF_Correlation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/Membrane_Quantification.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,12 +32,16 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Jupyter Notebook" />
         <option value="Python Script" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/notebooks/autofluorescence.ipynb" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1cj3YPZ1cJupSWPnHnDFoLvYP6j" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -37,16 +52,20 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.path.for.package.eslint" value="project" />
+    <property name="node.js.path.for.package.tslint" value="project" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="ReaderModeSettings">
+    <option name="enabled" value="false" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/Scripts" />
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/TestDataset" />
-      <recent name="$PROJECT_DIR$/TestScripts" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/Scripts/ExampleDataset" />
@@ -54,8 +73,15 @@
       <recent name="$PROJECT_DIR$/TestDataset" />
       <recent name="$PROJECT_DIR$/TestDataset2" />
     </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/membranequant" />
+      <recent name="$PROJECT_DIR$/scripts" />
+      <recent name="$PROJECT_DIR$/Scripts" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/TestDataset" />
+    </key>
   </component>
-  <component name="RunManager" selected="Python.IA">
+  <component name="RunManager" selected="Python.GUI">
     <configuration name="GUI" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -68,7 +94,8 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OpenGUI.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/open_gui.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -89,7 +116,8 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IA.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/membranequant/quantification.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -98,7 +126,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="IAv2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="autofluorescence" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -106,32 +134,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/membranequant" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/IAv2.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="Test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ImageAnalysis" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Test.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/membranequant/autofluorescence.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -152,7 +160,30 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/rough.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/rough.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="rough2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ImageAnalysis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/rough2.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -164,20 +195,21 @@
     <list>
       <item itemvalue="Python.GUI" />
       <item itemvalue="Python.IA" />
-      <item itemvalue="Python.IAv2" />
-      <item itemvalue="Python.Test" />
+      <item itemvalue="Python.autofluorescence" />
+      <item itemvalue="Python.rough2" />
       <item itemvalue="Python.rough" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.IA" />
         <item itemvalue="Python.GUI" />
+        <item itemvalue="Python.rough2" />
+        <item itemvalue="Python.autofluorescence" />
         <item itemvalue="Python.rough" />
-        <item itemvalue="Python.IAv2" />
-        <item itemvalue="Python.Test" />
+        <item itemvalue="Python.IA" />
       </list>
     </recent_temporary>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -188,6 +220,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1532608396510</updated>
+      <workItem from="1609153129823" duration="2197000" />
+      <workItem from="1609172334320" duration="4552000" />
     </task>
     <task id="LOCAL-00001" summary="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions">
       <created>1533827459455</created>
@@ -409,6 +443,9 @@
     <option name="localTasksCounter" value="32" />
     <servers />
   </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="requirements.txt" />
   </component>
@@ -439,60 +476,5 @@
     <MESSAGE value="Reverting to the old fitting algorithms as they seem more reliable. Kept the tensorflow algorithms separate in IAv2" />
     <MESSAGE value="Tensorflow fitting method as default. Changes to functions, mainly to speed up by removing for loops. Removed some unused functions" />
     <option name="LAST_COMMIT_MESSAGE" value="" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="542" y="334" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1600271168321">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="542" y="334" key="#com.intellij.fileTypes.FileTypeChooser/0.0.1680.1050@0.0.1680.1050" timestamp="1600271168321" />
-    <state x="578" y="279" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1601543815235">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="578" y="279" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1601543815235" />
-    <state x="392" y="152" key="CommitChangelistDialog2" timestamp="1603128841033">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="392" y="152" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1603128841033" />
-    <state x="100" y="100" width="1480" height="850" key="DiffContextDialog" timestamp="1603128656708">
-      <screen x="0" y="23" width="1680" height="1027" />
-    </state>
-    <state x="100" y="100" width="1480" height="850" key="DiffContextDialog/0.23.1680.1027@0.23.1680.1027" timestamp="1603128656708" />
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1604054259020">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1604054259020" />
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751459" />
-    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1604054259019">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1604054259019" />
-    <state width="1659" height="227" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751457" />
-    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1604054259018">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1604054259018" />
-    <state width="1659" height="227" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751456" />
-    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1604054259019">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1604054259019" />
-    <state width="1659" height="227" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1601241751458" />
-    <state x="277" y="291" key="SettingsEditor" timestamp="1603206334778">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="277" y="291" key="SettingsEditor/0.0.1680.1050@0.0.1680.1050" timestamp="1603206334778" />
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1603127680688">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1603127680688" />
-    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1603815682326">
-      <screen x="0" y="23" width="1680" height="1027" />
-    </state>
-    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.0.1680.1050@0.0.1680.1050" timestamp="1602625379057" />
-    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.1680.1027@0.23.1680.1027" timestamp="1603815682326" />
-    <state x="631" y="446" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1603127937608">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="631" y="446" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1680.1050@0.0.1680.1050" timestamp="1603127937608" />
   </component>
 </project>

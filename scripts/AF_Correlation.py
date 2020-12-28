@@ -3,7 +3,7 @@ import os
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__)) + '/..')
 
-from IA import *
+from membranequant import *
 
 """
 Paths
@@ -30,7 +30,7 @@ def n2_analysis_2channel(direcs, plot=None, c=None):
         mask[:, :, i] = make_mask([512, 512], coors)
 
     # Get correlation
-    params, xdata2, ydata2 = af_correlation_pbyp(img1, img2, mask, plot=plot, c=c, sigma=2, intercept0=False)
+    params, xdata2, ydata2 = af_correlation(img1, img2, mask, plot=plot, c=c, sigma=2, intercept0=False)
     print(params)
 
     # Plot prediction
@@ -65,8 +65,8 @@ def n2_analysis_3channel(direcs, plot=None, c=None):
         mask[:, :, i] = make_mask([512, 512], coors)
 
     # Get correlation
-    params, xdata3, ydata3, zdata3 = af_correlation_pbyp_3channel(img1, img2, img3, mask, sigma=2, plot=plot, c=c,
-                                                                  intercept0=False)
+    params, xdata3, ydata3, zdata3 = af_correlation(img1, img2, img3, mask, sigma=2, plot=plot, c=c,
+                                                    intercept0=False)
     print(params)
 
     # Plot prediction
