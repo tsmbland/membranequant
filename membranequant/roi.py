@@ -18,13 +18,21 @@ class ROI:
     :return: cell boundary coordinates
     """
 
-    def __init__(self, img, spline, start_frame=0, end_frame=None, periodic=True, show_fit=False):
+    def __init__(self, img, spline, start_frame=0, end_frame=None, periodic=True, show_fit=True):
 
-        if type(img) == list:
+        # Detect if single frame or stack
+        if type(img) is list:
+            self.stack = True
             self.images = img
+
+        elif len(img.shape) == 3:
+            self.stack = True
+            self.images = list(img)
         else:
+            self.stack = False
             self.images = [img, ]
-        self.img = self.images[0]
+
+        # Params
         self.spline = spline
         self.start_frame = start_frame
         self.end_frame = end_frame
@@ -38,6 +46,10 @@ class ROI:
         self._points = None
         self._line = None
         self._fitted = False
+
+        # Specify vlim
+        self.vmax = max([np.max(i) for i in self.images])
+        self.vmin = min([np.min(i) for i in self.images])
 
         # Outputs
         self.xpoints = []
@@ -54,14 +66,15 @@ class ROI:
         self.fig.canvas.mpl_connect('key_press_event', self.key_press_callback)
 
         # Stack
-        if len(self.img.shape) == 3:
+        if self.stack:
             plt.subplots_adjust(left=0.25, bottom=0.25)
             self.axframe = plt.axes([0.25, 0.1, 0.65, 0.03])
             if self.end_frame is None:
-                self.end_frame = len(self.img[:, 0, 0]) - 1
+                self.end_frame = len(self.images)
             self.sframe = Slider(self.axframe, 'Frame', self.start_frame, self.end_frame, valinit=self.start_frame,
                                  valfmt='%d')
             self.sframe.on_changed(self.draw_frame)
+
         self.draw_frame(self.start_frame)
 
         # Show figure
@@ -71,16 +84,10 @@ class ROI:
 
     def draw_frame(self, i):
         self._current_frame = i
-
-        # Calculate intensity ranges
-        vmin, vmax = [1, 1.1] * np.percentile(self.img.flatten(),
-                                              [0.1, 99.9])  # < move this, slow to calculate every time
+        self.ax.clear()
 
         # Plot image
-        if len(self.img.shape) == 3:
-            self.ax.imshow(self.img[int(i), :, :], cmap='gray', vmin=vmin, vmax=vmax)
-        else:
-            self.ax.imshow(self.img, cmap='gray', vmin=vmin, vmax=vmax)
+        self.ax.imshow(self.images[int(i)], cmap='gray', vmin=self.vmin, vmax=self.vmax)
 
         # Finalise figure
         self.ax.set_xticks([])
@@ -137,7 +144,7 @@ class ROI:
                             self._line = self.ax.plot(self.roi[:, 0], self.roi[:, 1], c='b')
                             self.fig.canvas.draw()
                         else:
-                            plt.close(self.fig)  # comment this out to see spline fit
+                            plt.close(self.fig)
                     else:
                         plt.close(self.fig)
                 else:
@@ -149,12 +156,10 @@ class ROI:
 
         if event.key == ',':
             self._current_image = max(0, self._current_image - 1)
-            self.img = self.images[self._current_image]
             self.draw_frame(self._current_frame)
 
         if event.key == '.':
             self._current_image = min(len(self.images) - 1, self._current_image + 1)
-            self.img = self.images[self._current_image]
             self.draw_frame(self._current_frame)
 
     def display_points(self):

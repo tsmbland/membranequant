@@ -1,18 +1,22 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-import shutil
 import tkinter as tk
 from tkinter import filedialog, messagebox
-from .quantification import StackQuant, compile_res
-from .interactive import plot_fits, plot_quantification, plot_segmentation, view_stack
+from .interactive import view_stack
 from .funcs import load_image
 from .roi import def_roi
+from .quantification import ImageQuant
+
+"""
+Todo: progress bar
+
+"""
 
 
-class StackQuantGUI:
+class ImageQuantGUI:
     """
-    Graphical user interface for StackQuant
+    Graphical user interface for ImageQuant
 
     """
 
@@ -56,18 +60,6 @@ class StackQuantGUI:
         """
         with open(os.path.dirname(os.path.realpath(__file__)) + '/gui_help.txt', 'r') as file:
             self.help_info = file.read()
-
-        """
-        Clear cache
-
-        """
-        if not os.path.isdir(os.path.dirname(os.path.realpath(__file__)) + '/.caches'):
-            os.mkdir(os.path.dirname(os.path.realpath(__file__)) + '/.caches')
-        if not os.path.isdir(os.path.dirname(os.path.realpath(__file__)) + '/.caches/StackQuantGUI'):
-            os.mkdir(os.path.dirname(os.path.realpath(__file__)) + '/.caches/StackQuantGUI')
-        self.cachedirec = os.path.dirname(os.path.realpath(__file__)) + '/.caches/StackQuantGUI'
-        shutil.rmtree(self.cachedirec)
-        os.mkdir(self.cachedirec)
 
         """
         Open window
@@ -122,12 +114,6 @@ class StackQuantGUI:
         self.entry_end.delete(0, 'end')
         self.entry_end.insert(0, '0')
 
-        # self.label_interp = tk.Label(master=self.window, text='Interpolation type')
-        # self.options_interp = ['cubic', 'linear']
-        # self.variable_interp = StringVar(self.window)
-        # self.variable_interp.set(self.options_interp[0])
-        # self.menu_interp = tk.OptionMenu(self.window, self.variable_interp, *self.options_interp)
-
         self.label_iterations = tk.Label(master=self.window, text='Iterations')
         self.entry_iterations = tk.Spinbox(master=self.window, values=list(range(1, 100, 1)))
         self.entry_iterations.delete(0, 'end')
@@ -138,19 +124,15 @@ class StackQuantGUI:
         self.entry_thickness.delete(0, 'end')
         self.entry_thickness.insert(0, '50')
 
-        self.label_freedom = tk.Label(master=self.window, text='ROI freedom')
-        self.entry_freedom = tk.Spinbox(master=self.window,
-                                        values=["{:.1f}".format(i) for i in list(np.arange(0, 1.1, 0.1))])
-        self.entry_freedom.delete(0, 'end')
-        self.entry_freedom.insert(0, '0.5')
+        # self.label_freedom = tk.Label(master=self.window, text='ROI freedom')
+        # self.entry_freedom = tk.Spinbox(master=self.window,
+        #                                 values=["{:.1f}".format(i) for i in list(np.arange(0, 1.1, 0.1))])
+        # self.entry_freedom.delete(0, 'end')
+        # self.entry_freedom.insert(0, '0.5')
 
         self.label_periodic = tk.Label(master=self.window, text='Periodic ROI')
         self.var_periodic = tk.IntVar(value=1)
         self.checkbutton_periodic = tk.Checkbutton(master=self.window, variable=self.var_periodic)
-
-        self.label_parallel = tk.Label(master=self.window, text='Parallel processing')
-        self.var_parallel = tk.IntVar(value=1)
-        self.checkbutton_parallel = tk.Checkbutton(master=self.window, variable=self.var_parallel)
 
         self.label_bg = tk.Label(master=self.window, text='Subtract background')
         self.var_bg = tk.IntVar(value=1)
@@ -214,20 +196,16 @@ class StackQuantGUI:
         self.label_rolave.grid(row=7, column=0, sticky='W', padx=10)
         self.entry_rolave.grid(row=7, column=1, sticky='W', padx=10)
 
-        # self.label_interp.grid(row=8, column=0, sticky='W', padx=30)
-        # self.menu_interp.grid(row=8, column=1, sticky='W', padx=10)
         self.label_iterations.grid(row=9, column=0, sticky='W', padx=10)
         self.entry_iterations.grid(row=9, column=1, sticky='W', padx=10)
         self.label_thickness.grid(row=10, column=0, sticky='W', padx=10)
         self.entry_thickness.grid(row=10, column=1, sticky='W', padx=10)
-        self.label_freedom.grid(row=11, column=0, sticky='W', padx=10)
-        self.entry_freedom.grid(row=11, column=1, sticky='W', padx=10)
+        # self.label_freedom.grid(row=11, column=0, sticky='W', padx=10)
+        # self.entry_freedom.grid(row=11, column=1, sticky='W', padx=10)
         self.label_periodic.grid(row=12, column=0, sticky='W', padx=10, pady=3)
         self.checkbutton_periodic.grid(row=12, column=1, sticky='W', padx=10, pady=3)
         self.label_bg.grid(row=13, column=0, sticky='W', padx=10, pady=3)
         self.checkbutton_bg.grid(row=13, column=1, sticky='W', padx=10, pady=3)
-        self.label_parallel.grid(row=14, column=0, sticky='W', padx=10, pady=3)
-        self.checkbutton_parallel.grid(row=14, column=1, sticky='W', padx=10, pady=3)
         self.label_unicyt.grid(row=15, column=0, sticky='W', padx=10, pady=3)
         self.checkbutton_unicyt.grid(row=15, column=1, sticky='W', padx=10, pady=3)
         self.label_unimem.grid(row=16, column=0, sticky='W', padx=10, pady=3)
@@ -274,9 +252,11 @@ class StackQuantGUI:
         # Load image
         self.img = load_image(file_path)
 
-        # Clear cache
-        shutil.rmtree(self.cachedirec)
-        os.mkdir(self.cachedirec)
+        # Stack vs frame
+        if len(self.img.shape) == 3:
+            self.stack = True
+        else:
+            self.stack = False
 
         # Activate set 1
         self.toggle_set1('normal')
@@ -288,8 +268,7 @@ class StackQuantGUI:
         self.label_ROI.config(text='')
 
         # Set frame ranges
-        if len(self.img.shape) == 3:
-            self.stack = True
+        if self.stack:
             self.entry_start.configure(values=list(range(0, self.img.shape[0], 1)))
             self.entry_end.configure(values=list(range(0, self.img.shape[0], 1)))
             self.entry_start.delete(0, 'end')
@@ -298,7 +277,6 @@ class StackQuantGUI:
             self.entry_end.insert(0, str(self.img.shape[0] - 1))
             self.label_nframes.config(text='%s frames loaded' % self.img.shape[0])
         else:
-            self.stack = False
             self.entry_start.delete(0, 'end')
             self.entry_start.insert(0, 0)
             self.entry_end.delete(0, 'end')
@@ -421,37 +399,37 @@ class StackQuantGUI:
         self.rol_ave = int(self.entry_rolave.get())
         self.start_frame = int(self.entry_start.get())
         self.end_frame = int(self.entry_end.get())
-        # self.interpolation_type = self.variable_interp.get()
-        self.interpolation_type = 'cubic'
         self.iterations = int(self.entry_iterations.get())
         self.thickness = int(self.entry_thickness.get())
-        self.freedom = float(self.entry_freedom.get())
+        # self.freedom = float(self.entry_freedom.get())
         self.periodic = bool(self.var_periodic.get())
-        self.parallel = bool(self.var_parallel.get())
         self.bg_subtract = bool(self.var_bg.get())
         self.uni_cyt = bool(self.var_unicyt.get())
         self.uni_mem = bool(self.var_unimem.get())
 
-        # Clear cache
-        shutil.rmtree(self.cachedirec)
-        os.mkdir(self.cachedirec)
-
         try:
+
+            # Input
+            if self.stack is True:
+                inpt = self.img[self.start_frame:self.end_frame]
+            else:
+                inpt = self.img
+
             # Set up quantifier class
             if self.mode == 0:  # basic mode
-                q = StackQuant(img=self.img, roi=self.ROI, thickness=self.thickness, rol_ave=self.rol_ave,
-                               freedom=self.freedom, parallel=self.parallel, nfits=self.nfits, sigma=self.sigma,
-                               iterations=self.iterations, save_path=self.cachedirec, start_frame=self.start_frame,
-                               end_frame=self.end_frame, interp=self.interpolation_type, periodic=self.periodic,
-                               bg_subtract=self.bg_subtract, uni_cyt=False, uni_mem=False)
+                self.quantifier = ImageQuant(inpt, roi=self.ROI, thickness=self.thickness, rol_ave=self.rol_ave,
+                                             nfits=self.nfits, sigma=self.sigma, iterations=self.iterations,
+                                             periodic=self.periodic,
+                                             bg_subtract=self.bg_subtract, uni_cyt=False, uni_mem=False,
+                                             descent_steps=1000)
 
             else:  # advanced mode
-                q = StackQuant(img=self.img, roi=self.ROI, thickness=self.thickness, rol_ave=self.rol_ave,
-                               freedom=self.freedom, parallel=self.parallel, nfits=self.nfits,
-                               iterations=self.iterations, save_path=self.cachedirec, start_frame=self.start_frame,
-                               end_frame=self.end_frame, interp=self.interpolation_type, periodic=self.periodic,
-                               bg_subtract=self.bg_subtract, cytbg=self.cytbg, membg=self.membg, uni_cyt=self.uni_cyt,
-                               uni_mem=self.uni_mem, sigma=self.sigma)
+                self.quantifier = ImageQuant(inpt, roi=self.ROI, thickness=self.thickness, rol_ave=self.rol_ave,
+                                             nfits=self.nfits,
+                                             iterations=self.iterations, periodic=self.periodic,
+                                             bg_subtract=self.bg_subtract,
+                                             cytbg=self.cytbg, membg=self.membg, uni_cyt=self.uni_cyt,
+                                             uni_mem=self.uni_mem, sigma=self.sigma, descent_steps=1000)
 
             # Update window
             self.toggle_set2('disable')
@@ -459,7 +437,7 @@ class StackQuantGUI:
             self.window.update()
 
             # Run
-            q.run()
+            self.quantifier.run()
 
             # Update window
             self.toggle_set2('normal')
@@ -470,13 +448,13 @@ class StackQuantGUI:
             self.label_running.config(text='Failed (check terminal)')
 
     def button_quant_event(self):
-        plot_quantification(self.cachedirec)
+        self.quantifier.plot_quantification()
 
     def button_fits_event(self):
-        plot_fits(self.cachedirec)
+        self.quantifier.plot_fits()
 
     def button_seg_event(self):
-        plot_segmentation(self.cachedirec)
+        self.quantifier.plot_segmentation()
 
     def button_save_event(self):
         # Pick save destination
@@ -488,7 +466,7 @@ class StackQuantGUI:
         root.destroy()
 
         # Compile results
-        res = compile_res(self.cachedirec)
+        res = self.quantifier.compile_res()
 
         # Save
         res.to_csv(f)
@@ -511,18 +489,14 @@ class StackQuantGUI:
         self.label_end.configure(state=state)
         self.entry_end.configure(state=state)
 
-        # self.label_interp.configure(state=state)
-        # self.menu_interp.configure(state=state)
         self.label_iterations.configure(state=state)
         self.entry_iterations.configure(state=state)
         self.label_thickness.configure(state=state)
         self.entry_thickness.configure(state=state)
-        self.label_freedom.configure(state=state)
-        self.entry_freedom.configure(state=state)
+        # self.label_freedom.configure(state=state)
+        # self.entry_freedom.configure(state=state)
         self.label_periodic.configure(state=state)
         self.checkbutton_periodic.configure(state=state)
-        self.label_parallel.configure(state=state)
-        self.checkbutton_parallel.configure(state=state)
         self.label_bg.configure(state=state)
         self.checkbutton_bg.configure(state=state)
 
@@ -547,10 +521,6 @@ class StackQuantGUI:
 
     def on_closing(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
-            # Clear cache
-            shutil.rmtree(self.cachedirec)
-            os.mkdir(self.cachedirec)
-
             # Close
             plt.close('all')
             self.window.destroy()

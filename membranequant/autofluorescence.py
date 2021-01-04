@@ -2,34 +2,116 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 from scipy.ndimage.filters import gaussian_filter
-import cv2
 import random
-from .funcs import polycrop
+import glob
+from .funcs import load_image, offset_coordinates, make_mask
+
+"""
+Internal variable for error
+
+"""
 
 
-def make_mask(shape, roi):
-    return cv2.fillPoly(np.zeros(shape) * np.nan, [np.int32(roi)], 1)
+class AfCorrelation:
+    def __init__(self, paths, ch1_regex, ch2_regex, ch3_regex=None, roi_regex=None, sigma=0, intercept0=False,
+                 expand=0):
+        # Import images
+        self.ch1 = np.array([load_image(sorted(glob.glob('%s/%s' % (p, ch1_regex)))[0]) for p in paths])
+        self.ch2 = np.array([load_image(sorted(glob.glob('%s/%s' % (p, ch2_regex)))[0]) for p in paths])
+        if ch3_regex is not None:
+            self.ch3 = np.array([load_image(sorted(glob.glob('%s/%s' % (p, ch3_regex)))[0]) for p in paths])
+        else:
+            self.ch3 = None
+
+        # Import rois, make mask
+        self.mask = np.array([make_mask([512, 512],
+                                        offset_coordinates(np.loadtxt(sorted(glob.glob('%s/%s' % (p, roi_regex)))[0]),
+                                                           expand)) for p in paths])
+
+        # Get correlation
+        if self.ch3 is None:
+            self.params, self.xdata, self.ydata = af_correlation(self.ch1, self.ch2, self.mask, sigma=sigma,
+                                                                 intercept0=intercept0)
+        else:
+            self.params, self.xdata, self.ydata, self.zdata = af_correlation_3channel(self.ch1, self.ch2, self.ch3,
+                                                                                      self.mask, sigma=sigma,
+                                                                                      intercept0=intercept0)
+
+    def plot_correlation(self, s=None):
+        if self.ch3 is None:
+            s = 0.01 if s is None else s
+            self._plot_correlation_2channel(s=s)
+        else:
+            s = 0.1 if s is None else s
+            self._plot_correlation_3channel(s=s)
+
+    def _plot_correlation_2channel(self, s=0.01):
+        plt.scatter(self.xdata, self.ydata, s=s)
+        xline = np.linspace(np.percentile(self.xdata, 0.01), np.percentile(self.xdata, 99.99), 20)
+        yline = self.params[0] * xline + self.params[1]
+        plt.plot(xline, yline, c='r')
+        plt.xlim(np.percentile(self.xdata, 0.01), np.percentile(self.xdata, 99.99))
+        plt.ylim(np.percentile(self.ydata, 0.01), np.percentile(self.ydata, 99.99))
+        plt.xlabel('Channel 2')
+        plt.ylabel('Channel 1')
+
+    def _plot_correlation_3channel(self, s=1):
+        # Set up figure
+        ax = plt.figure().add_subplot(111, projection='3d')
+
+        # Plot surface
+        xx, yy = np.meshgrid([np.percentile(self.xdata, 0.01), np.percentile(self.xdata, 99.99)],
+                             [np.percentile(self.ydata, 0.01), np.percentile(self.ydata, 99.99)])
+        zz = self.params[0] * xx + self.params[1] * yy + self.params[2]
+        ax.plot_surface(xx, yy, zz, alpha=0.2)
+
+        # Scatter plot
+        sample = random.sample(range(len(self.xdata)), min(10000, len(self.xdata)))
+        ax.scatter(self.xdata[sample], self.ydata[sample], self.zdata[sample], s=s)
+
+        # Tidy plot
+        ax.set_xlim(np.percentile(self.xdata, 0.01), np.percentile(self.xdata, 99.99))
+        ax.set_ylim(np.percentile(self.ydata, 0.01), np.percentile(self.ydata, 99.99))
+        ax.set_zlim(np.percentile(self.zdata, 0.01), np.percentile(self.zdata, 99.99))
+        ax.set_xlabel('Channel 2')
+        ax.set_ylabel('Channel 3')
+        ax.set_zlabel('Channel 1')
+
+    # def plot_prediction(self, s=0.001):
+    #     if self.ch3 is None:
+    #         self._plot_prediction_2channel(s=s)
+    #     else:
+    #         self._plot_prediction_3channel(s=s)
+    #
+    # def _plot_prediction_2channel(self, s=0.001):
+    #     plt.scatter(self.params[0] * self.xdata + self.params[1], self.ydata, s=s)
+    #     plt.plot([0, max(self.ydata)], [0, max(self.ydata)], c='k', linestyle='--')
+    #     plt.xlim(left=0)
+    #     plt.ylim(bottom=0)
+    #
+    # def _plot_prediction_3channel(self, s=0.001):
+    #     plt.scatter(self.params[0] * self.xdata + self.params[1] * self.ydata + self.params[2], self.zdata, s=s)
+    #     plt.plot([0, max(self.zdata)], [0, max(self.zdata)], c='k', linestyle='--')
+    #     plt.xlim(left=0)
+    #     plt.ylim(bottom=0)
 
 
-def af_correlation(img1, img2, mask, sigma=0, plot=None, c=None, intercept0=False):
+def af_correlation(img1, img2, mask, sigma=0, intercept0=False):
     """
-
     Calculates pixel-by-pixel correlation between two channels
-    Takes 3d image stacks shape [512, 512, n]
+    Takes 3d image stacks shape [n, 512, 512]
 
     :param img1: gfp channel
     :param img2: af channel
     :param mask: from make_mask function
     :param sigma: gaussian filter width
-    :param plot: type of plot to show
-    :param c: colour on plot
     :return:
     """
 
     # Gaussian filter
     if len(img1.shape) == 3:
-        img1 = gaussian_filter(img1, sigma=[sigma, sigma, 0])
-        img2 = gaussian_filter(img2, sigma=[sigma, sigma, 0])
+        img1 = gaussian_filter(img1, sigma=[0, sigma, sigma])
+        img2 = gaussian_filter(img2, sigma=[0, sigma, sigma])
     else:
         img1 = gaussian_filter(img1, sigma=sigma)
         img2 = gaussian_filter(img2, sigma=sigma)
@@ -49,39 +131,15 @@ def af_correlation(img1, img2, mask, sigma=0, plot=None, c=None, intercept0=Fals
     # Fit to line
     if not intercept0:
         popt, pcov = curve_fit(lambda x, slope, intercept: slope * x + intercept, xdata, ydata)
-        a = popt
+        params = popt
     else:
         popt, pcov = curve_fit(lambda x, slope: slope * x, xdata, ydata)
-        a = [popt[0], 0]
+        params = [popt[0], 0]
 
-    # Scatter plot
-    if plot == 'scatter':
-        plt.scatter(xdata, ydata, s=0.001, c=c)
-        xline = np.linspace(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99), 20)
-        yline = a[0] * xline + a[1]
-        plt.plot(xline, yline, c='r')
-        plt.xlim(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99))
-        plt.ylim(np.percentile(ydata, 0.01), np.percentile(ydata, 99.99))
-        plt.xlabel('AF channel')
-        plt.ylabel('GFP channel')
-
-    # Heatmap
-    elif plot == 'heatmap':
-        xline = np.linspace(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99), 20)
-        yline = a[0] * xline + a[1]
-        plt.plot(xline, yline, c='r')
-        heatmap, xedges, yedges = np.histogram2d(xdata, ydata, bins=500)
-        extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
-        plt.xlim(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99))
-        plt.ylim(np.percentile(ydata, 0.01), np.percentile(ydata, 99.99))
-        plt.imshow(heatmap.T, extent=extent, origin='lower', aspect='auto', cmap='Greys')
-    else:
-        pass
-
-    return a, xdata, ydata
+    return params, xdata, ydata
 
 
-def af_correlation_3channel(img1, img2, img3, mask, sigma=0, plot=None, ax=None, c=None, intercept0=False):
+def af_correlation_3channel(img1, img2, img3, mask, sigma=0, intercept0=False):
     """
     AF correlation taking into account red channel
 
@@ -89,15 +147,14 @@ def af_correlation_3channel(img1, img2, img3, mask, sigma=0, plot=None, ax=None,
     :param img2: AF channel
     :param img3: RFP channel
     :param mask:
-    :param plot:
     :return:
     """
 
     # Gaussian filter
     if len(img1.shape) == 3:
-        img1 = gaussian_filter(img1, sigma=[sigma, sigma, 0])
-        img2 = gaussian_filter(img2, sigma=[sigma, sigma, 0])
-        img3 = gaussian_filter(img3, sigma=[sigma, sigma, 0])
+        img1 = gaussian_filter(img1, sigma=[0, sigma, sigma])
+        img2 = gaussian_filter(img2, sigma=[0, sigma, sigma])
+        img3 = gaussian_filter(img3, sigma=[0, sigma, sigma])
     else:
         img1 = gaussian_filter(img1, sigma=sigma)
         img2 = gaussian_filter(img2, sigma=sigma)
@@ -122,37 +179,13 @@ def af_correlation_3channel(img1, img2, img3, mask, sigma=0, plot=None, ax=None,
     if not intercept0:
         popt, pcov = curve_fit(lambda x, slope1, slope2, intercept: slope1 * x[0] + slope2 * x[1] + intercept,
                                np.vstack((xdata, ydata)), zdata)
-        p = popt
+        params = popt
     else:
         popt, pcov = curve_fit(lambda x, slope1, slope2: slope1 * x[0] + slope2 * x[1], np.vstack((xdata, ydata)),
                                zdata)
-        p = [popt[0], popt[1], 0]
+        params = [popt[0], popt[1], 0]
 
-    # Scatter plot
-    if plot == 'scatter':
-        # Set up figure
-        if not ax:
-            ax = plt.figure().add_subplot(111, projection='3d')
-
-        # Plot surface
-        xx, yy = np.meshgrid([np.percentile(xdata, 0.01), np.percentile(xdata, 99.99)],
-                             [np.percentile(ydata, 0.01), np.percentile(ydata, 99.99)])
-        zz = p[0] * xx + p[1] * yy + p[2]
-        ax.plot_surface(xx, yy, zz, alpha=0.2, color=c)
-
-        # Scatter plot
-        set = random.sample(range(len(xdata)), 10000)
-        ax.scatter(xdata[set], ydata[set], zdata[set], s=1, c=c)
-
-        # Tidy plot
-        ax.set_xlim(np.percentile(xdata, 0.01), np.percentile(xdata, 99.99))
-        ax.set_ylim(np.percentile(ydata, 0.01), np.percentile(ydata, 99.99))
-        ax.set_zlim(np.percentile(zdata, 0.01), np.percentile(zdata, 99.99))
-        ax.set_xlabel('AF')
-        ax.set_ylabel('RFP')
-        ax.set_zlabel('GFP')
-
-    return p, xdata, ydata, zdata
+    return params, xdata, ydata, zdata
 
 
 def af_subtraction(ch1, ch2, m, c):
@@ -180,9 +213,3 @@ def af_subtraction_3channel(ch1, ch2, ch3, m1, m2, c):
     af = m1 * ch2 + m2 * ch3 + c
     signal = ch1 - af
     return signal
-
-
-def bg_subtraction(img, roi, band=(25, 75)):
-    a = polycrop(img, roi, band[1]) - polycrop(img, roi, band[0])
-    a = [np.nanmean(a[np.nonzero(a)])]
-    return img - a

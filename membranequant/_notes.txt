@@ -1,0 +1,12 @@
+
+
+# To do:
+# - More annotations, detailed docstrings for functions etc.
+# - Kymographs
+# - be more consistent with interpolation method specification.
+#
+# - monitor performance with profiler
+# - straighten should take spline, specify number of points, calculate exact gradients
+#
+
+

@@ -1,28 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/membranequant/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/membranequant/_notes.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/membranequant/gui.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/membranequant/interactive.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/membranequant/training.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/autofluorescence.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/quantification_local.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/quantification_whole_embryo.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/straighten.ipynb" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/notebooks/training.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="huge reorganisation, added notebooks (mostly empty)">
+      <change afterPath="$PROJECT_DIR$/.idea/other.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/2_straighten.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/3_profile_fitting.ipynb" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/notebooks/4_spatial_quantification.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/IA.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OpenGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/open_gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/docs/GUIhelp.txt" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/gui_help.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/AF_Correlation.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/AF_Correlation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/Membrane_Quantification.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/_notes.txt" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/_notes.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/gui.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/interactive.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/interactive.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/autofluorescence.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/quantification_local.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/5_batch_quantification.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/quantification_whole_embryo.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/7_summary.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/straighten.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/training.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/6_custom_reference_profiles.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/open_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/open_gui.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,16 +31,31 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Jupyter Notebook" />
         <option value="Python Script" />
+        <option value="Jupyter Notebook" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="master" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/notebooks/autofluorescence.ipynb" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/membranequant/roi.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/membranequant/funcs.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1cj3YPZ1cJupSWPnHnDFoLvYP6j" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -60,7 +74,7 @@
     <property name="node.js.path.for.package.tslint" value="project" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="PyScientificConfigurable" />
   </component>
   <component name="ReaderModeSettings">
     <option name="enabled" value="false" />
@@ -104,28 +118,6 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="IA" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="ImageAnalysis" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/membranequant/quantification.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
     <configuration name="autofluorescence" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -148,7 +140,51 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="rough" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="gui" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ImageAnalysis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/membranequant" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/membranequant/gui.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="rough2 (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ImageAnalysis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/scripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scripts/rough2.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="rough2" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -194,18 +230,18 @@
     </configuration>
     <list>
       <item itemvalue="Python.GUI" />
-      <item itemvalue="Python.IA" />
       <item itemvalue="Python.autofluorescence" />
       <item itemvalue="Python.rough2" />
-      <item itemvalue="Python.rough" />
+      <item itemvalue="Python.rough2 (1)" />
+      <item itemvalue="Python.gui" />
     </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.GUI" />
+        <item itemvalue="Python.gui" />
+        <item itemvalue="Python.rough2 (1)" />
         <item itemvalue="Python.rough2" />
         <item itemvalue="Python.autofluorescence" />
-        <item itemvalue="Python.rough" />
-        <item itemvalue="Python.IA" />
       </list>
     </recent_temporary>
   </component>
@@ -221,7 +257,9 @@
       <option name="presentableId" value="Default" />
       <updated>1532608396510</updated>
       <workItem from="1609153129823" duration="2197000" />
-      <workItem from="1609172334320" duration="4552000" />
+      <workItem from="1609172334320" duration="17255000" />
+      <workItem from="1609365803536" duration="3070000" />
+      <workItem from="1609517975880" duration="41114000" />
     </task>
     <task id="LOCAL-00001" summary="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions">
       <created>1533827459455</created>
@@ -440,7 +478,14 @@
       <option name="project" value="LOCAL" />
       <updated>1603127678269</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="huge reorganisation, added notebooks (mostly empty)">
+      <created>1609179001291</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1609179001291</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -449,8 +494,31 @@
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="requirements.txt" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="development" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Changes to make more compatible with server" />
     <MESSAGE value="Changes to analysis scripts: more class based, save data as txt files, analysis results in separate directory to main data folder. Changes to figure scripts: now saves plots as png" />
     <MESSAGE value="Changes for cluster" />
     <MESSAGE value="classes for segmentation, analysis, batch analysis" />
@@ -475,6 +543,11 @@
     <MESSAGE value="New function for approximating bg curves from images" />
     <MESSAGE value="Reverting to the old fitting algorithms as they seem more reliable. Kept the tensorflow algorithms separate in IAv2" />
     <MESSAGE value="Tensorflow fitting method as default. Changes to functions, mainly to speed up by removing for loops. Removed some unused functions" />
-    <option name="LAST_COMMIT_MESSAGE" value="" />
+    <MESSAGE value="huge reorganisation, added notebooks (mostly empty)" />
+    <option name="LAST_COMMIT_MESSAGE" value="huge reorganisation, added notebooks (mostly empty)" />
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/MembraneQuant$gui.coverage" NAME="gui Coverage Results" MODIFIED="1609783081357" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/membranequant" />
+    <SUITE FILE_PATH="coverage/MembraneQuant$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1609784413363" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

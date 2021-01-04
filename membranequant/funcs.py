@@ -1,12 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.ndimage.interpolation import map_coordinates
-from scipy.interpolate import splprep, splev, CubicSpline
+from scipy.interpolate import splprep, splev, CubicSpline, interp1d
 from scipy.special import erf
 from skimage import io
 import cv2
 import glob
 import copy
+
+"""
+os.walk for direcslist
+
+"""
 
 
 ########## IMAGE HANDLING ###########
@@ -116,6 +121,8 @@ def straighten(img, roi, thickness, interp='cubic'):
     """
     Creates straightened image based on coordinates
 
+    Doesn't work properly for non-periodic rois
+
     :param img:
     :param roi: Coordinates. Should be 1 pixel length apart in a loop
     :param thickness:
@@ -126,23 +133,23 @@ def straighten(img, roi, thickness, interp='cubic'):
     # Calculate gradients
     xcoors = roi[:, 0]
     ycoors = roi[:, 1]
-    rises = np.diff(ycoors, prepend=ycoors[-1])
-    runs = np.diff(xcoors, prepend=xcoors[-1])
-    grad = rises / runs
+    ydiffs = np.diff(ycoors, prepend=ycoors[-1])
+    xdiffs = np.diff(xcoors, prepend=xcoors[-1])
+    grad = ydiffs / xdiffs
     tangent_grad = -1 / grad
 
     # Get interpolation coordinates
     offsets = np.linspace(thickness / 2, -thickness / 2, thickness)
     xchange = ((offsets ** 2)[np.newaxis, :] / (1 + tangent_grad ** 2)[:, np.newaxis]) ** 0.5
     ychange = xchange / abs(grad)[:, np.newaxis]
-    newcoors_x = xcoors[:, np.newaxis] + np.sign(rises)[:, np.newaxis] * np.sign(offsets)[np.newaxis, :] * xchange
-    newcoors_y = ycoors[:, np.newaxis] - np.sign(runs)[:, np.newaxis] * np.sign(offsets)[np.newaxis, :] * ychange
+    gridcoors_x = xcoors[:, np.newaxis] + np.sign(ydiffs)[:, np.newaxis] * np.sign(offsets)[np.newaxis, :] * xchange
+    gridcoors_y = ycoors[:, np.newaxis] - np.sign(xdiffs)[:, np.newaxis] * np.sign(offsets)[np.newaxis, :] * ychange
 
     # Interpolate
     if interp == 'linear':
-        straight = map_coordinates(img.T, [newcoors_x, newcoors_y], order=3, mode='nearest')
+        straight = map_coordinates(img.T, [gridcoors_x, gridcoors_y], order=1, mode='nearest')
     elif interp == 'cubic':
-        straight = map_coordinates(img.T, [newcoors_x, newcoors_y], order=1, mode='nearest')
+        straight = map_coordinates(img.T, [gridcoors_x, gridcoors_y], order=3, mode='nearest')
     return straight.astype(np.float64).T
 
 
@@ -216,6 +223,12 @@ def rotated_embryo(img, roi, l=None, h=None):
     return zvals
 
 
+def bg_subtraction(img, roi, band=(25, 75)):
+    a = polycrop(img, roi, band[1]) - polycrop(img, roi, band[0])
+    a = [np.nanmean(a[np.nonzero(a)])]
+    return img - a
+
+
 ########### ROI OPERATIONS ###########
 
 
@@ -230,24 +243,21 @@ def offset_coordinates(roi, offsets):
     To save this in a fiji readable format run:
     np.savetxt(filename, newcoors, fmt='%.4f', delimiter='\t')
 
-    To do:
-    - ability to take list of offsets > will be faster when performing multiple offsets (e.g straightening algorithm)
-
     """
 
     # Calculate gradients
     xcoors = roi[:, 0]
     ycoors = roi[:, 1]
-    rises = np.diff(ycoors, prepend=ycoors[-1])
-    runs = np.diff(xcoors, prepend=xcoors[-1])
-    grad = rises / runs
+    ydiffs = np.diff(ycoors, prepend=ycoors[-1])
+    xdiffs = np.diff(xcoors, prepend=xcoors[-1])
+    grad = ydiffs / xdiffs
     tangent_grad = -1 / grad
 
     # Offset coordinates
     xchange = ((offsets ** 2) / (1 + tangent_grad ** 2)) ** 0.5
     ychange = xchange / abs(grad)
-    newxs = xcoors + np.sign(rises) * np.sign(offsets) * xchange
-    newys = ycoors - np.sign(runs) * np.sign(offsets) * ychange
+    newxs = xcoors + np.sign(ydiffs) * np.sign(offsets) * xchange
+    newys = ycoors - np.sign(xdiffs) * np.sign(offsets) * ychange
     newcoors = np.swapaxes(np.vstack([newxs, newys]), 0, 1)
     return newcoors
 
@@ -268,11 +278,13 @@ def interp_roi(roi, periodic=True):
 
     # Calculate distance between points in pixel units
     distances = ((np.diff(c[:, 0]) ** 2) + (np.diff(c[:, 1]) ** 2)) ** 0.5
+    distances_cumsum = np.r_[0, np.cumsum(distances)]
     total_length = sum(distances)
 
     # Interpolate
-    xcoors = interp_1d_array(c[:, 0], n=int(total_length), method='linear')
-    ycoors = interp_1d_array(c[:, 1], n=int(total_length), method='linear')
+    fx, fy = interp1d(distances_cumsum, c[:, 0], kind='linear'), interp1d(distances_cumsum, c[:, 1], kind='linear')
+    positions = np.linspace(0, total_length, int(round(total_length)))
+    xcoors, ycoors = fx(positions), fy(positions)
     newpoints = np.c_[xcoors[:-1], ycoors[:-1]]
     return newpoints
 
@@ -325,7 +337,7 @@ def spline_roi(roi, periodic=True, s=0):
     tck, u = splprep([x, y], s=s, per=periodic)
 
     # Evaluate spline
-    xi, yi = splev(np.linspace(0, 1, 1000), tck)
+    xi, yi = splev(np.linspace(0, 1, 10000), tck)
 
     # Interpolate
     return interp_roi(np.vstack((xi, yi)).T, periodic=periodic)
@@ -546,3 +558,7 @@ def calc_sa(normcoors):
     r2 = (max(normcoors[:, 1]) - min(normcoors[:, 1])) / 2
     e = (1 - (r2 ** 2) / (r1 ** 2)) ** 0.5
     return 2 * np.pi * r2 * r2 * (1 + (r1 / (r2 * e)) * np.arcsin(e))
+
+
+def make_mask(shape, roi):
+    return cv2.fillPoly(np.zeros(shape) * np.nan, [np.int32(roi)], 1)
