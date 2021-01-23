@@ -7,6 +7,7 @@ from skimage import io
 import cv2
 import glob
 import copy
+import os
 
 """
 os.walk for direcslist
@@ -57,61 +58,6 @@ def save_img_jpeg(img, direc, cmin=None, cmax=None):
     """
 
     plt.imsave(direc, img, vmin=cmin, vmax=cmax, cmap='gray')
-
-
-########## FILE HANDLING ###########
-
-
-def direcslist(dest, levels=0, exclude=('!',), exclusive=None):
-    """
-    Gives a list of directories in a given directory (full path)
-
-    :param dest:
-    :param levels:
-    :param exclude: exclude directories containing this string
-    :param exclusive: exclude directories that don't contain this string
-    :return:
-    """
-
-    def _direcslist(_dest, _levels=0, _exclude=('!',), _exclusive=None):
-
-        lis = sorted(glob.glob('%s/*/' % _dest))
-
-        for level in range(_levels):
-            newlis = []
-            for e in lis:
-                newlis.extend(sorted(glob.glob('%s/*/' % e)))
-            lis = newlis
-            lis = [x[:-1] for x in lis]
-
-        # Excluded directories
-        lis_new = copy.deepcopy(lis)
-        for i in _exclude:
-            for x in lis:
-                if i in x:
-                    lis_new.remove(x)
-
-        # Exclusive directories
-        if _exclusive is not None:
-            for x in lis:
-                if sum([i in x for i in _exclusive]) == 0:
-                    lis_new.remove(x)
-        return sorted(lis_new)
-
-    if type(dest) is list:
-        out = []
-        for d in dest:
-            out.extend(_direcslist(d, levels, exclude, exclusive))
-        return out
-    else:
-        return _direcslist(dest, levels, exclude, exclusive)
-
-
-def import_all(direcs, key):
-    data = []
-    for d in direcs:
-        data.extend([np.loadtxt('%s/%s' % (d, key))])
-    return np.array(data)
 
 
 ########### IMAGE OPERATIONS ###########
@@ -562,3 +508,89 @@ def calc_sa(normcoors):
 
 def make_mask(shape, roi):
     return cv2.fillPoly(np.zeros(shape) * np.nan, [np.int32(roi)], 1)
+
+
+def readnd(path):
+    """
+
+    :param direc: directory to embryo folder containing nd file
+    :return: dictionary containing data from nd file
+    """
+
+    nd = {}
+    f = open(path, 'r').readlines()
+    for line in f[:-1]:
+        nd[line.split(', ')[0].replace('"', '')] = line.split(', ')[1].strip().replace('"', '')
+    return nd
+
+
+def organise_by_nd(direc):
+    """
+    Organises images in a folder using the nd files
+
+    :param direc:
+    :return:
+    """
+    a = glob.glob('%s/*.nd' % direc)
+    for b in a:
+        name = os.path.basename(os.path.normpath(b))
+        if name[0] == '_':
+            folder = name[1:-3]
+        else:
+            folder = name[:-3]
+        os.makedirs('%s/%s' % (direc, folder))
+        os.rename(b, '%s/%s/%s' % (direc, folder, name))
+        for file in glob.glob('%s_*' % b[:-3]):
+            os.rename(file, '%s/%s/%s' % (direc, folder, os.path.basename(os.path.normpath(file))))
+
+
+def direcslist(dest, levels=0, exclude=('!',), exclusive=None):
+    """
+    Gives a list of directories in a given directory (full path)
+
+    :param dest:
+    :param levels:
+    :param exclude: exclude directories containing this string
+    :param exclusive: exclude directories that don't contain this string
+    :return:
+    """
+
+    def _direcslist(_dest, _levels=0, _exclude=('!',), _exclusive=None):
+
+        lis = sorted(glob.glob('%s/*/' % _dest))
+
+        for level in range(_levels):
+            newlis = []
+            for e in lis:
+                newlis.extend(sorted(glob.glob('%s/*/' % e)))
+            lis = newlis
+            lis = [x[:-1] for x in lis]
+
+        # Excluded directories
+        lis_new = copy.deepcopy(lis)
+        for i in _exclude:
+            for x in lis:
+                if i in x:
+                    lis_new.remove(x)
+
+        # Exclusive directories
+        if _exclusive is not None:
+            for x in lis:
+                if sum([i in x for i in _exclusive]) == 0:
+                    lis_new.remove(x)
+        return sorted(lis_new)
+
+    if type(dest) is list:
+        out = []
+        for d in dest:
+            out.extend(_direcslist(d, levels, exclude, exclusive))
+        return out
+    else:
+        return _direcslist(dest, levels, exclude, exclusive)
+
+
+def import_all(direcs, key):
+    data = []
+    for d in direcs:
+        data.extend([np.loadtxt('%s/%s' % (d, key))])
+    return np.array(data)

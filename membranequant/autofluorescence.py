@@ -4,10 +4,12 @@ from scipy.optimize import curve_fit
 from scipy.ndimage.filters import gaussian_filter
 import random
 import glob
+import scipy.odr as odr
 from .funcs import load_image, offset_coordinates, make_mask
 
 """
-Internal variable for error
+Test
+ODR functions for 3channel method
 
 """
 
@@ -46,14 +48,15 @@ class AfCorrelation:
             self._plot_correlation_3channel(s=s)
 
     def _plot_correlation_2channel(self, s=0.01):
-        plt.scatter(self.xdata, self.ydata, s=s)
+        fig, ax = plt.subplots()
+        ax.scatter(self.xdata, self.ydata, s=s)
         xline = np.linspace(np.percentile(self.xdata, 0.01), np.percentile(self.xdata, 99.99), 20)
         yline = self.params[0] * xline + self.params[1]
-        plt.plot(xline, yline, c='r')
-        plt.xlim(np.percentile(self.xdata, 0.01), np.percentile(self.xdata, 99.99))
-        plt.ylim(np.percentile(self.ydata, 0.01), np.percentile(self.ydata, 99.99))
-        plt.xlabel('Channel 2')
-        plt.ylabel('Channel 1')
+        ax.plot(xline, yline, c='r')
+        ax.set_xlim(np.percentile(self.xdata, 0.01), np.percentile(self.xdata, 99.99))
+        ax.set_ylim(np.percentile(self.ydata, 0.01), np.percentile(self.ydata, 99.99))
+        ax.set_xlabel('Channel 2')
+        ax.set_ylabel('Channel 1')
 
     def _plot_correlation_3channel(self, s=1):
         # Set up figure
@@ -128,13 +131,20 @@ def af_correlation(img1, img2, mask, sigma=0, intercept0=False):
     xdata = xdata[~np.isnan(xdata)]
     ydata = ydata[~np.isnan(ydata)]
 
-    # Fit to line
+    # Perform orthogonal distance regression
     if not intercept0:
-        popt, pcov = curve_fit(lambda x, slope, intercept: slope * x + intercept, xdata, ydata)
-        params = popt
+        odr_mod = odr.Model(lambda b, x: b[0] * x + b[1])
+        odr_data = odr.Data(xdata, ydata)
+        odr_odr = odr.ODR(odr_data, odr_mod, beta0=[1, 0])
+        output = odr_odr.run()
+        params = output.beta
+
     else:
-        popt, pcov = curve_fit(lambda x, slope: slope * x, xdata, ydata)
-        params = [popt[0], 0]
+        odr_mod = odr.Model(lambda b, x: b[0] * x)
+        odr_data = odr.Data(xdata, ydata)
+        odr_odr = odr.ODR(odr_data, odr_mod, beta0=[1])
+        output = odr_odr.run()
+        params = [output.beta[0], 0]
 
     return params, xdata, ydata
 

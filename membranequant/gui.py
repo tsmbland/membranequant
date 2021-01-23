@@ -117,7 +117,7 @@ class ImageQuantGUI:
         self.label_iterations = tk.Label(master=self.window, text='Iterations')
         self.entry_iterations = tk.Spinbox(master=self.window, values=list(range(1, 100, 1)))
         self.entry_iterations.delete(0, 'end')
-        self.entry_iterations.insert(0, '2')
+        self.entry_iterations.insert(0, '1')
 
         self.label_thickness = tk.Label(master=self.window, text='Thickness')
         self.entry_thickness = tk.Spinbox(master=self.window, values=list(range(10, 110, 10)))
@@ -421,7 +421,7 @@ class ImageQuantGUI:
                                              nfits=self.nfits, sigma=self.sigma, iterations=self.iterations,
                                              periodic=self.periodic,
                                              bg_subtract=self.bg_subtract, uni_cyt=False, uni_mem=False,
-                                             descent_steps=1000)
+                                             descent_steps=2000)
 
             else:  # advanced mode
                 self.quantifier = ImageQuant(inpt, roi=self.ROI, thickness=self.thickness, rol_ave=self.rol_ave,
@@ -429,7 +429,7 @@ class ImageQuantGUI:
                                              iterations=self.iterations, periodic=self.periodic,
                                              bg_subtract=self.bg_subtract,
                                              cytbg=self.cytbg, membg=self.membg, uni_cyt=self.uni_cyt,
-                                             uni_mem=self.uni_mem, sigma=self.sigma, descent_steps=1000)
+                                             uni_mem=self.uni_mem, sigma=self.sigma, descent_steps=2000)
 
             # Update window
             self.toggle_set2('disable')

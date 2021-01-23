@@ -5,12 +5,21 @@ import tensorflow as tf
 import tensorflow_probability as tfp
 from .funcs import straighten, rolling_ave_2d, interp_1d_array, interp_2d_array, rotate_roi, save_img, \
     offset_coordinates, spline_roi
-from .interactive import view_stack, plot_fits, plot_segmentation, plot_quantification
+from .interactive import view_stack, view_stack_jupyter, plot_fits, plot_fits_jupyter, plot_segmentation, \
+    plot_segmentation_jupyter, plot_quantification, plot_quantification_jupyter
 from scipy.interpolate import interp1d
+from tqdm import tqdm
+import pickle
+import time
 
 """
 To do:
-Better initial guess
+Doesn't throw error if bgcurve are wrong size - could be a problem
+Permit wider bgcurves for wiggle room
+Switch from linear bgcurve interpolation to cubic spline
+Option to have separate curves (and sigma) for each image
+Some problem when training cytbg of width 50 but not 60 or 40???
+Have a free alignment parameter (i.e. on or off)
 
 """
 
@@ -24,7 +33,7 @@ class ImageQuant:
     img                image
 
     Background curves:
-    cytbg              cytoplasmic background curve, should be 2x as thick as thickness parameter
+    cytbg              cytoplasmic background curve, should be as thick as thickness parameter
     membg              membrane background curve, as above
     sigma              if either of above are not specified, assume gaussian/error function with width set by sigma
 
@@ -32,16 +41,13 @@ class ImageQuant:
     roi                coordinates defining cortex. Can use output from def_roi function
 
     Fitting parameters:
-    freedom            amount of freedom allowed in ROI (0=min, 1=max, max offset is +- 0.5 * freedom * thickness)
     periodic           True if coordinates form a closed loop
     thickness          thickness of cross section over which to perform quantification
     rol_ave            width of rolling average
     rotate             if True, will automatically rotate ROI so that the first/last points are at the end of the long
                        axis
-    zerocap            if True, prevents negative membane and cytoplasm values
     nfits              performs this many fits at regular intervals around ROI
     iterations         if >1, adjusts ROI and re-fits
-    interp             interpolation type (linear or cubic)
     uni_cyt            globally fit uniform cytoplasm
     uni_mem            globally fit uniform membrane
     bg_subtract        if True, will estimate and subtract background signal prior to quantification
@@ -52,10 +58,10 @@ class ImageQuant:
 
     """
 
-    def __init__(self, img, cytbg=None, membg=None, sigma=None, roi=None, periodic=True, thickness=50,
-                 rol_ave=20, rotate=False, nfits=500, iterations=1, bg_subtract=False, uni_cyt=False, uni_mem=False,
+    def __init__(self, img, roi, cytbg=None, membg=None, sigma=2, periodic=True, thickness=50,
+                 rol_ave=20, rotate=False, nfits=None, iterations=1, bg_subtract=False, uni_cyt=False, uni_mem=False,
                  cyt_only=False, mem_only=False, lr=0.01, descent_steps=2000, adaptive_sigma=False,
-                 adaptive_membg=False, adaptive_cytbg=False):
+                 adaptive_membg=False, adaptive_cytbg=False, align=True, batch_norm=False):
 
         # Detect if single frame or stack
         if type(img) is list:
@@ -85,6 +91,9 @@ class ImageQuant:
         # Background subtraction
         self.bg_subtract = bg_subtract
 
+        # Normalisation
+        self.batch_norm = batch_norm
+
         # Fitting mode
         self.uni_cyt = uni_cyt
         self.uni_mem = uni_mem
@@ -92,6 +101,7 @@ class ImageQuant:
         self.mem_only = mem_only
 
         # Fitting parameters
+        self.align = align
         self.iterations = iterations
         self.thickness = thickness
         self.rol_ave = rol_ave
@@ -136,12 +146,15 @@ class ImageQuant:
     """
 
     def run(self):
+        t = time.time()
 
         # Fitting
         for i in range(self.iterations):
             if i > 0:
                 self.adjust_roi()
             self.fit()
+
+        print('Time elapsed: %.2f seconds ' % (time.time() - t))
 
     def preprocess(self, frame, roi):
 
@@ -159,8 +172,12 @@ class ImageQuant:
         straight_filtered_itp = interp_2d_array(straight_filtered, self.nfits, ax=0, method='cubic')
 
         # Normalise
-        norm = np.max(straight_filtered_itp)
-        target = straight_filtered_itp / norm
+        if not self.batch_norm:
+            norm = np.percentile(straight_filtered_itp, 99)
+            target = straight_filtered_itp / norm
+        else:
+            norm = 1
+            target = straight_filtered_itp
 
         return target, norm
 
@@ -171,13 +188,14 @@ class ImageQuant:
 
         # Offsets
         self.offsets_t = tf.Variable(np.zeros([nimages, nfits]))
-        self.vars.append(self.offsets_t)
+        if self.align:
+            self.vars.append(self.offsets_t)
 
         # Cytoplasmic concentrations
         if self.uni_cyt:
-            self.cyts_t = tf.Variable(np.mean(self.target[:, -5:, :], axis=(1, 2)))
+            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=(1, 2)))
         else:
-            self.cyts_t = tf.Variable(np.mean(self.target[:, -5:, :], axis=1))
+            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=1))
         if self.mem_only:
             self.cyts_t = self.cyts_t * 0
         else:
@@ -185,9 +203,9 @@ class ImageQuant:
 
         # Membrane concentrations
         if self.uni_mem:
-            self.mems_t = tf.Variable(np.max(self.target, axis=(1, 2)))
+            self.mems_t = tf.Variable(0 * np.max(self.target, axis=(1, 2)))
         else:
-            self.mems_t = tf.Variable(np.max(self.target, axis=1))
+            self.mems_t = tf.Variable(0 * np.max(self.target, axis=1))
         if self.cyt_only:
             self.mems_t = self.mems_t * 0
         else:
@@ -216,8 +234,6 @@ class ImageQuant:
         nfits = self.nfits
 
         # Need to align peak to centre - how?
-        # First: approximate peak position, and deviation from centre
-        # Next: subtract/add offsets from deviation?
 
         # Positions to evaluate mem and cyt curves
         positions_ = np.arange(self.thickness, dtype=np.float64)[tf.newaxis, tf.newaxis, :]
@@ -226,8 +242,8 @@ class ImageQuant:
 
         # Mem curve
         if self.membg is not None:
-            membg_norm = self.membg_t / tf.reduce_max(self.membg_t)
-            mem_curve = tfp.math.interp_regular_1d_grid(y_ref=membg_norm, x_ref_min=0, x_ref_max=1,
+            # membg_norm = self.membg_t / tf.reduce_max(self.membg_t)
+            mem_curve = tfp.math.interp_regular_1d_grid(y_ref=self.membg_t, x_ref_min=0, x_ref_max=1,
                                                         x=positions / self.thickness)
         else:
             mem_curve = tf.math.exp(-((positions - self.thickness / 2) ** 2) / (2 * self.sigma_t ** 2))
@@ -235,8 +251,8 @@ class ImageQuant:
 
         # Cyt curve
         if self.cytbg is not None:
-            cytbg_norm = self.cytbg_t / tf.reduce_max(self.cytbg_t)
-            cyt_curve = tfp.math.interp_regular_1d_grid(y_ref=cytbg_norm, x_ref_min=0, x_ref_max=1,
+            # cytbg_norm = self.cytbg_t / tf.reduce_max(self.cytbg_t)
+            cyt_curve = tfp.math.interp_regular_1d_grid(y_ref=self.cytbg_t, x_ref_min=0, x_ref_max=1,
                                                         x=positions / self.thickness)
         else:
             cyt_curve = (1 + tf.math.erf((positions - self.thickness / 2) / self.sigma_t)) / 2
@@ -272,7 +288,13 @@ class ImageQuant:
         # Preprocess
         target, norms = zip(*[self.preprocess(frame, roi) for frame, roi in zip(self.img, self.roi)])
         self.target = np.array(target)
-        norms = np.array(norms)
+        self.norms = np.array(norms)
+
+        # Batch normalise
+        if self.batch_norm:
+            norm = np.percentile(self.target, 99)
+            self.target /= norm
+            self.norms = norm * np.ones(self.target.shape[0])
 
         # Init tensors
         self.init_tensors()
@@ -280,7 +302,7 @@ class ImageQuant:
         # Run optimisation
         opt = tf.keras.optimizers.Adam(learning_rate=self.lr)
         self.losses = np.zeros([len(self.img), self.descent_steps])
-        for i in range(self.descent_steps):
+        for i in tqdm(range(self.descent_steps)):
             with tf.GradientTape() as tape:
                 losses_full = self.losses_full()
                 self.losses[:, i] = losses_full
@@ -288,15 +310,21 @@ class ImageQuant:
                 grads = tape.gradient(loss, self.vars)
                 opt.apply_gradients(list(zip(grads, self.vars)))
 
-        # Save final (rescaled)
-        self.sim_both = self.sim_images().numpy() * norms[:, np.newaxis, np.newaxis]
-        self.sim_cyt = self.sim_images(include_m=False).numpy() * norms[:, np.newaxis, np.newaxis]
-        self.sim_mem = self.sim_images(include_c=False).numpy() * norms[:, np.newaxis, np.newaxis]
-        self.target = self.target * norms[:, np.newaxis, np.newaxis]
+        # Save and rescale sim images (rescaled)
+        self.sim_both = self.sim_images().numpy() * self.norms[:, np.newaxis, np.newaxis]
+        self.sim_cyt = self.sim_images(include_m=False).numpy() * self.norms[:, np.newaxis, np.newaxis]
+        self.sim_mem = self.sim_images(include_c=False).numpy() * self.norms[:, np.newaxis, np.newaxis]
+        self.target = self.target * self.norms[:, np.newaxis, np.newaxis]
 
-        # Rescale
-        self.mems = self.mems_t.numpy() * norms[:, np.newaxis]
-        self.cyts = self.cyts_t.numpy() * norms[:, np.newaxis]
+        # Save and rescale results
+        if self.uni_mem:
+            self.mems = np.tile((self.mems_t.numpy() * self.norms)[:, np.newaxis], [1, self.nfits])
+        else:
+            self.mems = self.mems_t.numpy() * self.norms[:, np.newaxis]
+        if self.uni_cyt:
+            self.cyts = np.tile((self.cyts_t.numpy() * self.norms)[:, np.newaxis], [1, self.nfits])
+        else:
+            self.cyts = self.cyts_t.numpy() * self.norms[:, np.newaxis]
         self.offsets = self.offsets_t.numpy()
 
         # Interpolated results
@@ -376,45 +404,12 @@ class ImageQuant:
         save_img(np.clip(self.resids_full[i], 0, None), save_path + '/resids_pos.tif')
         save_img(abs(np.clip(self.resids_full[i], None, 0)), save_path + '/resids_neg.tif')
 
-    """
-    Interactive
-    
-    """
-
-    def view_frames(self):
-        if self.stack:
-            view_stack(self.img)
-        else:
-            view_stack(self.img[0])
-
-    def plot_quantification(self):
-        if self.stack:
-            plot_quantification(self.mems_full)
-        else:
-            plot_quantification(self.mems_full[0])
-
-    def plot_fits(self):
-        if self.stack:
-            plot_fits(self.target_full, self.sim_both_full)
-        else:
-            plot_fits(self.target_full[0], self.sim_both_full[0])
-
-    def plot_segmentation(self):
-        if self.stack:
-            plot_segmentation(self.img, self.roi)
-        else:
-            plot_segmentation(self.img[0], self.roi[0])
-
-    # def def_roi(self):
-    #     r = ROI(self.img, spline=True)
-    #     self.roi = r.roi
-
     def compile_res(self):
         # Create empty dataframe
         df = pd.DataFrame({'Frame': [],
                            'Position': [],
-                           'Membrane signal': [],
-                           'Cytoplasmic signal': []})
+                           'Membrane concentration': [],
+                           'Cytoplasmic concentration': []})
 
         # Fill with data
         for i in range(len(self.img)):
@@ -426,3 +421,65 @@ class ImageQuant:
         df = df.reindex(columns=['Frame', 'Position', 'Membrane signal', 'Cytoplasmic signal'])
         df = df.astype({'Frame': int, 'Position': int})
         return df
+
+    def pickle(self, filename):
+        outfile = open(filename, 'wb')
+        pickle.dump(self, outfile)
+        outfile.close()
+
+    """
+    Interactive
+    
+    """
+
+    def view_frames(self, jupyter=False):
+        if not jupyter:
+            if self.stack:
+                view_stack(self.img)
+            else:
+                view_stack(self.img[0])
+        else:
+            if self.stack:
+                view_stack_jupyter(self.img)
+            else:
+                view_stack_jupyter(self.img[0])
+
+    def plot_quantification(self, jupyter=False):
+        if not jupyter:
+            if self.stack:
+                plot_quantification(self.mems_full)
+            else:
+                plot_quantification(self.mems_full[0])
+        else:
+            if self.stack:
+                plot_quantification_jupyter(self.mems_full)
+            else:
+                plot_quantification_jupyter(self.mems_full[0])
+
+    def plot_fits(self, jupyter=False):
+        if not jupyter:
+            if self.stack:
+                plot_fits(self.target_full, self.sim_both_full)
+            else:
+                plot_fits(self.target_full[0], self.sim_both_full[0])
+        else:
+            if self.stack:
+                plot_fits_jupyter(self.target_full, self.sim_both_full)
+            else:
+                plot_fits_jupyter(self.target_full[0], self.sim_both_full[0])
+
+    def plot_segmentation(self, jupyter=False):
+        if not jupyter:
+            if self.stack:
+                plot_segmentation(self.img, self.roi)
+            else:
+                plot_segmentation(self.img[0], self.roi[0])
+        else:
+            if self.stack:
+                plot_segmentation_jupyter(self.img, self.roi)
+            else:
+                plot_segmentation_jupyter(self.img[0], self.roi[0])
+
+    # def def_roi(self):
+    #     r = ROI(self.img, spline=True)
+    #     self.roi = r.roi

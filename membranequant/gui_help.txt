@@ -47,17 +47,11 @@ If greater than 1, the programme will iteratively use fitting results to adjust 
 Thickness:
 Width of cross sections taken (in pixel units).
 
-ROI freedom:
-Measure of how much the fitted membrane is permitted to stray from the ROI (max=1, equivalent to 0.5 * Thickness pixel units).
-
 Periodic ROI:
 Specifies whether inputted ROI forms a complete loop (i.e. to quantify the entire cell). If unchecked, will only quantify the region between the first and last points clicked.
 
 Subtract background:
 If checked, the programme will estimate and remove background signal prior to quantification. If images have been pre-processed to remove background signal, this should be left unchecked.
-
-Parallel processing:
-If checked, will quantify different frames in parallel on different CPUs.
 
 Uniform cytoplasm/membrane:
 In some cases can improve fits by globally fitting a uniform cytoplasm and/or membrane concentration. Should not be used without good reason.
@@ -69,7 +63,7 @@ If fits look bad, there are a number of things you can try:
 
 - Adjust Sigma (decrease if fits look too wide, increase if fits look too narrow).
 
-- Improve the accuracy of the manual ROI and reduce the ROI freedom. Note this will cause problems if the embryo moves a lot between frames. If this is the case then it may be best to perform separate analyses on small groups of frames.
+- Improve the accuracy of the manual ROI 
 
 - Increase the rolling average window. Reduces noise at the cost of reducing spatial information.
 
@@ -78,5 +72,3 @@ If fits look bad, there are a number of things you can try:
 - Use advanced mode with measured cytoplasmic and/or membrane profiles.
 
 If quantification is taking a long time to run, reduce the number of fits or iterations.
-
-If you get some weird error, try turning parallel processing off.

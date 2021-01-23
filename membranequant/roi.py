@@ -3,6 +3,12 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
 from .funcs import spline_roi
 
+"""
+This no longer works with multiple channels - intensity ranges
+Need a version that works in notebooks
+
+"""
+
 
 class ROI:
     """
