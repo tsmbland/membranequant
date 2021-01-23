@@ -1,32 +1,431 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Changes to pretty much everything. Tensorflow optimisation method working well now and is default. Adapted to take single frames or stacks, and global parameter optimisation. In good working order but needs a tidy-up">
-      <change afterPath="$PROJECT_DIR$/membranequant/quantification_method2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Minor changes to code, and big improvements to notebooks">
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/00/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/00/_00.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/00/_00_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/00/_00_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/00/_00_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/00/_00_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/00/_00_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/00/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/01/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/01/_01.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/01/_01_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/01/_01_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/01/_01_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/01/_01_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/01/_01_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/01/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/02/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/02/_02.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/02/_02_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/02/_02_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/02/_02_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/02/_02_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/02/_02_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/02/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/03/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/03/_03.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/03/_03_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/03/_03_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/03/_03_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/03/_03_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/03/_03_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/03/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/04/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/04/_04.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/04/_04_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/04/_04_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/04/_04_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/04/_04_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/04/_04_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset1_n2/04/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/00/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/00/_15,60_.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/00/_15,60__MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/00/_15,60__w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/00/_15,60__w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/00/_15,60__w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/00/_15,60__w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/00/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/01/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/01/ROI_pre-spline.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/01/_15,60_1.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/01/_15,60_1_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/01/_15,60_1_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/01/_15,60_1_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/01/_15,60_1_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/01/_15,60_1_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/01/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/03/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/03/_15,60_3.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/03/_15,60_3_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/03/_15,60_3_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/03/_15,60_3_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/03/_15,60_3_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/03/_15,60_3_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/03/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/04/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/04/_15,60_4.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/04/_15,60_4_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/04/_15,60_4_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/04/_15,60_4_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/04/_15,60_4_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/04/_15,60_4_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/04/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG1_/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG2_/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3_/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG3__/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG4_/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG5_/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG6_/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/LG7_/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/coors.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/cyts_1000.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/mems_1000.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/Quant/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucyt/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020nucytsubtractedmembg/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantJune2020subtractedmembg/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantOct2020/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/cyts.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/img.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/mems.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/offsets.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/roi.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/straight.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/straight_cyt.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/straight_filtered.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/straight_fit.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/straight_mem.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/straight_resids.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/straight_resids_neg.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/QuantSept2020/straight_resids_pos.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/_15,60_5.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/_15,60_5_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/_15,60_5_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/_15,60_5_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/_15,60_5_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/_15,60_5_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset2_par2_neon/05/params.pkl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/_01.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/_01_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/_01_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/_01_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/_01_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/_01_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/_01_w5488 PH 535-50.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/_01_w6488 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/_01_w7561 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/01/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/_02.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/_02_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/_02_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/_02_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/_02_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/_02_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/_02_w5488 PH 535-50.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/_02_w6488 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/_02_w7561 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/02/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/_03.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/_03_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/_03_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/_03_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/_03_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/_03_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/_03_w5488 PH 535-50.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/_03_w6488 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/_03_w7561 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/03/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/_04.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/_04_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/_04_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/_04_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/_04_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/_04_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/_04_w5488 PH 535-50.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/_04_w6488 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/_04_w7561 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/04/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/_05.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/_05_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/_05_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/_05_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/_05_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/_05_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/_05_w5488 PH 535-50.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/_05_w6488 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/_05_w7561 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/05/af_corrected.tif" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/ROI.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/_06.nd" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/_06_MDAlog.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/_06_w1DIC SP Camera.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/_06_w2488 SP 535-50 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/_06_w3488 SP 630-75 Nelio-AF.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/_06_w4561 SP 630-75 Nelio.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/_06_w5488 PH 535-50.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/_06_w6488 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/_06_w7561 PH 630-75.TIF" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_datasets/dataset3_pkc3_par3mutant/06/af_corrected.tif" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/_notes.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/gui_help.txt" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/gui_help.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/interactive.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/interactive.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/training.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/2_straighten.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/3_profile_fitting.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/4_spatial_quantification.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/5_batch_quantification.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/6_custom_reference_profiles.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/7_summary.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/AF_Correlation.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/scripts/open_gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/open_gui.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -276,7 +675,7 @@
       <workItem from="1610626585249" duration="158000" />
       <workItem from="1610626874345" duration="7924000" />
       <workItem from="1611135377552" duration="449000" />
-      <workItem from="1611228875856" duration="5611000" />
+      <workItem from="1611228875856" duration="6018000" />
     </task>
     <task id="LOCAL-00001" summary="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions">
       <created>1533827459455</created>
@@ -509,7 +908,21 @@
       <option name="project" value="LOCAL" />
       <updated>1609784793500</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="Minor changes to code, and big improvements to notebooks">
+      <created>1611398490095</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1611398490095</updated>
+    </task>
+    <task id="LOCAL-00035" summary="Minor changes to code, and big improvements to notebooks">
+      <created>1611398563833</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1611398563833</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -543,7 +956,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Changes for cluster" />
     <MESSAGE value="classes for segmentation, analysis, batch analysis" />
     <MESSAGE value="Scripts now save parameter files for each embryo folder, before performing analysis on all" />
     <MESSAGE value="Moved scripts to new project" />
@@ -568,7 +980,8 @@
     <MESSAGE value="Tensorflow fitting method as default. Changes to functions, mainly to speed up by removing for loops. Removed some unused functions" />
     <MESSAGE value="huge reorganisation, added notebooks (mostly empty)" />
     <MESSAGE value="Changes to pretty much everything. Tensorflow optimisation method working well now and is default. Adapted to take single frames or stacks, and global parameter optimisation. In good working order but needs a tidy-up" />
-    <option name="LAST_COMMIT_MESSAGE" value="Changes to pretty much everything. Tensorflow optimisation method working well now and is default. Adapted to take single frames or stacks, and global parameter optimisation. In good working order but needs a tidy-up" />
+    <MESSAGE value="Minor changes to code, and big improvements to notebooks" />
+    <option name="LAST_COMMIT_MESSAGE" value="Minor changes to code, and big improvements to notebooks" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/MembraneQuant$gui.coverage" NAME="gui Coverage Results" MODIFIED="1609783081357" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/membranequant" />
