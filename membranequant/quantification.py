@@ -16,10 +16,8 @@ import time
 To do:
 Doesn't throw error if bgcurve are wrong size - could be a problem
 Permit wider bgcurves for wiggle room
+- Make sure bgcurves are centred no matter how big
 Switch from linear bgcurve interpolation to cubic spline
-Option to have separate curves (and sigma) for each image
-Some problem when training cytbg of width 50 but not 60 or 40???
-Have a free alignment parameter (i.e. on or off)
 
 """
 
@@ -61,7 +59,7 @@ class ImageQuant:
     def __init__(self, img, roi, cytbg=None, membg=None, sigma=2, periodic=True, thickness=50,
                  rol_ave=20, rotate=False, nfits=None, iterations=1, bg_subtract=False, uni_cyt=False, uni_mem=False,
                  cyt_only=False, mem_only=False, lr=0.01, descent_steps=2000, adaptive_sigma=False,
-                 adaptive_membg=False, adaptive_cytbg=False, align=True, batch_norm=False):
+                 adaptive_membg=False, adaptive_cytbg=False, free_align=True, batch_norm=False, position_weights=None):
 
         # Detect if single frame or stack
         if type(img) is list:
@@ -101,7 +99,7 @@ class ImageQuant:
         self.mem_only = mem_only
 
         # Fitting parameters
-        self.align = align
+        self.free_align = free_align
         self.iterations = iterations
         self.thickness = thickness
         self.rol_ave = rol_ave
@@ -110,6 +108,7 @@ class ImageQuant:
         self.nfits = nfits
         self.lr = lr
         self.descent_steps = descent_steps
+        self.position_weights = position_weights
 
         # Background curves
         self.cytbg = cytbg
@@ -188,7 +187,7 @@ class ImageQuant:
 
         # Offsets
         self.offsets_t = tf.Variable(np.zeros([nimages, nfits]))
-        if self.align:
+        if self.free_align:
             self.vars.append(self.offsets_t)
 
         # Cytoplasmic concentrations
@@ -240,6 +239,11 @@ class ImageQuant:
         offsets_ = self.offsets_t[:, :, tf.newaxis]
         positions = tf.reshape(tf.math.add(positions_, offsets_), [-1])
 
+        # Mask
+        mask = 1 - (tf.cast(tf.math.less(positions, 0), tf.float64) + tf.cast(
+            tf.math.greater(positions, self.thickness), tf.float64))
+        mask_ = tf.reshape(mask, [nimages, nfits, self.thickness])
+
         # Mem curve
         if self.membg is not None:
             # membg_norm = self.membg_t / tf.reduce_max(self.membg_t)
@@ -270,14 +274,24 @@ class ImageQuant:
 
         # Sum outputs
         if include_c and include_m:
-            return tf.transpose(tf.math.add(mem_total, cyt_total), [0, 2, 1])
+            return tf.transpose(tf.math.add(mem_total, cyt_total), [0, 2, 1]), tf.transpose(mask_, [0, 2, 1])
         elif include_c:
-            return tf.transpose(cyt_total, [0, 2, 1])
+            return tf.transpose(cyt_total, [0, 2, 1]), tf.transpose(mask_, [0, 2, 1])
         elif include_m:
-            return tf.transpose(mem_total, [0, 2, 1])
+            return tf.transpose(mem_total, [0, 2, 1]), tf.transpose(mask_, [0, 2, 1])
 
     def losses_full(self):
-        return tf.math.reduce_mean((self.sim_images() - self.target) ** 2, axis=[1, 2])
+        sim, mask = self.sim_images()
+        sq_errors = (sim - self.target) ** 2
+
+        # Position weights
+        if self.position_weights is not None:
+            sq_errors *= tf.expand_dims(tf.expand_dims(self.position_weights, axis=0), axis=0) / tf.reduce_mean(
+                self.position_weights)
+
+        # Masked average
+        mse = tf.reduce_sum(sq_errors * mask, axis=[1, 2]) / tf.reduce_sum(mask, axis=[1, 2])
+        return mse
 
     def fit(self):
 
@@ -311,9 +325,9 @@ class ImageQuant:
                 opt.apply_gradients(list(zip(grads, self.vars)))
 
         # Save and rescale sim images (rescaled)
-        self.sim_both = self.sim_images().numpy() * self.norms[:, np.newaxis, np.newaxis]
-        self.sim_cyt = self.sim_images(include_m=False).numpy() * self.norms[:, np.newaxis, np.newaxis]
-        self.sim_mem = self.sim_images(include_c=False).numpy() * self.norms[:, np.newaxis, np.newaxis]
+        self.sim_both = self.sim_images()[0].numpy() * self.norms[:, np.newaxis, np.newaxis]
+        self.sim_cyt = self.sim_images(include_m=False)[0].numpy() * self.norms[:, np.newaxis, np.newaxis]
+        self.sim_mem = self.sim_images(include_c=False)[0].numpy() * self.norms[:, np.newaxis, np.newaxis]
         self.target = self.target * self.norms[:, np.newaxis, np.newaxis]
 
         # Save and rescale results

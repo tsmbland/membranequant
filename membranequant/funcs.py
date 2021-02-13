@@ -11,6 +11,7 @@ import os
 
 """
 os.walk for direcslist
+Straighten: errors at end for non-periodic?
 
 """
 
