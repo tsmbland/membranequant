@@ -58,8 +58,9 @@ class ImageQuant:
 
     def __init__(self, img, roi, cytbg=None, membg=None, sigma=2, periodic=True, thickness=50,
                  rol_ave=20, rotate=False, nfits=None, iterations=1, bg_subtract=False, uni_cyt=False, uni_mem=False,
-                 cyt_only=False, mem_only=False, lr=0.01, descent_steps=2000, adaptive_sigma=False,
-                 adaptive_membg=False, adaptive_cytbg=False, free_align=True, batch_norm=False, position_weights=None):
+                 cyt_only=False, mem_only=False, lr=0.01, descent_steps=500, adaptive_sigma=False,
+                 adaptive_membg=False, adaptive_cytbg=False, batch_norm=False, position_weights=None,
+                 freedom=10, zerocap=False):
 
         # Detect if single frame or stack
         if type(img) is list:
@@ -99,7 +100,6 @@ class ImageQuant:
         self.mem_only = mem_only
 
         # Fitting parameters
-        self.free_align = free_align
         self.iterations = iterations
         self.thickness = thickness
         self.rol_ave = rol_ave
@@ -109,6 +109,8 @@ class ImageQuant:
         self.lr = lr
         self.descent_steps = descent_steps
         self.position_weights = position_weights
+        self.freedom = freedom
+        self.zerocap = zerocap
 
         # Background curves
         self.cytbg = cytbg
@@ -118,8 +120,6 @@ class ImageQuant:
         self.adaptive_sigma = adaptive_sigma
         self.adaptive_membg = adaptive_membg
         self.adaptive_cytbg = adaptive_cytbg
-
-        # Internal variables
 
         # Results containers
         self.offsets = None
@@ -187,8 +187,7 @@ class ImageQuant:
 
         # Offsets
         self.offsets_t = tf.Variable(np.zeros([nimages, nfits]))
-        if self.free_align:
-            self.vars.append(self.offsets_t)
+        self.vars.append(self.offsets_t)
 
         # Cytoplasmic concentrations
         if self.uni_cyt:
@@ -232,11 +231,20 @@ class ImageQuant:
         nimages = self.mems_t.shape[0]
         nfits = self.nfits
 
-        # Need to align peak to centre - how?
+        # Constrain concentrations
+        if self.zerocap:
+            mems = tf.math.maximum(self.mems_t, 0)
+            cyts = tf.math.maximum(self.cyts_t, 0)
+        else:
+            mems = self.mems_t
+            cyts = self.cyts_t
+
+        # Constrain offsets
+        offsets = self.freedom * tf.math.tanh(self.offsets_t)
 
         # Positions to evaluate mem and cyt curves
         positions_ = np.arange(self.thickness, dtype=np.float64)[tf.newaxis, tf.newaxis, :]
-        offsets_ = self.offsets_t[:, :, tf.newaxis]
+        offsets_ = offsets[:, :, tf.newaxis]
         positions = tf.reshape(tf.math.add(positions_, offsets_), [-1])
 
         # Mask
@@ -264,13 +272,13 @@ class ImageQuant:
 
         # Calculate output
         if self.uni_mem:
-            mem_total = mem_curve * tf.expand_dims(tf.expand_dims(self.mems_t, axis=-1), axis=-1)
+            mem_total = mem_curve * tf.expand_dims(tf.expand_dims(mems, axis=-1), axis=-1)
         else:
-            mem_total = mem_curve * tf.expand_dims(self.mems_t, axis=-1)
+            mem_total = mem_curve * tf.expand_dims(mems, axis=-1)
         if self.uni_cyt:
-            cyt_total = cyt_curve * tf.expand_dims(tf.expand_dims(self.cyts_t, axis=-1), axis=-1)
+            cyt_total = cyt_curve * tf.expand_dims(tf.expand_dims(cyts, axis=-1), axis=-1)
         else:
-            cyt_total = cyt_curve * tf.expand_dims(self.cyts_t, axis=-1)
+            cyt_total = cyt_curve * tf.expand_dims(cyts, axis=-1)
 
         # Sum outputs
         if include_c and include_m:
@@ -331,15 +339,21 @@ class ImageQuant:
         self.target = self.target * self.norms[:, np.newaxis, np.newaxis]
 
         # Save and rescale results
+        if self.zerocap:
+            mems = tf.math.maximum(self.mems_t, 0)
+            cyts = tf.math.maximum(self.cyts_t, 0)
+        else:
+            mems = self.mems_t
+            cyts = self.cyts_t
         if self.uni_mem:
-            self.mems = np.tile((self.mems_t.numpy() * self.norms)[:, np.newaxis], [1, self.nfits])
+            self.mems = np.tile((mems.numpy() * self.norms)[:, np.newaxis], [1, self.nfits])
         else:
-            self.mems = self.mems_t.numpy() * self.norms[:, np.newaxis]
+            self.mems = mems.numpy() * self.norms[:, np.newaxis]
         if self.uni_cyt:
-            self.cyts = np.tile((self.cyts_t.numpy() * self.norms)[:, np.newaxis], [1, self.nfits])
+            self.cyts = np.tile((cyts.numpy() * self.norms)[:, np.newaxis], [1, self.nfits])
         else:
-            self.cyts = self.cyts_t.numpy() * self.norms[:, np.newaxis]
-        self.offsets = self.offsets_t.numpy()
+            self.cyts = cyts.numpy() * self.norms[:, np.newaxis]
+        self.offsets = self.freedom * tf.math.tanh(self.offsets_t).numpy()
 
         # Interpolated results
         self.offsets_full = [interp_1d_array(offsets, len(roi[:, 0]), method='linear') for offsets, roi in

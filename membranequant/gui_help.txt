@@ -47,6 +47,9 @@ If greater than 1, the programme will iteratively use fitting results to adjust 
 Thickness:
 Width of cross sections taken (in pixel units).
 
+ROI freedom:
+How much the fitted membrane is permitted to stray from the initial ROI (pixel units).
+
 Periodic ROI:
 Specifies whether inputted ROI forms a complete loop (i.e. to quantify the entire cell). If unchecked, will only quantify the region between the first and last points clicked.
 

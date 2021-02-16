@@ -124,11 +124,11 @@ class ImageQuantGUI:
         self.entry_thickness.delete(0, 'end')
         self.entry_thickness.insert(0, '50')
 
-        # self.label_freedom = tk.Label(master=self.window, text='ROI freedom')
-        # self.entry_freedom = tk.Spinbox(master=self.window,
-        #                                 values=["{:.1f}".format(i) for i in list(np.arange(0, 1.1, 0.1))])
-        # self.entry_freedom.delete(0, 'end')
-        # self.entry_freedom.insert(0, '0.5')
+        self.label_freedom = tk.Label(master=self.window, text='ROI freedom')
+        self.entry_freedom = tk.Spinbox(master=self.window,
+                                        values=["{:.1f}".format(i) for i in list(np.arange(0, 51, 1))])
+        self.entry_freedom.delete(0, 'end')
+        self.entry_freedom.insert(0, '10')
 
         self.label_periodic = tk.Label(master=self.window, text='Periodic ROI')
         self.var_periodic = tk.IntVar(value=1)
@@ -200,8 +200,8 @@ class ImageQuantGUI:
         self.entry_iterations.grid(row=9, column=1, sticky='W', padx=10)
         self.label_thickness.grid(row=10, column=0, sticky='W', padx=10)
         self.entry_thickness.grid(row=10, column=1, sticky='W', padx=10)
-        # self.label_freedom.grid(row=11, column=0, sticky='W', padx=10)
-        # self.entry_freedom.grid(row=11, column=1, sticky='W', padx=10)
+        self.label_freedom.grid(row=11, column=0, sticky='W', padx=10)
+        self.entry_freedom.grid(row=11, column=1, sticky='W', padx=10)
         self.label_periodic.grid(row=12, column=0, sticky='W', padx=10, pady=3)
         self.checkbutton_periodic.grid(row=12, column=1, sticky='W', padx=10, pady=3)
         self.label_bg.grid(row=13, column=0, sticky='W', padx=10, pady=3)
@@ -401,7 +401,7 @@ class ImageQuantGUI:
         self.end_frame = int(self.entry_end.get())
         self.iterations = int(self.entry_iterations.get())
         self.thickness = int(self.entry_thickness.get())
-        # self.freedom = float(self.entry_freedom.get())
+        self.freedom = float(self.entry_freedom.get())
         self.periodic = bool(self.var_periodic.get())
         self.bg_subtract = bool(self.var_bg.get())
         self.uni_cyt = bool(self.var_unicyt.get())
@@ -421,7 +421,7 @@ class ImageQuantGUI:
                                              nfits=self.nfits, sigma=self.sigma, iterations=self.iterations,
                                              periodic=self.periodic,
                                              bg_subtract=self.bg_subtract, uni_cyt=False, uni_mem=False,
-                                             descent_steps=2000)
+                                             descent_steps=500, freedom=self.freedom, zerocap=False)
 
             else:  # advanced mode
                 self.quantifier = ImageQuant(inpt, roi=self.ROI, thickness=self.thickness, rol_ave=self.rol_ave,
@@ -429,7 +429,8 @@ class ImageQuantGUI:
                                              iterations=self.iterations, periodic=self.periodic,
                                              bg_subtract=self.bg_subtract,
                                              cytbg=self.cytbg, membg=self.membg, uni_cyt=self.uni_cyt,
-                                             uni_mem=self.uni_mem, sigma=self.sigma, descent_steps=2000)
+                                             uni_mem=self.uni_mem, sigma=self.sigma, descent_steps=500,
+                                             freedom=self.freedom, zerocap=False)
 
             # Update window
             self.toggle_set2('disable')
@@ -493,8 +494,8 @@ class ImageQuantGUI:
         self.entry_iterations.configure(state=state)
         self.label_thickness.configure(state=state)
         self.entry_thickness.configure(state=state)
-        # self.label_freedom.configure(state=state)
-        # self.entry_freedom.configure(state=state)
+        self.label_freedom.configure(state=state)
+        self.entry_freedom.configure(state=state)
         self.label_periodic.configure(state=state)
         self.checkbutton_periodic.configure(state=state)
         self.label_bg.configure(state=state)
