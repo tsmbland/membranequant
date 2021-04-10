@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Added setup.py">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Added requirements to setup.py">
+      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -535,7 +535,21 @@
       <option name="project" value="LOCAL" />
       <updated>1618075988544</updated>
     </task>
-    <option name="localTasksCounter" value="40" />
+    <task id="LOCAL-00040" summary="Added requirements to setup.py">
+      <created>1618077431793</created>
+      <option name="number" value="00040" />
+      <option name="presentableId" value="LOCAL-00040" />
+      <option name="project" value="LOCAL" />
+      <updated>1618077431793</updated>
+    </task>
+    <task id="LOCAL-00041" summary="Added requirements to setup.py">
+      <created>1618077445419</created>
+      <option name="number" value="00041" />
+      <option name="presentableId" value="LOCAL-00041" />
+      <option name="project" value="LOCAL" />
+      <updated>1618077445419</updated>
+    </task>
+    <option name="localTasksCounter" value="42" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -569,7 +583,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added generic segmenter class containing shared methods between segmenter subclasses. Segmenters now interpolate fitted coordinates to one pixel distances, ensures even coverage by quantifier. Ability to specify initial ROI within python, and fit spline to this. For segmenter1: end-fit and gaussian fit functions incorporated into single function. Added segmenter4 method to align coordinates to peak of profiles (useful for segmenting membrane background curves). Added segmenter5: segmentation using cytoplasmic and membrane background curves. Quantifier performs seperate calculations for anterior, posterior and whole membrane signal intensity. Function to calculate average membrane concentration, based on shape and assuming rotational symmetry + similar changes to whole embryo dosage calculation. Tidied section at end for general array functions." />
     <MESSAGE value="Added readme (currently empty) and example scripts for two segmentation methods" />
     <MESSAGE value="Added 2-channel plots for 2-channel segmentation methods, plot_straight method, Segmenter6 subclass (two channel)" />
     <MESSAGE value="Large restructuring" />
@@ -594,16 +607,17 @@
     <MESSAGE value="Improvements to notebooks. Added masking to quantifier to exclude off-edge positions" />
     <MESSAGE value="Added ability to constrain offsets and concentrations. Also sped up training ~4x by normalising offsets" />
     <MESSAGE value="Added setup.py" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added setup.py" />
+    <MESSAGE value="Added requirements to setup.py" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added requirements to setup.py" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="315" y="101" key="CommitChangelistDialog2" timestamp="1618075987520">
+    <state x="315" y="101" key="CommitChangelistDialog2" timestamp="1618077445304">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="315" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1618075987520" />
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1618075990018">
+    <state x="315" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1618077445304" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1618077446539">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1618075990018" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1618077446539" />
   </component>
 </project>
