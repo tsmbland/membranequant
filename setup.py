@@ -17,5 +17,5 @@ setup(
         'tensorflow-probability==0.11.1',
         'joblib==0.17.0',
         'future~=0.18.2',
-        'tqdm~=4.55.0 ']
+        'tqdm~=4.55.0']
 )
