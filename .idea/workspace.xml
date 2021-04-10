@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Improvements to notebooks. Added masking to quantifier to exclude off-edge positions">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Added ability to constrain offsets and concentrations. Also sped up training ~4x by normalising offsets">
+      <change afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/gui_help.txt" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/gui_help.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/control_n2_quantification.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_n2_quantification.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/control_response_to_noise.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_response_to_noise.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/saved_cyt_ref_profile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/saved_cyt_ref_profile.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/saved_mem_ref_profile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/saved_mem_ref_profile.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,8 +41,8 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/membranequant/roi.py" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/membranequant/funcs.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectId" id="1cj3YPZ1cJupSWPnHnDFoLvYP6j" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -238,7 +232,7 @@
       </list>
     </recent_temporary>
   </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="SpellCheckerSettings" BundledDictionaries="0" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" Dictionaries="0" CorrectionsLimit="5" DefaultDictionary="application-level" UseSingleDictionary="true" />
   <component name="SvnConfiguration">
     <configuration />
   </component>
@@ -270,7 +264,9 @@
       <workItem from="1612184428075" duration="1696000" />
       <workItem from="1612887712595" duration="529000" />
       <workItem from="1612951934584" duration="1869000" />
-      <workItem from="1613494530959" duration="2875000" />
+      <workItem from="1613494530959" duration="3457000" />
+      <workItem from="1613560827865" duration="1966000" />
+      <workItem from="1614080218881" duration="132000" />
     </task>
     <task id="LOCAL-00001" summary="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions">
       <created>1533827459455</created>
@@ -531,7 +527,14 @@
       <option name="project" value="LOCAL" />
       <updated>1613232498195</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary="Added ability to constrain offsets and concentrations. Also sped up training ~4x by normalising offsets">
+      <created>1613501713804</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1613501713804</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -565,7 +568,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Moved scripts to new project" />
     <MESSAGE value="Fixed glitch in segmentation algorithm, added option for periodic vs non-periodic segmentation" />
     <MESSAGE value="Added generic segmenter class containing shared methods between segmenter subclasses. Segmenters now interpolate fitted coordinates to one pixel distances, ensures even coverage by quantifier. Ability to specify initial ROI within python, and fit spline to this. For segmenter1: end-fit and gaussian fit functions incorporated into single function. Added segmenter4 method to align coordinates to peak of profiles (useful for segmenting membrane background curves). Added segmenter5: segmentation using cytoplasmic and membrane background curves. Quantifier performs seperate calculations for anterior, posterior and whole membrane signal intensity. Function to calculate average membrane concentration, based on shape and assuming rotational symmetry + similar changes to whole embryo dosage calculation. Tidied section at end for general array functions." />
     <MESSAGE value="Added readme (currently empty) and example scripts for two segmentation methods" />
@@ -590,11 +592,7 @@
     <MESSAGE value="Minor changes to code, and big improvements to notebooks" />
     <MESSAGE value="Added test datasets" />
     <MESSAGE value="Improvements to notebooks. Added masking to quantifier to exclude off-edge positions" />
-    <option name="LAST_COMMIT_MESSAGE" value="Improvements to notebooks. Added masking to quantifier to exclude off-edge positions" />
-  </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/MembraneQuant$tesr.coverage" NAME="tesr Coverage Results" MODIFIED="1610634179449" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/MembraneQuant$gui.coverage" NAME="gui Coverage Results" MODIFIED="1613497186675" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/membranequant" />
-    <SUITE FILE_PATH="coverage/MembraneQuant$GUI.coverage" NAME="GUI Coverage Results" MODIFIED="1613501555995" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <MESSAGE value="Added ability to constrain offsets and concentrations. Also sped up training ~4x by normalising offsets" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added ability to constrain offsets and concentrations. Also sped up training ~4x by normalising offsets" />
   </component>
 </project>
