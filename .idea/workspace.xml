@@ -2,6 +2,18 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Added requirements to setup.py">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/2_models_of_membrane_and_cytoplasmic_protein.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/2_models_of_membrane_and_cytoplasmic_protein.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -212,8 +224,8 @@
     <list>
       <item itemvalue="Python.GUI" />
       <item itemvalue="Python.autofluorescence" />
-      <item itemvalue="Python.rough2" />
       <item itemvalue="Python.gui" />
+      <item itemvalue="Python.rough2" />
       <item itemvalue="Python.tesr" />
     </list>
     <recent_temporary>
@@ -549,7 +561,14 @@
       <option name="project" value="LOCAL" />
       <updated>1618077445419</updated>
     </task>
-    <option name="localTasksCounter" value="42" />
+    <task id="LOCAL-00042" summary="Added requirements to setup.py">
+      <created>1618077925390</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1618077925390</updated>
+    </task>
+    <option name="localTasksCounter" value="43" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -611,13 +630,29 @@
     <option name="LAST_COMMIT_MESSAGE" value="Added requirements to setup.py" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="315" y="101" key="CommitChangelistDialog2" timestamp="1618077445304">
+    <state x="315" y="101" key="CommitChangelistDialog2" timestamp="1618077925285">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="315" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1618077445304" />
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1618077446539">
+    <state x="315" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1618077925285" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1618938309415">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1618077446539" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1618938309415" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1618938309414">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1618938309414" />
+    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1618938309413">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1618938309413" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1618938309415">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1618938309415" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1618077926444">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1618077926444" />
   </component>
 </project>

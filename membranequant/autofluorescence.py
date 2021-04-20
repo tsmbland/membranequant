@@ -15,8 +15,8 @@ ODR functions for 3channel method
 
 
 class AfCorrelation:
-    def __init__(self, paths, ch1_regex, ch2_regex, ch3_regex=None, roi_regex=None, sigma=0, intercept0=False,
-                 expand=0):
+    def __init__(self, paths, ch1_regex='*488 SP 535-50*', ch2_regex='*488 SP 630-75*', ch3_regex=None,
+                 roi_regex='*ROI*', sigma=2, intercept0=False, expand=5):
         # Import images
         self.ch1 = np.array([load_image(sorted(glob.glob('%s/%s' % (p, ch1_regex)))[0]) for p in paths])
         self.ch2 = np.array([load_image(sorted(glob.glob('%s/%s' % (p, ch2_regex)))[0]) for p in paths])
@@ -80,23 +80,25 @@ class AfCorrelation:
         ax.set_ylabel('Channel 3')
         ax.set_zlabel('Channel 1')
 
-    # def plot_prediction(self, s=0.001):
-    #     if self.ch3 is None:
-    #         self._plot_prediction_2channel(s=s)
-    #     else:
-    #         self._plot_prediction_3channel(s=s)
-    #
-    # def _plot_prediction_2channel(self, s=0.001):
-    #     plt.scatter(self.params[0] * self.xdata + self.params[1], self.ydata, s=s)
-    #     plt.plot([0, max(self.ydata)], [0, max(self.ydata)], c='k', linestyle='--')
-    #     plt.xlim(left=0)
-    #     plt.ylim(bottom=0)
-    #
-    # def _plot_prediction_3channel(self, s=0.001):
-    #     plt.scatter(self.params[0] * self.xdata + self.params[1] * self.ydata + self.params[2], self.zdata, s=s)
-    #     plt.plot([0, max(self.zdata)], [0, max(self.zdata)], c='k', linestyle='--')
-    #     plt.xlim(left=0)
-    #     plt.ylim(bottom=0)
+    def plot_prediction(self, s=0.001):
+        if self.ch3 is None:
+            self._plot_prediction_2channel(s=s)
+        else:
+            self._plot_prediction_3channel(s=s)
+
+    def _plot_prediction_2channel(self, s=0.001):
+        fig, ax = plt.subplots()
+        ax.scatter(self.params[0] * self.xdata + self.params[1], self.ydata, s=s)
+        ax.plot([0, max(self.ydata)], [0, max(self.ydata)], c='r')
+        ax.set_xlim(left=0)
+        ax.set_ylim(bottom=0)
+
+    def _plot_prediction_3channel(self, s=0.001):
+        fig, ax = plt.subplots()
+        ax.scatter(self.params[0] * self.xdata + self.params[1] * self.ydata + self.params[2], self.zdata, s=s)
+        ax.plot([0, max(self.zdata)], [0, max(self.zdata)], c='r')
+        ax.set_xlim(left=0)
+        ax.set_ylim(bottom=0)
 
 
 def af_correlation(img1, img2, mask, sigma=0, intercept0=False):

@@ -6,6 +6,7 @@ from .funcs import spline_roi
 """
 This no longer works with multiple channels - intensity ranges
 Need a version that works in notebooks
+Ability to specify a directory and open all channels. Or an nd file
 
 """
 
@@ -24,7 +25,7 @@ class ROI:
     :return: cell boundary coordinates
     """
 
-    def __init__(self, img, spline, start_frame=0, end_frame=None, periodic=True, show_fit=True):
+    def __init__(self, img, spline=True, start_frame=0, end_frame=None, periodic=True, show_fit=True):
 
         # Detect if single frame or stack
         if type(img) is list:

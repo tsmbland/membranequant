@@ -32,6 +32,10 @@ def load_image(filename):
     return io.imread(filename).astype(float)
 
 
+def load_all_images(path):
+    return [load_image(i) for i in sorted(glob.glob(path + '/*.TIF') + glob.glob(path + '/*.tif'))]
+
+
 def save_img(img, direc):
     """
     Saves 2D array as .tif file
@@ -514,7 +518,7 @@ def make_mask(shape, roi):
 def readnd(path):
     """
 
-    :param direc: directory to embryo folder containing nd file
+    :param path: directory to embryo folder containing nd file
     :return: dictionary containing data from nd file
     """
 
@@ -525,24 +529,24 @@ def readnd(path):
     return nd
 
 
-def organise_by_nd(direc):
+def organise_by_nd(path):
     """
     Organises images in a folder using the nd files
 
-    :param direc:
+    :param path:
     :return:
     """
-    a = glob.glob('%s/*.nd' % direc)
+    a = glob.glob('%s/*.nd' % path)
     for b in a:
         name = os.path.basename(os.path.normpath(b))
         if name[0] == '_':
             folder = name[1:-3]
         else:
             folder = name[:-3]
-        os.makedirs('%s/%s' % (direc, folder))
-        os.rename(b, '%s/%s/%s' % (direc, folder, name))
+        os.makedirs('%s/%s' % (path, folder))
+        os.rename(b, '%s/%s/%s' % (path, folder, name))
         for file in glob.glob('%s_*' % b[:-3]):
-            os.rename(file, '%s/%s/%s' % (direc, folder, os.path.basename(os.path.normpath(file))))
+            os.rename(file, '%s/%s/%s' % (path, folder, os.path.basename(os.path.normpath(file))))
 
 
 def direcslist(dest, levels=0, exclude=('!',), exclusive=None):

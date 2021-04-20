@@ -11,6 +11,7 @@ from scipy.interpolate import interp1d
 from tqdm import tqdm
 import pickle
 import time
+from scipy.special import erf
 
 """
 To do:
@@ -18,6 +19,7 @@ Doesn't throw error if bgcurve are wrong size - could be a problem
 Permit wider bgcurves for wiggle room
 - Make sure bgcurves are centred no matter how big
 Switch from linear bgcurve interpolation to cubic spline
+Ability to continue with same optimiser after adjusting ROI?
 
 """
 
@@ -57,7 +59,7 @@ class ImageQuant:
     """
 
     def __init__(self, img, roi, cytbg=None, membg=None, sigma=2, periodic=True, thickness=50,
-                 rol_ave=20, rotate=False, nfits=None, iterations=1, bg_subtract=False, uni_cyt=False, uni_mem=False,
+                 rol_ave=20, rotate=False, nfits=100, iterations=1, bg_subtract=False, uni_cyt=False, uni_mem=False,
                  cyt_only=False, mem_only=False, lr=0.01, descent_steps=500, adaptive_sigma=False,
                  adaptive_membg=False, adaptive_cytbg=False, batch_norm=False, position_weights=None,
                  freedom=10, zerocap=False):
@@ -116,6 +118,11 @@ class ImageQuant:
         self.cytbg = cytbg
         self.membg = membg
 
+        # if cytbg is None:
+        #     self.cytbg = (1 + erf((np.arange(self.thickness) - self.thickness / 2) / self.sigma)) / 2
+        # if membg is None:
+        #     self.membg = np.exp(-((np.arange(self.thickness) - self.thickness / 2) ** 2) / (2 * self.sigma ** 2))
+
         # Learning
         self.adaptive_sigma = adaptive_sigma
         self.adaptive_membg = adaptive_membg
@@ -128,6 +135,11 @@ class ImageQuant:
         self.offsets_full = None
         self.cyts_full = None
         self.mems_full = None
+
+        # Tensors
+        self.cyts_t = None
+        self.mems_t = None
+        self.offsets_t = None
 
         # Simulated images
         self.straight = None
@@ -190,20 +202,22 @@ class ImageQuant:
         self.vars.append(self.offsets_t)
 
         # Cytoplasmic concentrations
-        if self.uni_cyt:
-            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=(1, 2)))
-        else:
-            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=1))
+        if self.cyts_t is None:
+            if self.uni_cyt:
+                self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=(1, 2)))
+            else:
+                self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=1))
         if self.mem_only:
             self.cyts_t = self.cyts_t * 0
         else:
             self.vars.append(self.cyts_t)
 
         # Membrane concentrations
-        if self.uni_mem:
-            self.mems_t = tf.Variable(0 * np.max(self.target, axis=(1, 2)))
-        else:
-            self.mems_t = tf.Variable(0 * np.max(self.target, axis=1))
+        if self.mems_t is None:
+            if self.uni_mem:
+                self.mems_t = tf.Variable(0 * np.max(self.target, axis=(1, 2)))
+            else:
+                self.mems_t = tf.Variable(0 * np.max(self.target, axis=1))
         if self.cyt_only:
             self.mems_t = self.mems_t * 0
         else:
