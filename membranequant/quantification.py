@@ -19,7 +19,8 @@ Doesn't throw error if bgcurve are wrong size - could be a problem
 Permit wider bgcurves for wiggle room
 - Make sure bgcurves are centred no matter how big
 Switch from linear bgcurve interpolation to cubic spline
-Ability to continue with same optimiser after adjusting ROI?
+Write def_roi function
+Switch to JAX
 
 """
 
@@ -59,10 +60,10 @@ class ImageQuant:
     """
 
     def __init__(self, img, roi, cytbg=None, membg=None, sigma=2, periodic=True, thickness=50,
-                 rol_ave=20, rotate=False, nfits=100, iterations=1, bg_subtract=False, uni_cyt=False, uni_mem=False,
+                 rol_ave=20, rotate=False, nfits=100, iterations=2, bg_subtract=False, uni_cyt=False, uni_mem=False,
                  cyt_only=False, mem_only=False, lr=0.01, descent_steps=500, adaptive_sigma=False,
                  adaptive_membg=False, adaptive_cytbg=False, batch_norm=False, position_weights=None,
-                 freedom=10, zerocap=False):
+                 freedom=10, zerocap=False, roi_filter=100):
 
         # Detect if single frame or stack
         if type(img) is list:
@@ -88,6 +89,7 @@ class ImageQuant:
             self.roi = [roi] * self.n
 
         self.periodic = periodic
+        self.roi_filter = roi_filter
 
         # Background subtraction
         self.bg_subtract = bg_subtract
@@ -118,10 +120,10 @@ class ImageQuant:
         self.cytbg = cytbg
         self.membg = membg
 
-        # if cytbg is None:
-        #     self.cytbg = (1 + erf((np.arange(self.thickness) - self.thickness / 2) / self.sigma)) / 2
-        # if membg is None:
-        #     self.membg = np.exp(-((np.arange(self.thickness) - self.thickness / 2) ** 2) / (2 * self.sigma ** 2))
+        if cytbg is None and adaptive_cytbg is True:
+            self.cytbg = (1 + erf((np.arange(self.thickness) - self.thickness / 2) / self.sigma)) / 2
+        if membg is None and adaptive_membg is True:
+            self.membg = np.exp(-((np.arange(self.thickness) - self.thickness / 2) ** 2) / (2 * self.sigma ** 2))
 
         # Learning
         self.adaptive_sigma = adaptive_sigma
@@ -199,25 +201,24 @@ class ImageQuant:
 
         # Offsets
         self.offsets_t = tf.Variable(np.zeros([nimages, nfits]))
-        self.vars.append(self.offsets_t)
+        if not self.freedom == 0:
+            self.vars.append(self.offsets_t)
 
         # Cytoplasmic concentrations
-        if self.cyts_t is None:
-            if self.uni_cyt:
-                self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=(1, 2)))
-            else:
-                self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=1))
+        if self.uni_cyt:
+            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=(1, 2)))
+        else:
+            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=1))
         if self.mem_only:
             self.cyts_t = self.cyts_t * 0
         else:
             self.vars.append(self.cyts_t)
 
         # Membrane concentrations
-        if self.mems_t is None:
-            if self.uni_mem:
-                self.mems_t = tf.Variable(0 * np.max(self.target, axis=(1, 2)))
-            else:
-                self.mems_t = tf.Variable(0 * np.max(self.target, axis=1))
+        if self.uni_mem:
+            self.mems_t = tf.Variable(0 * np.max(self.target, axis=(1, 2)))
+        else:
+            self.mems_t = tf.Variable(0 * np.max(self.target, axis=1))
         if self.cyt_only:
             self.mems_t = self.mems_t * 0
         else:
@@ -415,7 +416,7 @@ class ImageQuant:
         self.roi = [offset_coordinates(roi, offsets_full) for roi, offsets_full in zip(self.roi, self.offsets_full)]
 
         # Filter
-        self.roi = [spline_roi(roi=roi, periodic=self.periodic, s=100) for roi in self.roi]
+        self.roi = [spline_roi(roi=roi, periodic=self.periodic, s=self.roi_filter) for roi in self.roi]
 
         # Rotate
         if self.periodic:
