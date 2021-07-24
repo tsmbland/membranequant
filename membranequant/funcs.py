@@ -68,7 +68,7 @@ def save_img_jpeg(img, direc, cmin=None, cmax=None):
 ########### IMAGE OPERATIONS ###########
 
 
-def straighten(img, roi, thickness, interp='cubic'):
+def straighten(img, roi, thickness, interp='cubic', ninterp=None):
     """
     Creates straightened image based on coordinates
 
@@ -81,6 +81,9 @@ def straighten(img, roi, thickness, interp='cubic'):
 
     """
 
+    if ninterp is None:
+        ninterp = thickness
+
     # Calculate gradients
     xcoors = roi[:, 0]
     ycoors = roi[:, 1]
@@ -90,7 +93,7 @@ def straighten(img, roi, thickness, interp='cubic'):
     tangent_grad = -1 / grad
 
     # Get interpolation coordinates
-    offsets = np.linspace(thickness / 2, -thickness / 2, thickness)
+    offsets = np.linspace(thickness / 2, -thickness / 2, ninterp)
     xchange = ((offsets ** 2)[np.newaxis, :] / (1 + tangent_grad ** 2)[:, np.newaxis]) ** 0.5
     ychange = xchange / abs(grad)[:, np.newaxis]
     gridcoors_x = xcoors[:, np.newaxis] + np.sign(ydiffs)[:, np.newaxis] * np.sign(offsets)[np.newaxis, :] * xchange
@@ -122,7 +125,7 @@ def polycrop(img, polyline, enlarge):
     return newimg
 
 
-def rotated_embryo(img, roi, l=None, h=None):
+def rotated_embryo(img, roi, l=None, h=None, order=1):
     """
     Takes an image and rotates according to coordinates so that anterior is on left, posterior on right
 
@@ -165,7 +168,7 @@ def rotated_embryo(img, roi, l=None, h=None):
     yvals_back_grid = np.reshape(yvals_back, [len(yvals), len(xvals)])
 
     # Map coordinates using linear interpolation
-    zvals = map_coordinates(img.T, [xvals_back_grid, yvals_back_grid], order=1)
+    zvals = map_coordinates(img.T, [xvals_back_grid, yvals_back_grid], order=order)
 
     # Force posterior on right
     if roi_transformed[0, 0] < roi_transformed[0, roi_transformed.shape[1] // 2]:
@@ -549,6 +552,38 @@ def organise_by_nd(path):
             os.rename(file, '%s/%s/%s' % (path, folder, os.path.basename(os.path.normpath(file))))
 
 
+def _direcslist(dest, levels=0, exclude=('!',), exclusive=None):
+    lis = sorted(glob.glob('%s/*/' % dest))
+
+    for level in range(levels):
+        newlis = []
+        for e in lis:
+            newlis.extend(sorted(glob.glob('%s/*/' % e)))
+        lis = newlis
+        lis = [x[:-1] for x in lis]
+
+    # Excluded directories
+    lis_copy = copy.deepcopy(lis)
+    if exclude is not None:
+        for x in lis:
+            for i in exclude:
+                if i in x:
+                    lis_copy.remove(x)
+                    break
+
+    # Exclusive directories
+    if exclusive is not None:
+        lis2 = []
+        for x in lis_copy:
+            for i in exclusive:
+                if i in x:
+                    lis2.append(x)
+    else:
+        lis2 = lis_copy
+
+    return sorted(lis2)
+
+
 def direcslist(dest, levels=0, exclude=('!',), exclusive=None):
     """
     Gives a list of directories in a given directory (full path)
@@ -559,31 +594,6 @@ def direcslist(dest, levels=0, exclude=('!',), exclusive=None):
     :param exclusive: exclude directories that don't contain this string
     :return:
     """
-
-    def _direcslist(_dest, _levels=0, _exclude=('!',), _exclusive=None):
-
-        lis = sorted(glob.glob('%s/*/' % _dest))
-
-        for level in range(_levels):
-            newlis = []
-            for e in lis:
-                newlis.extend(sorted(glob.glob('%s/*/' % e)))
-            lis = newlis
-            lis = [x[:-1] for x in lis]
-
-        # Excluded directories
-        lis_new = copy.deepcopy(lis)
-        for i in _exclude:
-            for x in lis:
-                if i in x:
-                    lis_new.remove(x)
-
-        # Exclusive directories
-        if _exclusive is not None:
-            for x in lis:
-                if sum([i in x for i in _exclusive]) == 0:
-                    lis_new.remove(x)
-        return sorted(lis_new)
 
     if type(dest) is list:
         out = []
