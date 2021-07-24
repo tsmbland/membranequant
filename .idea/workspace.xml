@@ -3,18 +3,14 @@
   <component name="ChangeListManager">
     <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Added requirements to setup.py">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/2_models_of_membrane_and_cytoplasmic_protein.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/2_models_of_membrane_and_cytoplasmic_protein.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/control_response_to_noise.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_response_to_noise.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/saved_cyt_ref_profile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/saved_cyt_ref_profile.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/saved_mem_ref_profile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/saved_mem_ref_profile.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -577,6 +573,16 @@
   <component name="UnknownFeatures">
     <option featureType="com.intellij.fileTypeFactory" implementationName="requirements.txt" />
   </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
+  </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
@@ -634,6 +640,10 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="315" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1618077925285" />
+    <state x="100" y="100" width="1480" height="850" key="DiffContextDialog" timestamp="1623398655411">
+      <screen x="0" y="23" width="1680" height="1027" />
+    </state>
+    <state x="100" y="100" width="1480" height="850" key="DiffContextDialog/0.23.1680.1027@0.23.1680.1027" timestamp="1623398655411" />
     <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1618938309415">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
@@ -654,5 +664,25 @@
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
     <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1618077926444" />
+    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1623398655412">
+      <screen x="0" y="23" width="1680" height="1027" />
+    </state>
+    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.1680.1027@0.23.1680.1027" timestamp="1623398655412" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/membranequant/quantification_dev.py</url>
+          <line>306</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/membranequant/quantification_dev.py</url>
+          <line>297</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
