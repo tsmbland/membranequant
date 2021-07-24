@@ -584,6 +584,38 @@ def _direcslist(dest, levels=0, exclude=('!',), exclusive=None):
     return sorted(lis2)
 
 
+def _direcslist(dest, levels=0, exclude=('!',), exclusive=None):
+    lis = sorted(glob.glob('%s/*/' % dest))
+
+    for level in range(levels):
+        newlis = []
+        for e in lis:
+            newlis.extend(sorted(glob.glob('%s/*/' % e)))
+        lis = newlis
+        lis = [x[:-1] for x in lis]
+
+    # Excluded directories
+    lis_copy = copy.deepcopy(lis)
+    if exclude is not None:
+        for x in lis:
+            for i in exclude:
+                if i in x:
+                    lis_copy.remove(x)
+                    break
+
+    # Exclusive directories
+    if exclusive is not None:
+        lis2 = []
+        for x in lis_copy:
+            for i in exclusive:
+                if i in x:
+                    lis2.append(x)
+    else:
+        lis2 = lis_copy
+
+    return sorted(lis2)
+
+
 def direcslist(dest, levels=0, exclude=('!',), exclusive=None):
     """
     Gives a list of directories in a given directory (full path)
