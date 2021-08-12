@@ -51,7 +51,7 @@ def save_img(img, direc):
     # im.save(direc)
 
 
-def save_img_jpeg(img, direc, cmin=None, cmax=None):
+def save_img_jpeg(img, direc, cmin=None, cmax=None, cmap='gray'):
     """
     Saves 2D array as jpeg, according to min and max pixel intensities
 
@@ -62,7 +62,7 @@ def save_img_jpeg(img, direc, cmin=None, cmax=None):
     :return:
     """
 
-    plt.imsave(direc, img, vmin=cmin, vmax=cmax, cmap='gray')
+    plt.imsave(direc, img, vmin=cmin, vmax=cmax, cmap=cmap)
 
 
 ########### IMAGE OPERATIONS ###########
