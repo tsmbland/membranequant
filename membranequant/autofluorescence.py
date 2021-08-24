@@ -6,22 +6,25 @@ import random
 import glob
 import scipy.odr as odr
 from sklearn.metrics import r2_score
-from .funcs import load_image, offset_coordinates, make_mask
+from .funcs import load_image, offset_coordinates, make_mask, bg_subtraction
 
 """
 Scale data for ODR
+Confidence interval
+Switch to scikit learn
 
 """
 
 
 class AfCorrelation:
     def __init__(self, paths, gfp_regex='*488 SP 535-50*', af_regex='*488 SP 630-75*', rfp_regex=None,
-                 roi_regex='*ROI*', sigma=2, intercept0=False, expand=5, method='OLS'):
+                 roi_regex='*ROI*', sigma=2, intercept0=False, expand=5, method='OLS', bg_subtract=False):
 
         # Global parameters
         self.sigma = sigma
         self.intercept0 = intercept0
         self.method = method
+        self.bg_subtract = bg_subtract
 
         # Import images
         self.gfp = [load_image(sorted(glob.glob('%s/%s' % (p, gfp_regex)))[0]) for p in paths]
@@ -37,6 +40,13 @@ class AfCorrelation:
                         paths]
         else:
             self.roi = None
+
+        # Optional: background subtract
+        if self.bg_subtract:
+            self.gfp = [bg_subtraction(i, r, band=(25, 75)) for i, r in zip(self.gfp, self.roi)]
+            self.af = [bg_subtraction(i, r, band=(25, 75)) for i, r in zip(self.af, self.roi)]
+            if rfp_regex is not None:
+                self.rfp = [bg_subtraction(i, r, band=(25, 75)) for i, r in zip(self.rfp, self.roi)]
 
         # Create masks
         if self.roi is not None:
@@ -218,7 +228,8 @@ class AfCorrelation:
 
         # Finalise figure
         ax.set_xlabel('%.3f * AF + %.1f' % (self.params[0], self.params[1]))
-        ax.set_ylabel('GFP')
+        ax.set_ylabel('Residuals')
+        ax.set_xlim(np.percentile(self.gfp_vals, 0.01), np.percentile(self.gfp_vals, 99.99))
         return fig, ax
 
     def _plot_residuals_3channel(self, s=0.001):
@@ -242,7 +253,8 @@ class AfCorrelation:
 
         # Finalise plot
         ax.set_xlabel('%.3f * AF + %.3f * RFP + %.1f' % (self.params[0], self.params[1], self.params[2]))
-        ax.set_ylabel('GFP')
+        ax.set_ylabel('Residuals')
+        ax.set_xlim(np.percentile(self.gfp_vals, 0.01), np.percentile(self.gfp_vals, 99.99))
         return fig, ax
 
 
@@ -282,7 +294,7 @@ def af_correlation(img1, img2, mask=None, intercept0=False, method='OLS'):
     if method == 'OLS':
         if not intercept0:
             popt, pcov = curve_fit(lambda x, slope, intercept: slope * x + intercept, xdata, ydata)
-            params = popt
+            params = [popt[0], popt[1]]
         else:
             popt, pcov = curve_fit(lambda x, slope: slope * x, xdata, ydata)
             params = [popt[0], 0]
@@ -294,7 +306,7 @@ def af_correlation(img1, img2, mask=None, intercept0=False, method='OLS'):
             odr_data = odr.Data(xdata, ydata)
             odr_odr = odr.ODR(odr_data, odr_mod, beta0=[1, 0])
             output = odr_odr.run()
-            params = output.beta
+            params = [output.beta[0], output.beta[1]]
         else:
             odr_mod = odr.Model(lambda b, x: b[0] * x)
             odr_data = odr.Data(xdata, ydata)
@@ -349,7 +361,7 @@ def af_correlation_3channel(img1, img2, img3, mask=None, intercept0=False, metho
         if not intercept0:
             popt, pcov = curve_fit(lambda x, slope1, slope2, intercept: slope1 * x[0] + slope2 * x[1] + intercept,
                                    np.vstack((xdata, ydata)), zdata)
-            params = popt
+            params = [popt[0], popt[1], popt[2]]
         else:
             popt, pcov = curve_fit(lambda x, slope1, slope2: slope1 * x[0] + slope2 * x[1], np.vstack((xdata, ydata)),
                                    zdata)
@@ -362,7 +374,7 @@ def af_correlation_3channel(img1, img2, img3, mask=None, intercept0=False, metho
             odr_data = odr.Data(np.c_[xdata, ydata].T, zdata)
             odr_odr = odr.ODR(odr_data, odr_mod, beta0=[1, 1, 0])
             output = odr_odr.run()
-            params = output.beta
+            params = [output.beta[0], output.beta[1], output.beta[2]]
         else:
             odr_mod = odr.Model(lambda b, x: b[0] * x[0] + b[1] * x[1])
             odr_data = odr.Data(np.c_[xdata, ydata].T, zdata)
