@@ -125,18 +125,13 @@ def polycrop(img, polyline, enlarge):
     return newimg
 
 
-def rotated_embryo(img, roi, l=None, h=None, order=1):
+def rotated_embryo(img, roi, l=None, h=None, order=1, return_roi=False):
     """
     Takes an image and rotates according to coordinates so that anterior is on left, posterior on right
 
     :param img:
     :param roi:
     :return:
-
-    To do:
-    - ensure correct orientation (posterior on right)
-    - ability to specify height and width of image
-    - interpolation type
 
     """
 
@@ -161,6 +156,7 @@ def rotated_embryo(img, roi, l=None, h=None, order=1):
     yvals = np.arange(int(centre_y - h / 2), int(centre_y + h / 2))
     xvals_grid = np.tile(xvals, [len(yvals), 1])
     yvals_grid = np.tile(yvals, [len(xvals), 1]).T
+    roi_transformed = roi_transformed - np.expand_dims([centre_x - l/2, centre_y - h/2], -1)
 
     # Transform coordinate grid back
     [xvals_back, yvals_back] = np.dot(coeff, np.array([xvals_grid.flatten(), yvals_grid.flatten()]))
@@ -173,8 +169,12 @@ def rotated_embryo(img, roi, l=None, h=None, order=1):
     # Force posterior on right
     if roi_transformed[0, 0] < roi_transformed[0, roi_transformed.shape[1] // 2]:
         zvals = np.fliplr(zvals)
+        roi_transformed[0, :] = l  - roi_transformed[0, :]
 
-    return zvals
+    if return_roi:
+        return zvals, roi_transformed.T
+    else:
+        return zvals
 
 
 def bg_subtraction(img, roi, band=(25, 75)):
