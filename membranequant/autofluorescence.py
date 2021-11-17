@@ -6,25 +6,24 @@ import random
 import glob
 import scipy.odr as odr
 from sklearn.metrics import r2_score
+from sklearn.linear_model import LinearRegression
 from .funcs import load_image, offset_coordinates, make_mask, bg_subtraction
 
 """
 Scale data for ODR
 Confidence interval
-Switch to scikit learn
 
 """
 
 
 class AfCorrelation:
     def __init__(self, paths, gfp_regex='*488 SP 535-50*', af_regex='*488 SP 630-75*', rfp_regex=None,
-                 roi_regex='*ROI*', sigma=2, intercept0=False, expand=5, method='OLS', bg_subtract=False):
+                 roi_regex='*ROI*', sigma=2, intercept0=False, expand=5, method='OLS'):
 
         # Global parameters
         self.sigma = sigma
         self.intercept0 = intercept0
         self.method = method
-        self.bg_subtract = bg_subtract
 
         # Import images
         self.gfp = [load_image(sorted(glob.glob('%s/%s' % (p, gfp_regex)))[0]) for p in paths]
@@ -40,13 +39,6 @@ class AfCorrelation:
                         paths]
         else:
             self.roi = None
-
-        # Optional: background subtract
-        if self.bg_subtract:
-            self.gfp = [bg_subtraction(i, r, band=(25, 75)) for i, r in zip(self.gfp, self.roi)]
-            self.af = [bg_subtraction(i, r, band=(25, 75)) for i, r in zip(self.af, self.roi)]
-            if rfp_regex is not None:
-                self.rfp = [bg_subtraction(i, r, band=(25, 75)) for i, r in zip(self.rfp, self.roi)]
 
         # Create masks
         if self.roi is not None:
@@ -293,11 +285,14 @@ def af_correlation(img1, img2, mask=None, intercept0=False, method='OLS'):
     # Ordinary least squares regression
     if method == 'OLS':
         if not intercept0:
-            popt, pcov = curve_fit(lambda x, slope, intercept: slope * x + intercept, xdata, ydata)
-            params = [popt[0], popt[1]]
+            lr = LinearRegression(fit_intercept=True)
+            lr.fit(xdata[:, np.newaxis], ydata)
+            params = [lr.coef_[0], lr.intercept_]
+
         else:
-            popt, pcov = curve_fit(lambda x, slope: slope * x, xdata, ydata)
-            params = [popt[0], 0]
+            lr = LinearRegression(fit_intercept=False)
+            lr.fit(xdata[:, np.newaxis], ydata)
+            params = [lr.coef_[0], 0]
 
     # Orthogonal distance regression
     elif method == 'ODR':
@@ -359,13 +354,14 @@ def af_correlation_3channel(img1, img2, img3, mask=None, intercept0=False, metho
     # Ordinary least squares regression
     if method == 'OLS':
         if not intercept0:
-            popt, pcov = curve_fit(lambda x, slope1, slope2, intercept: slope1 * x[0] + slope2 * x[1] + intercept,
-                                   np.vstack((xdata, ydata)), zdata)
-            params = [popt[0], popt[1], popt[2]]
+            lr = LinearRegression(fit_intercept=True)
+            lr.fit(np.vstack((xdata, ydata)).T, zdata)
+            params = [lr.coef_[0], lr.coef_[1], lr.intercept_]
+
         else:
-            popt, pcov = curve_fit(lambda x, slope1, slope2: slope1 * x[0] + slope2 * x[1], np.vstack((xdata, ydata)),
-                                   zdata)
-            params = [popt[0], popt[1], 0]
+            lr = LinearRegression(fit_intercept=False)
+            lr.fit(np.vstack((xdata, ydata)).T, zdata)
+            params = [lr.coef_[0], lr.coef_[1], 0]
 
     # Orthogonal distance regression
     elif method == 'ODR':
