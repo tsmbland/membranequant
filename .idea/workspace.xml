@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="A few minor changes">
-      <change beforePath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/ImageAnalysis.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Restructured code, added features such as regression plots">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -267,13 +264,6 @@
       <workItem from="1613494530959" duration="3457000" />
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
-    </task>
-    <task id="LOCAL-00001" summary="Many changes. Functions to deal with timelapses and multiple stage positions; func to save jpegs; possible temporary addition to n2 analysis func; completely new segmentation algorithm; a few misc functions">
-      <created>1533827459455</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1533827459455</updated>
     </task>
     <task id="LOCAL-00002" summary="Re-segmented and analysed all data">
       <created>1533827514724</created>
@@ -583,7 +573,42 @@
       <option name="project" value="LOCAL" />
       <updated>1627144555876</updated>
     </task>
-    <option name="localTasksCounter" value="46" />
+    <task id="LOCAL-00046" summary="Restructured code, added features such as regression plots">
+      <created>1628760762126</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1628760762126</updated>
+    </task>
+    <task id="LOCAL-00047" summary="minor changes">
+      <created>1628760788464</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1628760788464</updated>
+    </task>
+    <task id="LOCAL-00048" summary="Added requirements">
+      <created>1628760822756</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1628760822756</updated>
+    </task>
+    <task id="LOCAL-00049" summary="Minor changes">
+      <created>1629822465341</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1629822465341</updated>
+    </task>
+    <task id="LOCAL-00050" summary="Rotated embryo function can now return rotated roi">
+      <created>1629822510002</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1629822510003</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -627,11 +652,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Big tidy. Removed old segmenter/quantifier classes" />
-    <MESSAGE value="Removed some unused functions" />
-    <MESSAGE value="Changed profile fit method, changed default parameters. Quantifier now saves 2d 'images' of fitted profile and components" />
-    <MESSAGE value="Stopped end-fixing, cubic interpolation" />
-    <MESSAGE value="Fixes for non-periodic segmentation. Parameters for savgol smoothening" />
     <MESSAGE value="Much cleaner quantification class and added functions for af correlation and bgcurve generation. Started ipynbbs" />
     <MESSAGE value="Faster fitting methods" />
     <MESSAGE value="Many changes including improved support for stacks and a GUI" />
@@ -652,13 +672,18 @@
     <MESSAGE value="Some changes to notebooks" />
     <MESSAGE value="Improvements to direcslist, straighten, rotated_embryo functions" />
     <MESSAGE value="A few minor changes" />
-    <option name="LAST_COMMIT_MESSAGE" value="A few minor changes" />
+    <MESSAGE value="Restructured code, added features such as regression plots" />
+    <MESSAGE value="minor changes" />
+    <MESSAGE value="Added requirements" />
+    <MESSAGE value="Minor changes" />
+    <MESSAGE value="Rotated embryo function can now return rotated roi" />
+    <option name="LAST_COMMIT_MESSAGE" value="Rotated embryo function can now return rotated roi" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1627144555584">
+    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1629822517294">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1627144555584" />
+    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1629822517294" />
     <state x="100" y="100" width="1480" height="850" key="DiffContextDialog" timestamp="1623398655411">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
@@ -688,10 +713,10 @@
     </state>
     <state x="341" y="164" key="SettingsEditor/0.0.1680.1050@0.0.1680.1050" timestamp="1627593004902" />
     <state x="311" y="160" key="SettingsEditor/0.23.1680.1027@0.23.1680.1027" timestamp="1627566881152" />
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1627144559055">
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1629822912984">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1627144559055" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1629822912984" />
     <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1623398655412">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>

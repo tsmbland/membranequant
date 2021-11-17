@@ -20,7 +20,7 @@ Permit wider bgcurves for wiggle room
 - Make sure bgcurves are centred no matter how big
 Switch from linear bgcurve interpolation to cubic spline
 Write def_roi function
-Switch to JAX
+Describe background curves by second differential
 
 """
 
@@ -172,7 +172,7 @@ class ImageQuant:
     def preprocess(self, frame, roi):
 
         # Straighten
-        straight = straighten(frame, roi, thickness=self.thickness)
+        straight = straighten(frame, roi, thickness=self.thickness, interp='cubic')
 
         # Smoothen
         straight_filtered = rolling_ave_2d(straight, window=self.rol_ave, periodic=self.periodic)
