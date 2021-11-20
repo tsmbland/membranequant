@@ -4,7 +4,7 @@ import pandas as pd
 import tensorflow as tf
 import tensorflow_probability as tfp
 from .funcs import straighten, rolling_ave_2d, interp_1d_array, interp_2d_array, rotate_roi, save_img, \
-    offset_coordinates, spline_roi
+    offset_coordinates
 from .interactive import view_stack, view_stack_jupyter, plot_fits, plot_fits_jupyter, plot_segmentation, \
     plot_segmentation_jupyter, plot_quantification, plot_quantification_jupyter
 from scipy.interpolate import interp1d
@@ -12,6 +12,7 @@ from tqdm import tqdm
 import pickle
 import time
 from scipy.special import erf
+from .tgf_interpolate import interpolate
 
 """
 To do:
@@ -20,7 +21,7 @@ Permit wider bgcurves for wiggle room
 - Make sure bgcurves are centred no matter how big
 Switch from linear bgcurve interpolation to cubic spline
 Write def_roi function
-Describe background curves by second differential
+Spline interpolation for background curves
 
 """
 
@@ -60,10 +61,10 @@ class ImageQuant:
     """
 
     def __init__(self, img, roi, cytbg=None, membg=None, sigma=2, periodic=True, thickness=50,
-                 rol_ave=20, rotate=False, nfits=100, iterations=2, bg_subtract=False, uni_cyt=False, uni_mem=False,
+                 rol_ave=10, rotate=False, nfits=100, iterations=2, bg_subtract=False, uni_cyt=False, uni_mem=False,
                  cyt_only=False, mem_only=False, lr=0.01, descent_steps=500, adaptive_sigma=False,
                  adaptive_membg=False, adaptive_cytbg=False, batch_norm=False, position_weights=None,
-                 freedom=10, zerocap=False, roi_filter=100):
+                 freedom=10, zerocap=False, roi_knots=10, loss='mse'):
 
         # Detect if single frame or stack
         if type(img) is list:
@@ -89,7 +90,7 @@ class ImageQuant:
             self.roi = [roi] * self.n
 
         self.periodic = periodic
-        self.roi_filter = roi_filter
+        self.roi_knots = roi_knots
 
         # Background subtraction
         self.bg_subtract = bg_subtract
@@ -115,6 +116,7 @@ class ImageQuant:
         self.position_weights = position_weights
         self.freedom = freedom
         self.zerocap = zerocap
+        self.loss_mode = loss
 
         # Background curves
         self.cytbg = cytbg
@@ -200,7 +202,7 @@ class ImageQuant:
         self.vars = []
 
         # Offsets
-        self.offsets_t = tf.Variable(np.zeros([nimages, nfits]))
+        self.offsets_t = tf.Variable(np.zeros([nimages, self.roi_knots]), name='Offsets')
         if not self.freedom == 0:
             self.vars.append(self.offsets_t)
 
@@ -254,8 +256,18 @@ class ImageQuant:
             mems = self.mems_t
             cyts = self.cyts_t
 
+        # Fit spline to offsets
+        x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 2), 0), (nimages, 1))
+        y = tf.concat((self.offsets_t[:, -1:], self.offsets_t, self.offsets_t[:, :2]), axis=1)
+        knots = tf.stack((x, y))
+        positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots,
+                                                       num=self.nfits + 1)[:-1], dtype=tf.float64), axis=-1)
+        spline = interpolate(knots, positions, degree=3, cyclical=False)
+        spline = tf.squeeze(spline, axis=1)
+        offsets_spline = tf.transpose(spline[:, 1, :])
+
         # Constrain offsets
-        offsets = self.freedom * tf.math.tanh(self.offsets_t)
+        offsets = self.freedom * tf.math.tanh(offsets_spline)
 
         # Positions to evaluate mem and cyt curves
         positions_ = np.arange(self.thickness, dtype=np.float64)[tf.newaxis, tf.newaxis, :]
@@ -304,17 +316,34 @@ class ImageQuant:
             return tf.transpose(mem_total, [0, 2, 1]), tf.transpose(mask_, [0, 2, 1])
 
     def losses_full(self):
-        sim, mask = self.sim_images()
-        sq_errors = (sim - self.target) ** 2
+        if self.loss_mode == 'mse':
+            sim, mask = self.sim_images()
+            sq_errors = (sim - self.target) ** 2
 
-        # Position weights
-        if self.position_weights is not None:
-            sq_errors *= tf.expand_dims(tf.expand_dims(self.position_weights, axis=0), axis=0) / tf.reduce_mean(
-                self.position_weights)
+            # Position weights
+            if self.position_weights is not None:
+                sq_errors *= tf.expand_dims(tf.expand_dims(self.position_weights, axis=0), axis=0) / tf.reduce_mean(
+                    self.position_weights)
 
-        # Masked average
-        mse = tf.reduce_sum(sq_errors * mask, axis=[1, 2]) / tf.reduce_sum(mask, axis=[1, 2])
-        return mse
+            # Masked average
+            mse = tf.reduce_sum(sq_errors * mask, axis=[1, 2]) / tf.reduce_sum(mask, axis=[1, 2])
+            return mse
+
+        elif self.loss_mode == 'mae':
+            sim, mask = self.sim_images()
+            errors = tf.math.abs(sim - self.target)
+
+            # Position weights
+            if self.position_weights is not None:
+                errors *= tf.expand_dims(tf.expand_dims(self.position_weights, axis=0), axis=0) / tf.reduce_mean(
+                    self.position_weights)
+
+            # Masked average
+            mse = tf.reduce_sum(errors * mask, axis=[1, 2]) / tf.reduce_sum(mask, axis=[1, 2])
+            return mse
+
+        else:
+            return None
 
     def fit(self):
 
@@ -368,10 +397,20 @@ class ImageQuant:
             self.cyts = np.tile((cyts.numpy() * self.norms)[:, np.newaxis], [1, self.nfits])
         else:
             self.cyts = cyts.numpy() * self.norms[:, np.newaxis]
-        self.offsets = self.freedom * tf.math.tanh(self.offsets_t).numpy()
+
+        # Offsets
+        x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 2), 0), (self.mems_t.shape[0], 1))
+        y = tf.concat((self.offsets_t[:, -1:], self.offsets_t, self.offsets_t[:, :2]), axis=1)
+        knots = tf.stack((x, y))
+        positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots, num=self.nfits + 1)[:-1],
+                                           dtype=tf.float64), axis=-1)
+        spline = interpolate(knots, positions, degree=3, cyclical=False)
+        spline = tf.squeeze(spline, axis=1)
+        offsets_spline = tf.transpose(spline[:, 1, :])
+        self.offsets = self.freedom * tf.math.tanh(offsets_spline).numpy()
 
         # Interpolated results
-        self.offsets_full = [interp_1d_array(offsets, len(roi[:, 0]), method='linear') for offsets, roi in
+        self.offsets_full = [interp_1d_array(offsets, len(roi[:, 0]), method='cubic') for offsets, roi in
                              zip(self.offsets, self.roi)]
         self.cyts_full = [interp_1d_array(cyts, len(roi[:, 0]), method='linear') for cyts, roi in
                           zip(self.cyts, self.roi)]
@@ -414,9 +453,6 @@ class ImageQuant:
 
         # Offset coordinates
         self.roi = [offset_coordinates(roi, offsets_full) for roi, offsets_full in zip(self.roi, self.offsets_full)]
-
-        # Filter
-        self.roi = [spline_roi(roi=roi, periodic=self.periodic, s=self.roi_filter) for roi in self.roi]
 
         # Rotate
         if self.periodic:

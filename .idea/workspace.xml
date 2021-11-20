@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Restructured code, added features such as regression plots">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Rotated embryo func returns rotated coordinates (optional)">
+      <change afterPath="$PROJECT_DIR$/membranequant/tgf_interpolate.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -65,9 +64,9 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/membranequant" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/notebooks" />
-      <recent name="$PROJECT_DIR$/membranequant" />
       <recent name="$PROJECT_DIR$/scripts" />
       <recent name="$PROJECT_DIR$/Scripts" />
     </key>
@@ -79,7 +78,7 @@
       <recent name="$PROJECT_DIR$/Scripts" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.GUI">
+  <component name="RunManager" selected="Python.tgf_interpolate">
     <configuration name="GUI" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="ImageAnalysis" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -94,28 +93,6 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/open_gui.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="autofluorescence" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="ImageAnalysis" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/membranequant" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/membranequant/autofluorescence.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -212,20 +189,41 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <configuration name="tgf_interpolate" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="ImageAnalysis" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/membranequant" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/membranequant/tgf_interpolate.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Python.GUI" />
-      <item itemvalue="Python.autofluorescence" />
       <item itemvalue="Python.gui" />
       <item itemvalue="Python.rough2" />
       <item itemvalue="Python.tesr" />
+      <item itemvalue="Python.tgf_interpolate" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.tgf_interpolate" />
         <item itemvalue="Python.GUI" />
         <item itemvalue="Python.gui" />
         <item itemvalue="Python.tesr" />
         <item itemvalue="Python.rough2" />
-        <item itemvalue="Python.autofluorescence" />
       </list>
     </recent_temporary>
   </component>
@@ -264,27 +262,6 @@
       <workItem from="1613494530959" duration="3457000" />
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
-    </task>
-    <task id="LOCAL-00002" summary="Re-segmented and analysed all data">
-      <created>1533827514724</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1533827514724</updated>
-    </task>
-    <task id="LOCAL-00003" summary="changes to scriots">
-      <created>1534009662078</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1534009662078</updated>
-    </task>
-    <task id="LOCAL-00004" summary="Changes to scripts">
-      <created>1534009687652</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1534009687652</updated>
     </task>
     <task id="LOCAL-00005" summary="Changes to analysis scripts: more class based, save data as txt files, analysis results in separate directory to main data folder. Changes to figure scripts: now saves plots as png">
       <created>1537366281864</created>
@@ -608,7 +585,28 @@
       <option name="project" value="LOCAL" />
       <updated>1629822510003</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary="Switched to cubic interpolation for straightening">
+      <created>1637150245334</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1637150245334</updated>
+    </task>
+    <task id="LOCAL-00052" summary="Switched to sklearn linear regression">
+      <created>1637150279277</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1637150279277</updated>
+    </task>
+    <task id="LOCAL-00053" summary="Rotated embryo func returns rotated coordinates (optional)">
+      <created>1637150320742</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1637150320742</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -652,9 +650,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Much cleaner quantification class and added functions for af correlation and bgcurve generation. Started ipynbbs" />
-    <MESSAGE value="Faster fitting methods" />
-    <MESSAGE value="Many changes including improved support for stacks and a GUI" />
     <MESSAGE value="Minor bug fixes and improvements" />
     <MESSAGE value="Changed optimisation method. Now based on tensorflow with Adam optimiser, which gives good performance increases over previous methods. Also now allows infinitely precise alignment, removing previous itp parameter. Stable, but some improvements still to be made. May need further work playing with hyperparameters (e.g. learning rate), will need to test on more images" />
     <MESSAGE value="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly." />
@@ -677,49 +672,39 @@
     <MESSAGE value="Added requirements" />
     <MESSAGE value="Minor changes" />
     <MESSAGE value="Rotated embryo function can now return rotated roi" />
-    <option name="LAST_COMMIT_MESSAGE" value="Rotated embryo function can now return rotated roi" />
+    <MESSAGE value="Switched to cubic interpolation for straightening" />
+    <MESSAGE value="Switched to sklearn linear regression" />
+    <MESSAGE value="Rotated embryo func returns rotated coordinates (optional)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Rotated embryo func returns rotated coordinates (optional)" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1629822517294">
+    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1637150320578">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1629822517294" />
-    <state x="100" y="100" width="1480" height="850" key="DiffContextDialog" timestamp="1623398655411">
+    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1637150320578" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1637365447168">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
-    <state x="100" y="100" width="1480" height="850" key="DiffContextDialog/0.23.1680.1027@0.23.1680.1027" timestamp="1623398655411" />
-    <state x="627" y="306" key="FileChooserDialogImpl" timestamp="1627592954492">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="627" y="306" key="FileChooserDialogImpl/0.0.1680.1050@0.0.1680.1050" timestamp="1627592954492" />
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom" timestamp="1628088210234">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1628088210234" />
-    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1628088210233">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1628088210233" />
-    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1628088210232">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1628088210232" />
-    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1628088210233">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1628088210233" />
-    <state x="341" y="164" key="SettingsEditor" timestamp="1627593004902">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="341" y="164" key="SettingsEditor/0.0.1680.1050@0.0.1680.1050" timestamp="1627593004902" />
-    <state x="311" y="160" key="SettingsEditor/0.23.1680.1027@0.23.1680.1027" timestamp="1627566881152" />
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1629822912984">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1629822912984" />
-    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog" timestamp="1623398655412">
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1637360721650" />
+    <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1637365447168" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center" timestamp="1637365447167">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
-    <state x="100" y="100" width="1480" height="850" key="com.intellij.history.integration.ui.views.FileHistoryDialog/0.23.1680.1027@0.23.1680.1027" timestamp="1623398655412" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1637360721649" />
+    <state width="1659" height="227" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1637365447167" />
+    <state width="1659" height="227" key="GridCell.Tab.0.left" timestamp="1637365447167">
+      <screen x="0" y="23" width="1680" height="1027" />
+    </state>
+    <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1637360721648" />
+    <state width="1659" height="227" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1637365447167" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right" timestamp="1637365447168">
+      <screen x="0" y="23" width="1680" height="1027" />
+    </state>
+    <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1637360721650" />
+    <state width="1659" height="227" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1637365447168" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1637150323300">
+      <screen x="0" y="0" width="1680" height="1050" />
+    </state>
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1637150323300" />
   </component>
 </project>
