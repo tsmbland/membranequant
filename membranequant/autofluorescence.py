@@ -1,19 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.optimize import curve_fit
 from scipy.ndimage.filters import gaussian_filter
 import random
 import glob
 import scipy.odr as odr
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
-from .funcs import load_image, offset_coordinates, make_mask, bg_subtraction
-
-"""
-Scale data for ODR
-Confidence interval
-
-"""
+from .funcs import load_image, offset_coordinates, make_mask
 
 
 class AfCorrelation:
