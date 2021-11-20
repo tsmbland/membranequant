@@ -60,10 +60,10 @@ class ImageQuant:
     """
 
     def __init__(self, img, roi, cytbg=None, membg=None, sigma=2, periodic=True, thickness=50,
-                 rol_ave=10, rotate=False, nfits=100, iterations=2, bg_subtract=False, uni_cyt=False, uni_mem=False,
+                 rol_ave=10, rotate=False, nfits=100, iterations=2, uni_cyt=False, uni_mem=False,
                  cyt_only=False, mem_only=False, lr=0.01, descent_steps=500, adaptive_sigma=False,
                  adaptive_membg=False, adaptive_cytbg=False, batch_norm=False, position_weights=None,
-                 freedom=10, zerocap=False, roi_knots=10, loss='mse', interp_type='cubic'):
+                 freedom=10, zerocap=False, roi_knots=10, loss='mse', interp_type='cubic', fit_outer=False):
 
         # Detect if single frame or stack
         if type(img) is list:
@@ -91,9 +91,6 @@ class ImageQuant:
         self.periodic = periodic
         self.roi_knots = roi_knots
 
-        # Background subtraction
-        self.bg_subtract = bg_subtract
-
         # Normalisation
         self.batch_norm = batch_norm
 
@@ -117,6 +114,7 @@ class ImageQuant:
         self.zerocap = zerocap
         self.loss_mode = loss
         self.interp_type = interp_type
+        self.fit_outer = fit_outer
 
         # Background curves
         self.cytbg = cytbg
@@ -179,10 +177,6 @@ class ImageQuant:
         # Smoothen
         straight_filtered = rolling_ave_2d(straight, window=self.rol_ave, periodic=self.periodic)
 
-        # Background subtract
-        if self.bg_subtract:
-            straight_filtered -= np.mean(straight_filtered[:5, :])
-
         # Interpolate
         straight_filtered_itp = interp_2d_array(straight_filtered, self.nfits, ax=0, method='cubic')
 
@@ -207,9 +201,9 @@ class ImageQuant:
 
         # Cytoplasmic concentrations
         if self.uni_cyt:
-            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=(1, 2)))
+            self.cyts_t = tf.Variable(1 * np.mean(self.target[:, -5:, :], axis=(1, 2)))
         else:
-            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=1))
+            self.cyts_t = tf.Variable(1 * np.mean(self.target[:, -5:, :], axis=1))
         if self.mem_only:
             self.cyts_t = self.cyts_t * 0
         else:
@@ -217,13 +211,18 @@ class ImageQuant:
 
         # Membrane concentrations
         if self.uni_mem:
-            self.mems_t = tf.Variable(0 * np.max(self.target, axis=(1, 2)))
+            self.mems_t = tf.Variable(0.8 * np.max(self.target, axis=(1, 2)))
         else:
-            self.mems_t = tf.Variable(0 * np.max(self.target, axis=1))
+            self.mems_t = tf.Variable(0.8 * np.max(self.target, axis=1))
         if self.cyt_only:
             self.mems_t = self.mems_t * 0
         else:
             self.vars.append(self.mems_t)
+
+        # Outers
+        if self.fit_outer:
+            self.outers_t = tf.Variable(1 * np.mean(self.target[:, :5, :], axis=1))
+            self.vars.append(self.outers_t)
 
         # Sigma
         if self.sigma is not None:
@@ -297,6 +296,7 @@ class ImageQuant:
 
         else:
             mem_curve = tf.math.exp(-((positions - self.thickness / 2) ** 2) / (2 * self.sigma_t ** 2))
+
         mem_curve = tf.reshape(mem_curve, [nimages, nfits, self.thickness])
 
         # Cyt curve
@@ -323,7 +323,11 @@ class ImageQuant:
         if self.uni_cyt:
             cyt_total = cyt_curve * tf.expand_dims(tf.expand_dims(cyts, axis=-1), axis=-1)
         else:
-            cyt_total = cyt_curve * tf.expand_dims(cyts, axis=-1)
+            if not self.fit_outer:
+                cyt_total = cyt_curve * tf.expand_dims(cyts, axis=-1)
+            else:
+                cyt_total = tf.expand_dims(self.outers_t, axis=-1) + cyt_curve * tf.expand_dims((cyts - self.outers_t),
+                                                                                                axis=-1)
 
         # Sum outputs
         if include_c and include_m:
