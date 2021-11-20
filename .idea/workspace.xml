@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Spline interpolation for offsets with small number of knots - leads to smoother ROI less sensitive to noise">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Spline interpolation for bgcurves">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/tgf_interpolate.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/tgf_interpolate.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -262,13 +261,6 @@
       <workItem from="1613494530959" duration="3457000" />
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
-    </task>
-    <task id="LOCAL-00006" summary="Changes to make more compatible with server">
-      <created>1537540059136</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1537540059136</updated>
     </task>
     <task id="LOCAL-00007" summary="Changes to analysis scripts: more class based, save data as txt files, analysis results in separate directory to main data folder. Changes to figure scripts: now saves plots as png">
       <created>1537540185585</created>
@@ -606,7 +598,14 @@
       <option name="project" value="LOCAL" />
       <updated>1637399989915</updated>
     </task>
-    <option name="localTasksCounter" value="55" />
+    <task id="LOCAL-00055" summary="Spline interpolation for bgcurves">
+      <created>1637404141873</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1637404141873</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -650,7 +649,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Changed optimisation method. Now based on tensorflow with Adam optimiser, which gives good performance increases over previous methods. Also now allows infinitely precise alignment, removing previous itp parameter. Stable, but some improvements still to be made. May need further work playing with hyperparameters (e.g. learning rate), will need to test on more images" />
     <MESSAGE value="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly." />
     <MESSAGE value="New function for approximating bg curves from images" />
     <MESSAGE value="Reverting to the old fitting algorithms as they seem more reliable. Kept the tensorflow algorithms separate in IAv2" />
@@ -675,14 +673,15 @@
     <MESSAGE value="Switched to sklearn linear regression" />
     <MESSAGE value="Rotated embryo func returns rotated coordinates (optional)" />
     <MESSAGE value="Spline interpolation for offsets with small number of knots - leads to smoother ROI less sensitive to noise" />
-    <option name="LAST_COMMIT_MESSAGE" value="Spline interpolation for offsets with small number of knots - leads to smoother ROI less sensitive to noise" />
+    <MESSAGE value="Spline interpolation for bgcurves" />
+    <option name="LAST_COMMIT_MESSAGE" value="Spline interpolation for bgcurves" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="427" y="122" key="CommitChangelistDialog2" timestamp="1637399948876">
+    <state x="427" y="122" key="CommitChangelistDialog2" timestamp="1637404141259">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1637150320578" />
-    <state x="427" y="122" key="CommitChangelistDialog2/0.23.1680.1027@0.23.1680.1027" timestamp="1637399948876" />
+    <state x="427" y="122" key="CommitChangelistDialog2/0.23.1680.1027@0.23.1680.1027" timestamp="1637404141259" />
     <state width="1659" height="215" key="GridCell.Tab.0.bottom" timestamp="1637403201287">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
@@ -703,11 +702,11 @@
     </state>
     <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1637360721650" />
     <state width="1659" height="215" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1637403201287" />
-    <state x="440" y="282" key="Vcs.Push.Dialog.v2" timestamp="1637399992265">
+    <state x="440" y="282" key="Vcs.Push.Dialog.v2" timestamp="1637404152200">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1637150323300" />
-    <state x="440" y="282" key="Vcs.Push.Dialog.v2/0.23.1680.1027@0.23.1680.1027" timestamp="1637399992265" />
+    <state x="440" y="282" key="Vcs.Push.Dialog.v2/0.23.1680.1027@0.23.1680.1027" timestamp="1637404152200" />
     <state x="538" y="262" width="604" height="548" key="find.popup" timestamp="1637403173330">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>

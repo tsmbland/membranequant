@@ -63,7 +63,7 @@ class ImageQuant:
                  rol_ave=10, rotate=False, nfits=100, iterations=2, bg_subtract=False, uni_cyt=False, uni_mem=False,
                  cyt_only=False, mem_only=False, lr=0.01, descent_steps=500, adaptive_sigma=False,
                  adaptive_membg=False, adaptive_cytbg=False, batch_norm=False, position_weights=None,
-                 freedom=10, zerocap=False, roi_knots=10, loss='mse'):
+                 freedom=10, zerocap=False, roi_knots=10, loss='mse', interp_type='cubic'):
 
         # Detect if single frame or stack
         if type(img) is list:
@@ -116,6 +116,7 @@ class ImageQuant:
         self.freedom = freedom
         self.zerocap = zerocap
         self.loss_mode = loss
+        self.interp_type = interp_type
 
         # Background curves
         self.cytbg = cytbg
@@ -197,7 +198,6 @@ class ImageQuant:
 
     def init_tensors(self):
         nimages = self.target.shape[0]
-        nfits = self.target.shape[2]
         self.vars = []
 
         # Offsets
@@ -274,7 +274,7 @@ class ImageQuant:
         positions = tf.reshape(tf.math.add(positions_, offsets_), [-1])
 
         # Cap positions off edge
-        positions = tf.minimum(positions, self.thickness-1.000001)
+        positions = tf.minimum(positions, self.thickness - 1.000001)
         positions = tf.maximum(positions, 0)
 
         # Mask
@@ -285,13 +285,15 @@ class ImageQuant:
         # Mem curve
         if self.membg is not None:
             # membg_norm = self.membg_t / tf.reduce_max(self.membg_t)
-            x = np.arange(-1., self.thickness + 1)
-            y = tf.concat(([self.membg_t[0]], self.membg_t, [self.membg_t[-1]]), axis=0)
-            knots = tf.stack((x, y))
-            spline = interpolate(knots, tf.expand_dims(positions, -1), degree=3, cyclical=False)
-            mem_curve = spline[:, 0, 1]
-            # mem_curve = tfp.math.interp_regular_1d_grid(y_ref=self.membg_t, x_ref_min=0, x_ref_max=1,
-            #                                             x=positions / self.thickness)
+            if self.interp_type == 'cubic':
+                x = np.arange(-1., self.thickness + 1)
+                y = tf.concat(([self.membg_t[0]], self.membg_t, [self.membg_t[-1]]), axis=0)
+                knots = tf.stack((x, y))
+                spline = interpolate(knots, tf.expand_dims(positions, -1), degree=3, cyclical=False)
+                mem_curve = spline[:, 0, 1]
+            elif self.interp_type == 'linear':
+                mem_curve = tfp.math.interp_regular_1d_grid(y_ref=self.membg_t, x_ref_min=0, x_ref_max=1,
+                                                            x=positions / self.thickness)
 
         else:
             mem_curve = tf.math.exp(-((positions - self.thickness / 2) ** 2) / (2 * self.sigma_t ** 2))
@@ -300,13 +302,15 @@ class ImageQuant:
         # Cyt curve
         if self.cytbg is not None:
             # cytbg_norm = self.cytbg_t / tf.reduce_max(self.cytbg_t)
-            x = np.arange(-1., self.thickness + 1)
-            y = tf.concat(([self.cytbg_t[0]], self.cytbg_t, [self.cytbg_t[-1]]), axis=0)
-            knots = tf.stack((x, y))
-            spline = interpolate(knots, tf.expand_dims(positions, -1), degree=3, cyclical=False)
-            cyt_curve = spline[:, 0, 1]
-            # cyt_curve = tfp.math.interp_regular_1d_grid(y_ref=self.cytbg_t, x_ref_min=0, x_ref_max=1,
-            #                                             x=positions / self.thickness)
+            if self.interp_type == 'cubic':
+                x = np.arange(-1., self.thickness + 1)
+                y = tf.concat(([self.cytbg_t[0]], self.cytbg_t, [self.cytbg_t[-1]]), axis=0)
+                knots = tf.stack((x, y))
+                spline = interpolate(knots, tf.expand_dims(positions, -1), degree=3, cyclical=False)
+                cyt_curve = spline[:, 0, 1]
+            elif self.interp_type == 'linear':
+                cyt_curve = tfp.math.interp_regular_1d_grid(y_ref=self.cytbg_t, x_ref_min=0, x_ref_max=1,
+                                                            x=positions / self.thickness)
         else:
             cyt_curve = (1 + tf.math.erf((positions - self.thickness / 2) / self.sigma_t)) / 2
         cyt_curve = tf.reshape(cyt_curve, [nimages, nfits, self.thickness])
