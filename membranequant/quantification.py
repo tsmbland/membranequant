@@ -19,9 +19,8 @@ To do:
 Doesn't throw error if bgcurve are wrong size - could be a problem
 Permit wider bgcurves for wiggle room
 - Make sure bgcurves are centred no matter how big
-Switch from linear bgcurve interpolation to cubic spline
 Write def_roi function
-Spline interpolation for background curves
+Fit outer option
 
 """
 
@@ -274,6 +273,10 @@ class ImageQuant:
         offsets_ = offsets[:, :, tf.newaxis]
         positions = tf.reshape(tf.math.add(positions_, offsets_), [-1])
 
+        # Cap positions off edge
+        positions = tf.minimum(positions, self.thickness-1.000001)
+        positions = tf.maximum(positions, 0)
+
         # Mask
         mask = 1 - (tf.cast(tf.math.less(positions, 0), tf.float64) + tf.cast(
             tf.math.greater(positions, self.thickness), tf.float64))
@@ -282,8 +285,14 @@ class ImageQuant:
         # Mem curve
         if self.membg is not None:
             # membg_norm = self.membg_t / tf.reduce_max(self.membg_t)
-            mem_curve = tfp.math.interp_regular_1d_grid(y_ref=self.membg_t, x_ref_min=0, x_ref_max=1,
-                                                        x=positions / self.thickness)
+            x = np.arange(-1., self.thickness + 1)
+            y = tf.concat(([self.membg_t[0]], self.membg_t, [self.membg_t[-1]]), axis=0)
+            knots = tf.stack((x, y))
+            spline = interpolate(knots, tf.expand_dims(positions, -1), degree=3, cyclical=False)
+            mem_curve = spline[:, 0, 1]
+            # mem_curve = tfp.math.interp_regular_1d_grid(y_ref=self.membg_t, x_ref_min=0, x_ref_max=1,
+            #                                             x=positions / self.thickness)
+
         else:
             mem_curve = tf.math.exp(-((positions - self.thickness / 2) ** 2) / (2 * self.sigma_t ** 2))
         mem_curve = tf.reshape(mem_curve, [nimages, nfits, self.thickness])
@@ -291,8 +300,13 @@ class ImageQuant:
         # Cyt curve
         if self.cytbg is not None:
             # cytbg_norm = self.cytbg_t / tf.reduce_max(self.cytbg_t)
-            cyt_curve = tfp.math.interp_regular_1d_grid(y_ref=self.cytbg_t, x_ref_min=0, x_ref_max=1,
-                                                        x=positions / self.thickness)
+            x = np.arange(-1., self.thickness + 1)
+            y = tf.concat(([self.cytbg_t[0]], self.cytbg_t, [self.cytbg_t[-1]]), axis=0)
+            knots = tf.stack((x, y))
+            spline = interpolate(knots, tf.expand_dims(positions, -1), degree=3, cyclical=False)
+            cyt_curve = spline[:, 0, 1]
+            # cyt_curve = tfp.math.interp_regular_1d_grid(y_ref=self.cytbg_t, x_ref_min=0, x_ref_max=1,
+            #                                             x=positions / self.thickness)
         else:
             cyt_curve = (1 + tf.math.erf((positions - self.thickness / 2) / self.sigma_t)) / 2
         cyt_curve = tf.reshape(cyt_curve, [nimages, nfits, self.thickness])

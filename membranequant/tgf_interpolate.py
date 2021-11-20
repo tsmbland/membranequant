@@ -430,35 +430,49 @@ import matplotlib.pyplot as plt
 # # plt.plot(x, y)
 #
 # # plt.show()
-#
-#
+
+
 # np.random.seed(1)
 #
 # x = np.tile(np.expand_dims(np.arange(-1., 12), 0), (4, 1))
 # y = tf.Variable(np.random.rand(4, 10))
 #
+# y2 = tf.concat((y[:, -1:], y, y[:, :2]), axis=1)
 #
-# def calc_loss(x, y):
-#     y2 = tf.concat((y[:, -1:], y, y[:, :2]), axis=1)
-#     knots = tf.stack((x, y2))
+# knots = tf.stack((x, y2))
 #
-#     positions = tf.expand_dims(
-#         tf.cast(tf.linspace(start=0., stop=10.0, num=1001)[:-1], dtype=tf.float64), axis=-1)
+# positions = tf.expand_dims(
+#     tf.cast(tf.linspace(start=0., stop=10.0, num=1001)[:-1], dtype=tf.float64), axis=-1)
 #
-#     spline = interpolate(knots, positions, degree=3, cyclical=False)
-#     spline = tf.squeeze(spline, axis=1)
+# spline = interpolate(knots, positions, degree=3, cyclical=False)
+# spline = tf.squeeze(spline, axis=1)
 #
-#     loss = tf.reduce_mean((tf.transpose(spline[:, 1, :]) - np.ones([4, 1000])) ** 2)
+# import matplotlib.pyplot as plt
 #
-#     return loss
+# plt.plot(spline[:, 0], spline[:, 1], 'r')
+# plt.plot(knots[0, :], knots[1, :], 'b.')
+# plt.show()
+
 #
+# x = np.arange(-1., 11)
+# y = tf.Variable(np.random.rand(10))
 #
-# variables = [y, ]
+# y2 = tf.concat(([y[0]], y, [y[-1]]), axis=0)
 #
-# # Run optimisation
-# opt = tf.keras.optimizers.Adam()
-# for i in range(100):
-#     with tf.GradientTape() as tape:
-#         loss = calc_loss(x, y)
-#         grads = tape.gradient(loss, variables)
-#         opt.apply_gradients(list(zip(grads, variables)))
+# knots = tf.stack((x, y2))
+#
+# positions = tf.expand_dims(
+#     tf.cast(tf.tile(tf.linspace(start=0., stop=9.0, num=1001)[:-1], [10]), dtype=tf.float64), axis=-1)
+# print(positions.shape)
+# spline = interpolate(knots, positions, degree=3, cyclical=False)
+# print(spline.shape)
+# spline = tf.squeeze(spline, axis=1)
+# print(spline.shape)
+#
+# print(spline)
+#
+# import matplotlib.pyplot as plt
+#
+# plt.plot(spline[:, 0], spline[:, 1], 'r')
+# plt.plot(knots[0, :], knots[1, :], 'b.')
+# plt.show()
