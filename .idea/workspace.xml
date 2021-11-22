@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Option for linear vs cubic interpolation">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Option to fit outer portion of curve to nonzero">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -262,20 +261,6 @@
       <workItem from="1613494530959" duration="3457000" />
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
-    </task>
-    <task id="LOCAL-00008" summary="Changes for cluster">
-      <created>1537543205162</created>
-      <option name="number" value="00008" />
-      <option name="presentableId" value="LOCAL-00008" />
-      <option name="project" value="LOCAL" />
-      <updated>1537543205162</updated>
-    </task>
-    <task id="LOCAL-00009" summary="classes for segmentation, analysis, batch analysis">
-      <created>1538725430716</created>
-      <option name="number" value="00009" />
-      <option name="presentableId" value="LOCAL-00009" />
-      <option name="project" value="LOCAL" />
-      <updated>1538725430716</updated>
     </task>
     <task id="LOCAL-00010" summary="Scripts now save parameter files for each embryo folder, before performing analysis on all">
       <created>1539086740734</created>
@@ -606,7 +591,21 @@
       <option name="project" value="LOCAL" />
       <updated>1637406024098</updated>
     </task>
-    <option name="localTasksCounter" value="57" />
+    <task id="LOCAL-00057" summary="Removing redundant imports">
+      <created>1637414094694</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1637414094694</updated>
+    </task>
+    <task id="LOCAL-00058" summary="Option to fit outer portion of curve to nonzero">
+      <created>1637414156178</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1637414156178</updated>
+    </task>
+    <option name="localTasksCounter" value="59" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -650,8 +649,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="New function for approximating bg curves from images" />
-    <MESSAGE value="Reverting to the old fitting algorithms as they seem more reliable. Kept the tensorflow algorithms separate in IAv2" />
     <MESSAGE value="Tensorflow fitting method as default. Changes to functions, mainly to speed up by removing for loops. Removed some unused functions" />
     <MESSAGE value="huge reorganisation, added notebooks (mostly empty)" />
     <MESSAGE value="Changes to pretty much everything. Tensorflow optimisation method working well now and is default. Adapted to take single frames or stacks, and global parameter optimisation. In good working order but needs a tidy-up" />
@@ -675,43 +672,45 @@
     <MESSAGE value="Spline interpolation for offsets with small number of knots - leads to smoother ROI less sensitive to noise" />
     <MESSAGE value="Spline interpolation for bgcurves" />
     <MESSAGE value="Option for linear vs cubic interpolation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Option for linear vs cubic interpolation" />
+    <MESSAGE value="Removing redundant imports" />
+    <MESSAGE value="Option to fit outer portion of curve to nonzero" />
+    <option name="LAST_COMMIT_MESSAGE" value="Option to fit outer portion of curve to nonzero" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="427" y="122" key="CommitChangelistDialog2" timestamp="1637406023840">
+    <state x="427" y="122" key="CommitChangelistDialog2" timestamp="1637414155953">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1637150320578" />
-    <state x="427" y="122" key="CommitChangelistDialog2/0.23.1680.1027@0.23.1680.1027" timestamp="1637406023840" />
+    <state x="427" y="122" key="CommitChangelistDialog2/0.23.1680.1027@0.23.1680.1027" timestamp="1637414155953" />
     <state x="628" y="298" key="FileChooserDialogImpl" timestamp="1637409490751">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="628" y="298" key="FileChooserDialogImpl/0.23.1680.1027@0.23.1680.1027" timestamp="1637409490751" />
-    <state width="1659" height="215" key="GridCell.Tab.0.bottom" timestamp="1637403201287">
+    <state width="1659" height="215" key="GridCell.Tab.0.bottom" timestamp="1637414178099">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state width="1659" height="227" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1637360721650" />
-    <state width="1659" height="215" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1637403201287" />
-    <state width="1659" height="215" key="GridCell.Tab.0.center" timestamp="1637403201286">
+    <state width="1659" height="215" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178099" />
+    <state width="1659" height="215" key="GridCell.Tab.0.center" timestamp="1637414178098">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state width="1659" height="227" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1637360721649" />
-    <state width="1659" height="215" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1637403201286" />
-    <state width="1659" height="215" key="GridCell.Tab.0.left" timestamp="1637403201286">
+    <state width="1659" height="215" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178098" />
+    <state width="1659" height="215" key="GridCell.Tab.0.left" timestamp="1637414178097">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state width="1659" height="227" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1637360721648" />
-    <state width="1659" height="215" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1637403201286" />
-    <state width="1659" height="215" key="GridCell.Tab.0.right" timestamp="1637403201287">
+    <state width="1659" height="215" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178097" />
+    <state width="1659" height="215" key="GridCell.Tab.0.right" timestamp="1637414178098">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state width="1659" height="227" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1637360721650" />
-    <state width="1659" height="215" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1637403201287" />
-    <state x="440" y="282" key="Vcs.Push.Dialog.v2" timestamp="1637406029416">
+    <state width="1659" height="215" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178098" />
+    <state x="440" y="282" key="Vcs.Push.Dialog.v2" timestamp="1637414160313">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1637150323300" />
-    <state x="440" y="282" key="Vcs.Push.Dialog.v2/0.23.1680.1027@0.23.1680.1027" timestamp="1637406029416" />
+    <state x="440" y="282" key="Vcs.Push.Dialog.v2/0.23.1680.1027@0.23.1680.1027" timestamp="1637414160313" />
     <state x="538" y="262" width="604" height="548" key="find.popup" timestamp="1637403173330">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>

@@ -20,7 +20,6 @@ Doesn't throw error if bgcurve are wrong size - could be a problem
 Permit wider bgcurves for wiggle room
 - Make sure bgcurves are centred no matter how big
 Write def_roi function
-Fit outer option
 
 """
 
@@ -32,6 +31,8 @@ class ImageQuant:
 
     Input data:
     img                image
+    roi                initial coordinates defining cortex, which can be quite rough. Can use output from def_roi
+                       function
 
     Background curves:
     cytbg              cytoplasmic background curve, should be as thick as thickness parameter
@@ -39,7 +40,8 @@ class ImageQuant:
     sigma              if either of above are not specified, assume gaussian/error function with width set by sigma
 
     ROI:
-    roi                coordinates defining cortex. Can use output from def_roi function
+    roi_knots          number of knots in cubic-spline fit ROI
+    freedom            amount by which the roi can move with each iteration
 
     Fitting parameters:
     periodic           True if coordinates form a closed loop
@@ -51,11 +53,23 @@ class ImageQuant:
     iterations         if >1, adjusts ROI and re-fits
     uni_cyt            globally fit uniform cytoplasm
     uni_mem            globally fit uniform membrane
-    bg_subtract        if True, will estimate and subtract background signal prior to quantification
+    position_weights   can assign a weight to each position in the loss function. A way of restricting training to a
+                       certain part of the cell
+    batch_norm         if True, images will be globally, rather than internally, normalised. Shouldn't affect
+                       quantification but is recommended for model optimisation
+    zerocap            if True, will restrict concentrations to positive values
+    interp_type        interpolation type: 'cubic' or 'linear'
+    fit_outer          if True, will fit the outer portion of each profile to a nonzero value
 
-    Saving:
-    save_path          destination to save results, will create if it doesn't already exist
+    Gradient descent:
+    lr                 learning rate
+    descent_steps      number of gradient descent steps
+    loss               loss function: 'mse' or 'mae'
 
+    Model optimisation:
+    adaptive_sigma     if True, sigma will be trained by gradient descent
+    adaptive_membg     if True, membg will be trained by gradient descent
+    adaptive_cytbg     if True, cytbg will be trained by gradient descent
 
     """
 
