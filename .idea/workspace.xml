@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Improved documentation">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Updated to do list">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/gui.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/gui.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/tgf_interpolate.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/tgf_interpolate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -264,27 +261,6 @@
       <workItem from="1613494530959" duration="3457000" />
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
-    </task>
-    <task id="LOCAL-00011" summary="Moved scripts to new project">
-      <created>1539703791131</created>
-      <option name="number" value="00011" />
-      <option name="presentableId" value="LOCAL-00011" />
-      <option name="project" value="LOCAL" />
-      <updated>1539703791131</updated>
-    </task>
-    <task id="LOCAL-00012" summary="Fixed glitch in segmentation algorithm, added option for periodic vs non-periodic segmentation">
-      <created>1539941152666</created>
-      <option name="number" value="00012" />
-      <option name="presentableId" value="LOCAL-00012" />
-      <option name="project" value="LOCAL" />
-      <updated>1539941152667</updated>
-    </task>
-    <task id="LOCAL-00013" summary="Added generic segmenter class containing shared methods between segmenter subclasses. Segmenters now interpolate fitted coordinates to one pixel distances, ensures even coverage by quantifier. Ability to specify initial ROI within python, and fit spline to this. For segmenter1: end-fit and gaussian fit functions incorporated into single function. Added segmenter4 method to align coordinates to peak of profiles (useful for segmenting membrane background curves). Added segmenter5: segmentation using cytoplasmic and membrane background curves. Quantifier performs seperate calculations for anterior, posterior and whole membrane signal intensity. Function to calculate average membrane concentration, based on shape and assuming rotational symmetry + similar changes to whole embryo dosage calculation. Tidied section at end for general array functions.">
-      <created>1543487472346</created>
-      <option name="number" value="00013" />
-      <option name="presentableId" value="LOCAL-00013" />
-      <option name="project" value="LOCAL" />
-      <updated>1543487472346</updated>
     </task>
     <task id="LOCAL-00014" summary="Added readme (currently empty) and example scripts for two segmentation methods">
       <created>1543487527635</created>
@@ -608,7 +584,28 @@
       <option name="project" value="LOCAL" />
       <updated>1637598102076</updated>
     </task>
-    <option name="localTasksCounter" value="60" />
+    <task id="LOCAL-00060" summary="Fixed issues with non-periodic ROIs">
+      <created>1637849119010</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1637849119010</updated>
+    </task>
+    <task id="LOCAL-00061" summary="Added gitignore">
+      <created>1637849331480</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1637849331480</updated>
+    </task>
+    <task id="LOCAL-00062" summary="Updated to do list">
+      <created>1637849341861</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1637849341861</updated>
+    </task>
+    <option name="localTasksCounter" value="63" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -652,9 +649,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="huge reorganisation, added notebooks (mostly empty)" />
-    <MESSAGE value="Changes to pretty much everything. Tensorflow optimisation method working well now and is default. Adapted to take single frames or stacks, and global parameter optimisation. In good working order but needs a tidy-up" />
-    <MESSAGE value="Minor changes to code, and big improvements to notebooks" />
     <MESSAGE value="Added test datasets" />
     <MESSAGE value="Improvements to notebooks. Added masking to quantifier to exclude off-edge positions" />
     <MESSAGE value="Added ability to constrain offsets and concentrations. Also sped up training ~4x by normalising offsets" />
@@ -677,42 +671,45 @@
     <MESSAGE value="Removing redundant imports" />
     <MESSAGE value="Option to fit outer portion of curve to nonzero" />
     <MESSAGE value="Improved documentation" />
-    <option name="LAST_COMMIT_MESSAGE" value="Improved documentation" />
+    <MESSAGE value="Fixed issues with non-periodic ROIs" />
+    <MESSAGE value="Added gitignore" />
+    <MESSAGE value="Updated to do list" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated to do list" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="427" y="122" key="CommitChangelistDialog2" timestamp="1637598101728">
-      <screen x="0" y="23" width="1680" height="1027" />
+    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1637849341667">
+      <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1637150320578" />
+    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1637849341667" />
     <state x="427" y="122" key="CommitChangelistDialog2/0.23.1680.1027@0.23.1680.1027" timestamp="1637598101728" />
     <state x="628" y="298" key="FileChooserDialogImpl" timestamp="1637409490751">
       <screen x="0" y="23" width="1680" height="1027" />
     </state>
     <state x="628" y="298" key="FileChooserDialogImpl/0.23.1680.1027@0.23.1680.1027" timestamp="1637409490751" />
-    <state width="1659" height="226" key="GridCell.Tab.0.bottom" timestamp="1637847630538">
+    <state width="1659" height="226" key="GridCell.Tab.0.bottom" timestamp="1637851939317">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="226" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1637847630538" />
+    <state width="1659" height="226" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939317" />
     <state width="1659" height="215" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178099" />
-    <state width="1659" height="226" key="GridCell.Tab.0.center" timestamp="1637847630537">
+    <state width="1659" height="226" key="GridCell.Tab.0.center" timestamp="1637851939316">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="226" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1637847630537" />
+    <state width="1659" height="226" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939316" />
     <state width="1659" height="215" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178098" />
-    <state width="1659" height="226" key="GridCell.Tab.0.left" timestamp="1637847630536">
+    <state width="1659" height="226" key="GridCell.Tab.0.left" timestamp="1637851939316">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="226" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1637847630536" />
+    <state width="1659" height="226" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939316" />
     <state width="1659" height="215" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178097" />
-    <state width="1659" height="226" key="GridCell.Tab.0.right" timestamp="1637847630537">
+    <state width="1659" height="226" key="GridCell.Tab.0.right" timestamp="1637851939316">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="226" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1637847630537" />
+    <state width="1659" height="226" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939316" />
     <state width="1659" height="215" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178098" />
-    <state x="440" y="282" key="Vcs.Push.Dialog.v2" timestamp="1637598103602">
-      <screen x="0" y="23" width="1680" height="1027" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1637849352278">
+      <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1637150323300" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1637849352278" />
     <state x="440" y="282" key="Vcs.Push.Dialog.v2/0.23.1680.1027@0.23.1680.1027" timestamp="1637598103602" />
     <state x="538" y="262" width="604" height="548" key="find.popup" timestamp="1637403173330">
       <screen x="0" y="23" width="1680" height="1027" />

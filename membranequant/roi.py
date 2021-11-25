@@ -55,8 +55,8 @@ class ROI:
         self._fitted = False
 
         # Specify vlim
-        self.vmax = max([np.max(i) for i in self.images])
-        self.vmin = min([np.min(i) for i in self.images])
+        self.vmax = max([np.percentile(i, 99.9) for i in self.images])
+        self.vmin = min([np.percentile(i, 0.1) for i in self.images])
 
         # Outputs
         self.xpoints = []
