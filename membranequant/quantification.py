@@ -21,6 +21,8 @@ Permit wider bgcurves for wiggle room
 - Make sure bgcurves are centred no matter how big
 Write def_roi function
 
+Make sure it works with non-periodic ROIs
+
 """
 
 
@@ -186,7 +188,7 @@ class ImageQuant:
     def preprocess(self, frame, roi):
 
         # Straighten
-        straight = straighten(frame, roi, thickness=self.thickness, interp='cubic')
+        straight = straighten(frame, roi, thickness=self.thickness, interp='cubic', periodic=self.periodic)
 
         # Smoothen
         straight_filtered = rolling_ave_2d(straight, window=self.rol_ave, periodic=self.periodic)
@@ -269,11 +271,18 @@ class ImageQuant:
             cyts = self.cyts_t
 
         # Fit spline to offsets
-        x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 2), 0), (nimages, 1))
-        y = tf.concat((self.offsets_t[:, -1:], self.offsets_t, self.offsets_t[:, :2]), axis=1)
-        knots = tf.stack((x, y))
-        positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots,
-                                                       num=self.nfits + 1)[:-1], dtype=tf.float64), axis=-1)
+        if self.periodic:
+            x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 2), 0), (nimages, 1))
+            y = tf.concat((self.offsets_t[:, -1:], self.offsets_t, self.offsets_t[:, :2]), axis=1)
+            knots = tf.stack((x, y))
+            positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots,
+                                                           num=self.nfits + 1)[:-1], dtype=tf.float64), axis=-1)
+        else:
+            x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 1), 0), (nimages, 1))
+            y = tf.concat((self.offsets_t[:, :1], self.offsets_t, self.offsets_t[:, -1:]), axis=1)
+            knots = tf.stack((x, y))
+            positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots - 1.000001,
+                                                           num=self.nfits), dtype=tf.float64), axis=-1)
         spline = interpolate(knots, positions, degree=3, cyclical=False)
         spline = tf.squeeze(spline, axis=1)
         offsets_spline = tf.transpose(spline[:, 1, :])
@@ -435,11 +444,19 @@ class ImageQuant:
             self.cyts = cyts.numpy() * self.norms[:, np.newaxis]
 
         # Offsets
-        x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 2), 0), (self.mems_t.shape[0], 1))
-        y = tf.concat((self.offsets_t[:, -1:], self.offsets_t, self.offsets_t[:, :2]), axis=1)
-        knots = tf.stack((x, y))
-        positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots, num=self.nfits + 1)[:-1],
-                                           dtype=tf.float64), axis=-1)
+        if self.periodic:
+            x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 2), 0), (self.mems_t.shape[0], 1))
+            y = tf.concat((self.offsets_t[:, -1:], self.offsets_t, self.offsets_t[:, :2]), axis=1)
+            knots = tf.stack((x, y))
+            positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots, num=self.nfits + 1)[:-1],
+                                               dtype=tf.float64), axis=-1)
+
+        else:
+            x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 1), 0), (self.mems_t.shape[0], 1))
+            y = tf.concat((self.offsets_t[:, :1], self.offsets_t, self.offsets_t[:, -1:]), axis=1)
+            knots = tf.stack((x, y))
+            positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots - 1.000001,
+                                                           num=self.nfits), dtype=tf.float64), axis=-1)
         spline = interpolate(knots, positions, degree=3, cyclical=False)
         spline = tf.squeeze(spline, axis=1)
         offsets_spline = tf.transpose(spline[:, 1, :])
@@ -488,7 +505,8 @@ class ImageQuant:
         """
 
         # Offset coordinates
-        self.roi = [offset_coordinates(roi, offsets_full) for roi, offsets_full in zip(self.roi, self.offsets_full)]
+        self.roi = [offset_coordinates(roi, offsets_full, periodic=self.periodic) for roi, offsets_full in
+                    zip(self.roi, self.offsets_full)]
 
         # Rotate
         if self.periodic:

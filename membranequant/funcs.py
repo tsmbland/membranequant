@@ -68,7 +68,7 @@ def save_img_jpeg(img, direc, cmin=None, cmax=None, cmap='gray'):
 ########### IMAGE OPERATIONS ###########
 
 
-def straighten(img, roi, thickness, interp='cubic', ninterp=None):
+def straighten(img, roi, thickness, periodic=True, interp='cubic', ninterp=None):
     """
     Creates straightened image based on coordinates
 
@@ -87,8 +87,15 @@ def straighten(img, roi, thickness, interp='cubic', ninterp=None):
     # Calculate gradients
     xcoors = roi[:, 0]
     ycoors = roi[:, 1]
-    ydiffs = np.diff(ycoors, prepend=ycoors[-1])
-    xdiffs = np.diff(xcoors, prepend=xcoors[-1])
+    if periodic:
+        ydiffs = np.diff(ycoors, prepend=ycoors[-1])
+        xdiffs = np.diff(xcoors, prepend=xcoors[-1])
+    else:
+        ydiffs = np.diff(ycoors)
+        xdiffs = np.diff(xcoors)
+        ydiffs = np.r_[ydiffs[0], ydiffs]
+        xdiffs = np.r_[xdiffs[0], xdiffs]
+
     grad = ydiffs / xdiffs
     tangent_grad = -1 / grad
 
@@ -186,7 +193,7 @@ def bg_subtraction(img, roi, band=(25, 75)):
 ########### ROI OPERATIONS ###########
 
 
-def offset_coordinates(roi, offsets):
+def offset_coordinates(roi, offsets, periodic=True):
     """
     Reads in coordinates, adjusts according to offsets
 
@@ -202,8 +209,15 @@ def offset_coordinates(roi, offsets):
     # Calculate gradients
     xcoors = roi[:, 0]
     ycoors = roi[:, 1]
-    ydiffs = np.diff(ycoors, prepend=ycoors[-1])
-    xdiffs = np.diff(xcoors, prepend=xcoors[-1])
+    if periodic:
+        ydiffs = np.diff(ycoors, prepend=ycoors[-1])
+        xdiffs = np.diff(xcoors, prepend=xcoors[-1])
+    else:
+        ydiffs = np.diff(ycoors)
+        xdiffs = np.diff(xcoors)
+        ydiffs = np.r_[ydiffs[0], ydiffs]
+        xdiffs = np.r_[xdiffs[0], xdiffs]
+
     grad = ydiffs / xdiffs
     tangent_grad = -1 / grad
 

@@ -434,15 +434,15 @@ import matplotlib.pyplot as plt
 
 # np.random.seed(1)
 #
-# x = np.tile(np.expand_dims(np.arange(-1., 12), 0), (4, 1))
+# x = np.tile(np.expand_dims(np.arange(-1., 11), 0), (4, 1))
 # y = tf.Variable(np.random.rand(4, 10))
 #
-# y2 = tf.concat((y[:, -1:], y, y[:, :2]), axis=1)
+# y2 = tf.concat((y[:, :1], y, y[:, -1:]), axis=1)
 #
 # knots = tf.stack((x, y2))
 #
 # positions = tf.expand_dims(
-#     tf.cast(tf.linspace(start=0., stop=10.0, num=1001)[:-1], dtype=tf.float64), axis=-1)
+#     tf.cast(tf.linspace(start=0., stop=10-1.0001, num=1000), dtype=tf.float64), axis=-1)
 #
 # spline = interpolate(knots, positions, degree=3, cyclical=False)
 # spline = tf.squeeze(spline, axis=1)
@@ -453,7 +453,7 @@ import matplotlib.pyplot as plt
 # plt.plot(knots[0, :], knots[1, :], 'b.')
 # plt.show()
 
-#
+
 # x = np.arange(-1., 11)
 # y = tf.Variable(np.random.rand(10))
 #
