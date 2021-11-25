@@ -9,6 +9,9 @@ from .roi import def_roi
 from .quantification import ImageQuant
 
 """
+
+This needs to be updated to work with latest version of ImageQuant
+
 Todo: progress bar
 
 """
@@ -49,7 +52,6 @@ class ImageQuantGUI:
         self.freedom = None
         self.periodic = None
         self.parallel = None
-        self.bg_subtract = None
         self.uni_cyt = None
         self.uni_mem = None
         self.mode = None
@@ -134,9 +136,9 @@ class ImageQuantGUI:
         self.var_periodic = tk.IntVar(value=1)
         self.checkbutton_periodic = tk.Checkbutton(master=self.window, variable=self.var_periodic)
 
-        self.label_bg = tk.Label(master=self.window, text='Subtract background')
-        self.var_bg = tk.IntVar(value=1)
-        self.checkbutton_bg = tk.Checkbutton(master=self.window, variable=self.var_bg)
+        # self.label_bg = tk.Label(master=self.window, text='Subtract background')
+        # self.var_bg = tk.IntVar(value=1)
+        # self.checkbutton_bg = tk.Checkbutton(master=self.window, variable=self.var_bg)
 
         """
         Advanced parameters inputs
@@ -204,8 +206,8 @@ class ImageQuantGUI:
         self.entry_freedom.grid(row=11, column=1, sticky='W', padx=10)
         self.label_periodic.grid(row=12, column=0, sticky='W', padx=10, pady=3)
         self.checkbutton_periodic.grid(row=12, column=1, sticky='W', padx=10, pady=3)
-        self.label_bg.grid(row=13, column=0, sticky='W', padx=10, pady=3)
-        self.checkbutton_bg.grid(row=13, column=1, sticky='W', padx=10, pady=3)
+        # self.label_bg.grid(row=13, column=0, sticky='W', padx=10, pady=3)
+        # self.checkbutton_bg.grid(row=13, column=1, sticky='W', padx=10, pady=3)
         self.label_unicyt.grid(row=15, column=0, sticky='W', padx=10, pady=3)
         self.checkbutton_unicyt.grid(row=15, column=1, sticky='W', padx=10, pady=3)
         self.label_unimem.grid(row=16, column=0, sticky='W', padx=10, pady=3)
@@ -403,7 +405,6 @@ class ImageQuantGUI:
         self.thickness = int(self.entry_thickness.get())
         self.freedom = float(self.entry_freedom.get())
         self.periodic = bool(self.var_periodic.get())
-        self.bg_subtract = bool(self.var_bg.get())
         self.uni_cyt = bool(self.var_unicyt.get())
         self.uni_mem = bool(self.var_unimem.get())
 
@@ -419,18 +420,17 @@ class ImageQuantGUI:
             if self.mode == 0:  # basic mode
                 self.quantifier = ImageQuant(inpt, roi=self.ROI, thickness=self.thickness, rol_ave=self.rol_ave,
                                              nfits=self.nfits, sigma=self.sigma, iterations=self.iterations,
-                                             periodic=self.periodic,
-                                             bg_subtract=self.bg_subtract, uni_cyt=False, uni_mem=False,
+                                             periodic=self.periodic, roi_knots=10,
+                                             uni_cyt=False, uni_mem=False,
                                              descent_steps=500, freedom=self.freedom, zerocap=False)
 
             else:  # advanced mode
                 self.quantifier = ImageQuant(inpt, roi=self.ROI, thickness=self.thickness, rol_ave=self.rol_ave,
                                              nfits=self.nfits,
                                              iterations=self.iterations, periodic=self.periodic,
-                                             bg_subtract=self.bg_subtract,
                                              cytbg=self.cytbg, membg=self.membg, uni_cyt=self.uni_cyt,
                                              uni_mem=self.uni_mem, sigma=self.sigma, descent_steps=500,
-                                             freedom=self.freedom, zerocap=False)
+                                             freedom=self.freedom, zerocap=False, roi_knots=10)
 
             # Update window
             self.toggle_set2('disable')
