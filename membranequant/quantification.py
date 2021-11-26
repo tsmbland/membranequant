@@ -3,8 +3,8 @@ import os
 import pandas as pd
 import tensorflow as tf
 import tensorflow_probability as tfp
-from .funcs import straighten, rolling_ave_2d, interp_1d_array, interp_2d_array, rotate_roi, save_img, \
-    offset_coordinates
+from .funcs import straighten, rolling_ave_2d, interp_1d_array, interp_2d_array, rotate_roi, save_img
+from .roi import offset_coordinates
 from .interactive import view_stack, view_stack_jupyter, plot_fits, plot_fits_jupyter, plot_segmentation, \
     plot_segmentation_jupyter, plot_quantification, plot_quantification_jupyter
 from scipy.interpolate import interp1d

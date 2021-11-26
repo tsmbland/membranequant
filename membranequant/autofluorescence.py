@@ -6,7 +6,8 @@ import glob
 import scipy.odr as odr
 from sklearn.metrics import r2_score
 from sklearn.linear_model import LinearRegression
-from .funcs import load_image, offset_coordinates, make_mask
+from .funcs import load_image, make_mask
+from .roi import offset_coordinates
 
 
 class AfCorrelation:

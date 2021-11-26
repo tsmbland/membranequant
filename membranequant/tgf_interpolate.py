@@ -414,7 +414,7 @@ def assert_all_in_range(vector,
 # #
 # z = np.squeeze(spline_op)
 #
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 #
 # # plt.plot(k[0, 0, :], k[0, 1, :])

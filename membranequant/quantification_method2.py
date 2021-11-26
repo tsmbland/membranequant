@@ -3,8 +3,8 @@ from scipy.optimize import differential_evolution
 from joblib import Parallel, delayed
 import multiprocessing
 import os
-from .funcs import straighten, rolling_ave_2d, interp_roi, interp_1d_array, interp_2d_array, rotate_roi, save_img, \
-    offset_coordinates, error_func, gaus, spline_roi
+from .funcs import straighten, rolling_ave_2d, interp_1d_array, interp_2d_array, rotate_roi, save_img, error_func, gaus
+from .roi import offset_coordinates, spline_roi, interp_roi
 
 
 class ImageQuant2:
