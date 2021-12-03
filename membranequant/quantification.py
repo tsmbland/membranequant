@@ -13,6 +13,7 @@ import pickle
 import time
 from scipy.special import erf
 from .tgf_interpolate import interpolate
+import matplotlib.pyplot as plt
 
 """
 To do:
@@ -568,50 +569,64 @@ class ImageQuant:
     def view_frames(self, jupyter=False):
         if not jupyter:
             if self.stack:
-                view_stack(self.img)
+                fig, ax = view_stack(self.img)
             else:
-                view_stack(self.img[0])
+                fig, ax = view_stack(self.img[0])
         else:
             if self.stack:
-                view_stack_jupyter(self.img)
+                fig, ax = view_stack_jupyter(self.img)
             else:
-                view_stack_jupyter(self.img[0])
+                fig, ax = view_stack_jupyter(self.img[0])
+        return fig, ax
 
     def plot_quantification(self, jupyter=False):
         if not jupyter:
             if self.stack:
-                plot_quantification(self.mems_full)
+                fig, ax = plot_quantification(self.mems_full)
             else:
-                plot_quantification(self.mems_full[0])
+                fig, ax = plot_quantification(self.mems_full[0])
         else:
             if self.stack:
-                plot_quantification_jupyter(self.mems_full)
+                fig, ax = plot_quantification_jupyter(self.mems_full)
             else:
-                plot_quantification_jupyter(self.mems_full[0])
+                fig, ax = plot_quantification_jupyter(self.mems_full[0])
+        return fig, ax
 
     def plot_fits(self, jupyter=False):
         if not jupyter:
             if self.stack:
-                plot_fits(self.target_full, self.sim_both_full)
+                fig, ax = plot_fits(self.target_full, self.sim_both_full)
             else:
-                plot_fits(self.target_full[0], self.sim_both_full[0])
+                fig, ax = plot_fits(self.target_full[0], self.sim_both_full[0])
         else:
             if self.stack:
-                plot_fits_jupyter(self.target_full, self.sim_both_full)
+                fig, ax = plot_fits_jupyter(self.target_full, self.sim_both_full)
             else:
-                plot_fits_jupyter(self.target_full[0], self.sim_both_full[0])
+                fig, ax = plot_fits_jupyter(self.target_full[0], self.sim_both_full[0])
+        return fig, ax
 
     def plot_segmentation(self, jupyter=False):
         if not jupyter:
             if self.stack:
-                plot_segmentation(self.img, self.roi)
+                fig, ax = plot_segmentation(self.img, self.roi)
             else:
-                plot_segmentation(self.img[0], self.roi[0])
+                fig, ax = plot_segmentation(self.img[0], self.roi[0])
         else:
             if self.stack:
-                plot_segmentation_jupyter(self.img, self.roi)
+                fig, ax = plot_segmentation_jupyter(self.img, self.roi)
             else:
-                plot_segmentation_jupyter(self.img[0], self.roi[0])
+                fig, ax = plot_segmentation_jupyter(self.img[0], self.roi[0])
+        return fig, ax
+
+    def plot_losses(self):
+        fig, ax = plt.subplots()
+        ax.plot(self.losses.T)
+        ax.set_xlabel('Descent step')
+        if self.loss_mode == 'mae':
+            ax.set_ylabel('Mean absolute error')
+        elif self.loss_mode == 'mse':
+            ax.set_ylabel('Mean square error')
+        return fig, ax
 
     # def def_roi(self):
     #     r = ROI(self.img, spline=True)

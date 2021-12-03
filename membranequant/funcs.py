@@ -137,6 +137,8 @@ def rotated_embryo(img, roi, l=None, h=None, order=1, return_roi=False):
     """
     Takes an image and rotates according to coordinates so that anterior is on left, posterior on right
 
+    PROBLEM: some of the returned coordinates are anticlockwise
+
     :param img:
     :param roi:
     :return:
