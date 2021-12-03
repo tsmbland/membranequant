@@ -4,7 +4,7 @@ from matplotlib.widgets import Slider
 import ipywidgets as widgets
 
 
-def view_stack(frames, start_frame=0, end_frame=None):
+def view_stack_tk(frames, start_frame=0, end_frame=None):
     """
     Interactive stack viewer
 
@@ -23,13 +23,12 @@ def view_stack(frames, start_frame=0, end_frame=None):
 
     # Set up figure
     plt.ion()
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
     plt.subplots_adjust(left=0.25, bottom=0.25)
 
     # Specify ylim
-    vmax = max([np.max(i) for i in frames_])
-    vmin = min([np.min(i) for i in frames_])
+    vmax = max([np.percentile(i, 99.9) for i in frames_])
+    vmin = min([np.percentile(i, 0.1) for i in frames_])
 
     # Stack
     if stack:
@@ -56,6 +55,8 @@ def view_stack(frames, start_frame=0, end_frame=None):
     fig.canvas.set_window_title('')
     plt.show(block=True)
 
+    return fig, ax
+
 
 def view_stack_jupyter(frames, start_frame=0, end_frame=None):
     # Detect if single frame or stack
@@ -70,12 +71,11 @@ def view_stack_jupyter(frames, start_frame=0, end_frame=None):
         frames_ = [frames, ]
 
     # Set up figure
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     # Specify ylim
-    vmax = max([np.max(i) for i in frames_])
-    vmin = min([np.min(i) for i in frames_])
+    vmax = max([np.percentile(i, 99.9) for i in frames_])
+    vmin = min([np.percentile(i, 0.1) for i in frames_])
 
     # Stack
     if stack:
@@ -98,6 +98,15 @@ def view_stack_jupyter(frames, start_frame=0, end_frame=None):
     fig.set_size_inches(4, 4)
     fig.tight_layout()
 
+    return fig, ax
+
+
+def view_stack(frames, start_frame=0, end_frame=None, jupyter=False):
+    if jupyter:
+        view_stack_jupyter(frames, start_frame, end_frame)
+    else:
+        view_stack_tk(frames, start_frame, end_frame)
+
 
 def plot_segmentation(frames, rois):
     """
@@ -105,8 +114,7 @@ def plot_segmentation(frames, rois):
 
     """
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     # Detect if single frame or stack
     if type(frames) is list:
@@ -127,6 +135,7 @@ def plot_segmentation(frames, rois):
     if not stack:
         ax.imshow(frames_[0], cmap='gray', vmin=ylim_bottom, vmax=ylim_top)
         ax.plot(rois[:, 0], rois[:, 1], c='lime')
+        ax.scatter(rois[0, 0], rois[0, 1], c='lime')
         ax.set_xticks([])
         ax.set_yticks([])
 
@@ -142,6 +151,7 @@ def plot_segmentation(frames, rois):
             ax.clear()
             ax.imshow(frames_[int(i)], cmap='gray', vmin=ylim_bottom, vmax=ylim_top)
             ax.plot(rois[int(i)][:, 0], rois[int(i)][:, 1], c='lime')
+            ax.scatter(rois[int(i)][0, 0], rois[int(i)][0, 1], c='lime')
             ax.set_xticks([])
             ax.set_yticks([])
 
@@ -151,10 +161,11 @@ def plot_segmentation(frames, rois):
     fig.canvas.set_window_title('Segmentation')
     plt.show(block=True)
 
+    return fig, ax
+
 
 def plot_segmentation_jupyter(frames, rois):
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     # Detect if single frame or stack
     if type(frames) is list:
@@ -175,6 +186,7 @@ def plot_segmentation_jupyter(frames, rois):
     if not stack:
         ax.imshow(frames_[0], cmap='gray', vmin=ylim_bottom, vmax=ylim_top)
         ax.plot(rois[:, 0], rois[:, 1], c='lime')
+        ax.scatter(rois[0, 0], rois[0, 1], c='lime')
         ax.set_xticks([])
         ax.set_yticks([])
 
@@ -185,11 +197,14 @@ def plot_segmentation_jupyter(frames, rois):
             ax.clear()
             ax.imshow(frames_[int(Frame)], cmap='gray', vmin=ylim_bottom, vmax=ylim_top)
             ax.plot(rois[int(Frame)][:, 0], rois[int(Frame)][:, 1], c='lime')
+            ax.scatter(rois[int(Frame)][0, 0], rois[int(Frame)][0, 1], c='lime')
             ax.set_xticks([])
             ax.set_yticks([])
 
     fig.set_size_inches(4, 4)
     fig.tight_layout()
+
+    return fig, ax
 
 
 def plot_quantification(mems):
@@ -197,8 +212,7 @@ def plot_quantification(mems):
     Plot quantification results
 
     """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     # Detect if single frame or stack
     if type(mems) is list:
@@ -244,14 +258,15 @@ def plot_quantification(mems):
     fig.canvas.set_window_title('Membrane Quantification')
     plt.show(block=True)
 
+    return fig, ax
+
 
 def plot_quantification_jupyter(mems):
     """
     Plot quantification results
 
     """
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
     # Detect if single frame or stack
     if type(mems) is list:
@@ -289,6 +304,8 @@ def plot_quantification_jupyter(mems):
 
     fig.set_size_inches(5, 3)
     fig.tight_layout()
+
+    return fig, ax
 
 
 class FitPlotter:
@@ -377,7 +394,8 @@ class FitPlotter:
 
 
 def plot_fits(target, fit_total):
-    FitPlotter(target, fit_total)
+    fp = FitPlotter(target, fit_total)
+    return fp.fig, (fp.ax1, fp.ax2)
 
 
 def plot_fits_jupyter(target, fit):
@@ -453,3 +471,5 @@ def plot_fits_jupyter(target, fit):
 
     fig.set_size_inches(5, 3)
     fig.tight_layout()
+
+    return fig, (ax1, ax2)
