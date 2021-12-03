@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Fixed intensity range issue">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Moved some functions around. roi.py now self contained so it can be shared with other projects">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/autofluorescence.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/autofluorescence.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/interactive.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/interactive.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/quantification_method2.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification_method2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/tgf_interpolate.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/tgf_interpolate.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -266,13 +264,6 @@
       <workItem from="1613494530959" duration="3457000" />
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
-    </task>
-    <task id="LOCAL-00015" summary="Added 2-channel plots for 2-channel segmentation methods, plot_straight method, Segmenter6 subclass (two channel)">
-      <created>1543576580518</created>
-      <option name="number" value="00015" />
-      <option name="presentableId" value="LOCAL-00015" />
-      <option name="project" value="LOCAL" />
-      <updated>1543576580518</updated>
     </task>
     <task id="LOCAL-00016" summary="Large restructuring">
       <created>1545156932643</created>
@@ -610,7 +601,14 @@
       <option name="project" value="LOCAL" />
       <updated>1637867670897</updated>
     </task>
-    <option name="localTasksCounter" value="64" />
+    <task id="LOCAL-00064" summary="Moved some functions around. roi.py now self contained so it can be shared with other projects">
+      <created>1637921417323</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1637921417324</updated>
+    </task>
+    <option name="localTasksCounter" value="65" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -654,7 +652,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Improvements to notebooks. Added masking to quantifier to exclude off-edge positions" />
     <MESSAGE value="Added ability to constrain offsets and concentrations. Also sped up training ~4x by normalising offsets" />
     <MESSAGE value="Added setup.py" />
     <MESSAGE value="Added requirements to setup.py" />
@@ -679,13 +676,14 @@
     <MESSAGE value="Added gitignore" />
     <MESSAGE value="Updated to do list" />
     <MESSAGE value="Fixed intensity range issue" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed intensity range issue" />
+    <MESSAGE value="Moved some functions around. roi.py now self contained so it can be shared with other projects" />
+    <option name="LAST_COMMIT_MESSAGE" value="Moved some functions around. roi.py now self contained so it can be shared with other projects" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="427" y="122" key="CommitChangelistDialog2" timestamp="1637867670583">
-      <screen x="0" y="23" width="1680" height="1027" />
+    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1637921416861">
+      <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1637849341667" />
+    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1637921416861" />
     <state x="427" y="122" key="CommitChangelistDialog2/0.23.1680.1027@0.23.1680.1027" timestamp="1637867670583" />
     <state x="628" y="298" key="FileChooserDialogImpl" timestamp="1637409490751">
       <screen x="0" y="23" width="1680" height="1027" />
@@ -711,10 +709,10 @@
     </state>
     <state width="1659" height="226" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939316" />
     <state width="1659" height="215" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178098" />
-    <state x="440" y="282" key="Vcs.Push.Dialog.v2" timestamp="1637867672719">
-      <screen x="0" y="23" width="1680" height="1027" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1637921419490">
+      <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1637849352278" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1637921419490" />
     <state x="440" y="282" key="Vcs.Push.Dialog.v2/0.23.1680.1027@0.23.1680.1027" timestamp="1637867672719" />
     <state x="538" y="262" width="604" height="548" key="find.popup" timestamp="1637403173330">
       <screen x="0" y="23" width="1680" height="1027" />
