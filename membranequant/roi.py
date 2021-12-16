@@ -7,7 +7,6 @@ import ipywidgets as widgets
 
 """
 This no longer works with multiple channels - intensity ranges
-Need a version that works in notebooks
 Ability to specify a directory and open all channels. Or an nd file
 
 """
