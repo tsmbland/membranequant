@@ -410,22 +410,26 @@ def asi(mems):
     return (ant - post) / (2 * (ant + post))
 
 
-def calc_dosage(mems, cyts, roi, c=0.7343937511951732):
-    """
-    Calculate total dosage based on membrane and cytoplasmic concentrations
-    Relies on calibration factor (c) to relate cytoplasmic and cortical concentrations
+# def calc_dosage(mems, cyts, roi, c=0.7343937511951732):
+#     """
+#     Calculate total dosage based on membrane and cytoplasmic concentrations
+#     Relies on calibration factor (c) to relate cytoplasmic and cortical concentrations
+#
+#     """
+#
+#     # Normalise coors
+#     nc = norm_roi(roi)
+#
+#     # Add cytoplasmic and cortical
+#     mbm = np.average(mems, weights=abs(nc[:, 1]))  # units x-1
+#     cym = np.average(cyts, weights=abs(nc[:, 1] ** 2))  # units x-2
+#
+#     tot = cym + c * mbm  # units x-2
+#     return tot
 
-    """
 
-    # Normalise coors
-    nc = norm_roi(roi)
-
-    # Add cytoplasmic and cortical
-    mbm = np.average(mems, weights=abs(nc[:, 1]))  # units x-1
-    cym = np.average(cyts, weights=abs(nc[:, 1] ** 2))  # units x-2
-
-    tot = cym + c * mbm  # units x-2
-    return tot
+def dosage(img, roi, expand):
+    return np.nanmean(img * make_mask([512, 512], offset_coordinates(roi, expand)))
 
 
 def calc_vol(normcoors):
@@ -477,38 +481,6 @@ def organise_by_nd(path):
         os.rename(b, '%s/%s/%s' % (path, folder, name))
         for file in glob.glob('%s_*' % b[:-3]):
             os.rename(file, '%s/%s/%s' % (path, folder, os.path.basename(os.path.normpath(file))))
-
-
-def _direcslist(dest, levels=0, exclude=('!',), exclusive=None):
-    lis = sorted(glob.glob('%s/*/' % dest))
-
-    for level in range(levels):
-        newlis = []
-        for e in lis:
-            newlis.extend(sorted(glob.glob('%s/*/' % e)))
-        lis = newlis
-        lis = [x[:-1] for x in lis]
-
-    # Excluded directories
-    lis_copy = copy.deepcopy(lis)
-    if exclude is not None:
-        for x in lis:
-            for i in exclude:
-                if i in x:
-                    lis_copy.remove(x)
-                    break
-
-    # Exclusive directories
-    if exclusive is not None:
-        lis2 = []
-        for x in lis_copy:
-            for i in exclusive:
-                if i in x:
-                    lis2.append(x)
-    else:
-        lis2 = lis_copy
-
-    return sorted(lis2)
 
 
 def _direcslist(dest, levels=0, exclude=('!',), exclusive=None):
