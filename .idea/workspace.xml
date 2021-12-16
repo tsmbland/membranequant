@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Moved some functions around. roi.py now self contained so it can be shared with other projects">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Added plot_losses function">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/interactive.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/interactive.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -264,27 +264,6 @@
       <workItem from="1613494530959" duration="3457000" />
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
-    </task>
-    <task id="LOCAL-00016" summary="Large restructuring">
-      <created>1545156932643</created>
-      <option name="number" value="00016" />
-      <option name="presentableId" value="LOCAL-00016" />
-      <option name="project" value="LOCAL" />
-      <updated>1545156932643</updated>
-    </task>
-    <task id="LOCAL-00017" summary="Big tidy. Removed old segmenter/quantifier classes">
-      <created>1547244304823</created>
-      <option name="number" value="00017" />
-      <option name="presentableId" value="LOCAL-00017" />
-      <option name="project" value="LOCAL" />
-      <updated>1547244304823</updated>
-    </task>
-    <task id="LOCAL-00018" summary="Removed some unused functions">
-      <created>1547245049126</created>
-      <option name="number" value="00018" />
-      <option name="presentableId" value="LOCAL-00018" />
-      <option name="project" value="LOCAL" />
-      <updated>1547245049126</updated>
     </task>
     <task id="LOCAL-00019" summary="Changed profile fit method, changed default parameters. Quantifier now saves 2d 'images' of fitted profile and components">
       <created>1549649848545</created>
@@ -608,7 +587,28 @@
       <option name="project" value="LOCAL" />
       <updated>1637921417324</updated>
     </task>
-    <option name="localTasksCounter" value="65" />
+    <task id="LOCAL-00065" summary="Added a version that works with jupyter">
+      <created>1638569395678</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1638569395679</updated>
+    </task>
+    <task id="LOCAL-00066" summary="Changes to intensity range">
+      <created>1638569417123</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1638569417124</updated>
+    </task>
+    <task id="LOCAL-00067" summary="Added plot_losses function">
+      <created>1638569439709</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1638569439709</updated>
+    </task>
+    <option name="localTasksCounter" value="68" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -652,9 +652,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added ability to constrain offsets and concentrations. Also sped up training ~4x by normalising offsets" />
-    <MESSAGE value="Added setup.py" />
-    <MESSAGE value="Added requirements to setup.py" />
     <MESSAGE value="Some changes to notebooks" />
     <MESSAGE value="Improvements to direcslist, straighten, rotated_embryo functions" />
     <MESSAGE value="A few minor changes" />
@@ -677,13 +674,16 @@
     <MESSAGE value="Updated to do list" />
     <MESSAGE value="Fixed intensity range issue" />
     <MESSAGE value="Moved some functions around. roi.py now self contained so it can be shared with other projects" />
-    <option name="LAST_COMMIT_MESSAGE" value="Moved some functions around. roi.py now self contained so it can be shared with other projects" />
+    <MESSAGE value="Added a version that works with jupyter" />
+    <MESSAGE value="Changes to intensity range" />
+    <MESSAGE value="Added plot_losses function" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added plot_losses function" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1637921416861">
+    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1638569439456">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1637921416861" />
+    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1638569439456" />
     <state x="427" y="122" key="CommitChangelistDialog2/0.23.1680.1027@0.23.1680.1027" timestamp="1637867670583" />
     <state x="628" y="298" key="FileChooserDialogImpl" timestamp="1637409490751">
       <screen x="0" y="23" width="1680" height="1027" />
@@ -709,10 +709,10 @@
     </state>
     <state width="1659" height="226" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939316" />
     <state width="1659" height="215" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178098" />
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1637921419490">
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1638569470892">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1637921419490" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1638569470892" />
     <state x="440" y="282" key="Vcs.Push.Dialog.v2/0.23.1680.1027@0.23.1680.1027" timestamp="1637867672719" />
     <state x="538" y="262" width="604" height="548" key="find.popup" timestamp="1637403173330">
       <screen x="0" y="23" width="1680" height="1027" />

@@ -228,9 +228,9 @@ class ImageQuant:
 
         # Membrane concentrations
         if self.uni_mem:
-            self.mems_t = tf.Variable(0.8 * np.max(self.target, axis=(1, 2)))
+            self.mems_t = tf.Variable(0 * np.max(self.target, axis=(1, 2)))
         else:
-            self.mems_t = tf.Variable(0.8 * np.max(self.target, axis=1))
+            self.mems_t = tf.Variable(0 * np.max(self.target, axis=1))
         if self.cyt_only:
             self.mems_t = self.mems_t * 0
         else:
