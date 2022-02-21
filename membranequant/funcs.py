@@ -265,7 +265,7 @@ def interp_1d_array(array, n, method='cubic'):
         return CubicSpline(np.arange(len(array)), array)(np.linspace(0, len(array) - 1, n))
 
 
-def interp_2d_array(array, n, ax=1, method='cubic'):
+def interp_2d_array(array, n, ax=0, method='cubic'):
     """
     Interpolates values along y axis into n points, for each x value
     :param array:
@@ -277,12 +277,12 @@ def interp_2d_array(array, n, ax=1, method='cubic'):
 
     """
 
-    if ax == 1:
+    if ax == 0:
         interped = np.zeros([n, len(array[0, :])])
         for x in range(len(array[0, :])):
             interped[:, x] = interp_1d_array(array[:, x], n, method)
         return interped
-    elif ax == 0:
+    elif ax == 1:
         interped = np.zeros([len(array[:, 0]), n])
         for x in range(len(array[:, 0])):
             interped[x, :] = interp_1d_array(array[x, :], n, method)
