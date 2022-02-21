@@ -128,8 +128,8 @@ def plot_segmentation(frames, rois):
         frames_ = [frames, ]
 
     # Specify ylim
-    ylim_top = max([np.max(i) for i in frames_])
-    ylim_bottom = min([np.min(i) for i in frames_])
+    ylim_top = max([np.percentile(i, 99.9) for i in frames_])
+    ylim_bottom = min([np.percentile(i, 0.01) for i in frames_])
 
     # Single frame
     if not stack:
@@ -179,8 +179,8 @@ def plot_segmentation_jupyter(frames, rois):
         frames_ = [frames, ]
 
     # Specify ylim
-    ylim_top = max([np.max(i) for i in frames_])
-    ylim_bottom = min([np.min(i) for i in frames_])
+    ylim_top = max([np.percentile(i, 99.9) for i in frames_])
+    ylim_bottom = min([np.percentile(i, 0.01) for i in frames_])
 
     # Single frame
     if not stack:

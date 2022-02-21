@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Added plot_losses function">
+    <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Updated to do list">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/interactive.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/interactive.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_spatial_variation.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/quantification_method2.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification_method2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/2_models_of_membrane_and_cytoplasmic_protein.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/2_models_of_membrane_and_cytoplasmic_protein.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/saved_cyt_ref_profile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/saved_cyt_ref_profile.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/notebooks/saved_mem_ref_profile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/saved_mem_ref_profile.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,18 +73,18 @@
     <option name="enabled" value="false" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/membranequant" />
-      <recent name="$PROJECT_DIR$" />
-      <recent name="$PROJECT_DIR$/notebooks" />
-      <recent name="$PROJECT_DIR$/scripts" />
-      <recent name="$PROJECT_DIR$/Scripts" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/membranequant" />
       <recent name="$PROJECT_DIR$/notebooks" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/Scripts/ExampleDataset" />
+      <recent name="$PROJECT_DIR$/Scripts" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/membranequant" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/notebooks" />
+      <recent name="$PROJECT_DIR$/scripts" />
       <recent name="$PROJECT_DIR$/Scripts" />
     </key>
   </component>
@@ -264,27 +272,6 @@
       <workItem from="1613494530959" duration="3457000" />
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
-    </task>
-    <task id="LOCAL-00019" summary="Changed profile fit method, changed default parameters. Quantifier now saves 2d 'images' of fitted profile and components">
-      <created>1549649848545</created>
-      <option name="number" value="00019" />
-      <option name="presentableId" value="LOCAL-00019" />
-      <option name="project" value="LOCAL" />
-      <updated>1549649848545</updated>
-    </task>
-    <task id="LOCAL-00020" summary="Stopped end-fixing, cubic interpolation">
-      <created>1550762829920</created>
-      <option name="number" value="00020" />
-      <option name="presentableId" value="LOCAL-00020" />
-      <option name="project" value="LOCAL" />
-      <updated>1550762829920</updated>
-    </task>
-    <task id="LOCAL-00021" summary="Fixes for non-periodic segmentation. Parameters for savgol smoothening">
-      <created>1559635738208</created>
-      <option name="number" value="00021" />
-      <option name="presentableId" value="LOCAL-00021" />
-      <option name="project" value="LOCAL" />
-      <updated>1559635738208</updated>
     </task>
     <task id="LOCAL-00022" summary="Much cleaner quantification class and added functions for af correlation and bgcurve generation. Started ipynbbs">
       <created>1565707884786</created>
@@ -608,7 +595,28 @@
       <option name="project" value="LOCAL" />
       <updated>1638569439709</updated>
     </task>
-    <option name="localTasksCounter" value="68" />
+    <task id="LOCAL-00068" summary="changed starting conditions">
+      <created>1639663057909</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1639663057911</updated>
+    </task>
+    <task id="LOCAL-00069" summary="New dosage function">
+      <created>1639663080658</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1639663080658</updated>
+    </task>
+    <task id="LOCAL-00070" summary="Updated to do list">
+      <created>1639663096513</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1639663096514</updated>
+    </task>
+    <option name="localTasksCounter" value="71" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -652,8 +660,6 @@
     <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Some changes to notebooks" />
-    <MESSAGE value="Improvements to direcslist, straighten, rotated_embryo functions" />
     <MESSAGE value="A few minor changes" />
     <MESSAGE value="Restructured code, added features such as regression plots" />
     <MESSAGE value="minor changes" />
@@ -671,19 +677,21 @@
     <MESSAGE value="Improved documentation" />
     <MESSAGE value="Fixed issues with non-periodic ROIs" />
     <MESSAGE value="Added gitignore" />
-    <MESSAGE value="Updated to do list" />
     <MESSAGE value="Fixed intensity range issue" />
     <MESSAGE value="Moved some functions around. roi.py now self contained so it can be shared with other projects" />
     <MESSAGE value="Added a version that works with jupyter" />
     <MESSAGE value="Changes to intensity range" />
     <MESSAGE value="Added plot_losses function" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added plot_losses function" />
+    <MESSAGE value="changed starting conditions" />
+    <MESSAGE value="New dosage function" />
+    <MESSAGE value="Updated to do list" />
+    <option name="LAST_COMMIT_MESSAGE" value="Updated to do list" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1638569439456">
+    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1639663096338">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1638569439456" />
+    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1639663096338" />
     <state x="427" y="122" key="CommitChangelistDialog2/0.23.1680.1027@0.23.1680.1027" timestamp="1637867670583" />
     <state x="628" y="298" key="FileChooserDialogImpl" timestamp="1637409490751">
       <screen x="0" y="23" width="1680" height="1027" />
@@ -709,10 +717,10 @@
     </state>
     <state width="1659" height="226" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939316" />
     <state width="1659" height="215" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178098" />
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1638569470892">
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1639663097801">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1638569470892" />
+    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1639663097801" />
     <state x="440" y="282" key="Vcs.Push.Dialog.v2/0.23.1680.1027@0.23.1680.1027" timestamp="1637867672719" />
     <state x="538" y="262" width="604" height="548" key="find.popup" timestamp="1637403173330">
       <screen x="0" y="23" width="1680" height="1027" />
