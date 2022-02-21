@@ -4,7 +4,7 @@ import pandas as pd
 import tensorflow as tf
 import tensorflow_probability as tfp
 from .funcs import straighten, rolling_ave_2d, interp_1d_array, interp_2d_array, rotate_roi, save_img
-from .roi import offset_coordinates
+from .roi import offset_coordinates, interp_roi
 from .interactive import view_stack, view_stack_jupyter, plot_fits, plot_fits_jupyter, plot_segmentation, \
     plot_segmentation_jupyter, plot_quantification, plot_quantification_jupyter
 from scipy.interpolate import interp1d
@@ -22,7 +22,7 @@ Permit wider bgcurves for wiggle room
 - Make sure bgcurves are centred no matter how big
 Write def_roi function
 
-Make sure it works with non-periodic ROIs
+Normalise bgcurves?
 
 """
 
@@ -80,7 +80,8 @@ class ImageQuant:
                  rol_ave=10, rotate=False, nfits=100, iterations=2, uni_cyt=False, uni_mem=False,
                  cyt_only=False, mem_only=False, lr=0.01, descent_steps=500, adaptive_sigma=False,
                  adaptive_membg=False, adaptive_cytbg=False, batch_norm=False, position_weights=None,
-                 freedom=10, zerocap=False, roi_knots=10, loss='mse', interp_type='cubic', fit_outer=False):
+                 freedom=10, zerocap=False, roi_knots=20, loss='mse', interp_type='cubic', fit_outer=False,
+                 save_training=False, save_sims=False):
 
         # Detect if single frame or stack
         if type(img) is list:
@@ -132,6 +133,8 @@ class ImageQuant:
         self.loss_mode = loss
         self.interp_type = interp_type
         self.fit_outer = fit_outer
+        self.save_training = save_training
+        self.save_sims = save_sims
 
         # Background curves
         self.cytbg = cytbg
@@ -160,16 +163,6 @@ class ImageQuant:
         self.mems_t = None
         self.offsets_t = None
 
-        # Simulated images
-        self.straight = None
-        self.straight_filtered = None
-        self.straight_fit = None
-        self.straight_mem = None
-        self.straight_cyt = None
-        self.straight_resids = None
-        self.straight_resids_pos = None
-        self.straight_resids_neg = None
-
     """
     Run
 
@@ -195,7 +188,7 @@ class ImageQuant:
         straight_filtered = rolling_ave_2d(straight, window=self.rol_ave, periodic=self.periodic)
 
         # Interpolate
-        straight_filtered_itp = interp_2d_array(straight_filtered, self.nfits, ax=0, method='cubic')
+        straight_filtered_itp = interp_2d_array(straight_filtered, self.nfits, ax=1, method='cubic')
 
         # Normalise
         if not self.batch_norm:
@@ -209,22 +202,22 @@ class ImageQuant:
 
     def init_tensors(self):
         nimages = self.target.shape[0]
-        self.vars = []
+        self.vars = {}
 
         # Offsets
         self.offsets_t = tf.Variable(np.zeros([nimages, self.roi_knots]), name='Offsets')
         if not self.freedom == 0:
-            self.vars.append(self.offsets_t)
+            self.vars['offsets'] = self.offsets_t
 
         # Cytoplasmic concentrations
         if self.uni_cyt:
-            self.cyts_t = tf.Variable(1 * np.mean(self.target[:, -5:, :], axis=(1, 2)))
+            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=(1, 2)))
         else:
-            self.cyts_t = tf.Variable(1 * np.mean(self.target[:, -5:, :], axis=1))
+            self.cyts_t = tf.Variable(0 * np.mean(self.target[:, -5:, :], axis=1))
         if self.mem_only:
             self.cyts_t = self.cyts_t * 0
         else:
-            self.vars.append(self.cyts_t)
+            self.vars['cyts'] = self.cyts_t
 
         # Membrane concentrations
         if self.uni_mem:
@@ -234,30 +227,30 @@ class ImageQuant:
         if self.cyt_only:
             self.mems_t = self.mems_t * 0
         else:
-            self.vars.append(self.mems_t)
+            self.vars['mems'] = self.mems_t
 
         # Outers
         if self.fit_outer:
-            self.outers_t = tf.Variable(1 * np.mean(self.target[:, :5, :], axis=1))
-            self.vars.append(self.outers_t)
+            self.outers_t = tf.Variable(0 * np.mean(self.target[:, :5, :], axis=1))
+            self.vars['outers'] = self.outers_t
 
         # Sigma
         if self.sigma is not None:
             self.sigma_t = tf.Variable(self.sigma, dtype=tf.float64)
         if self.adaptive_sigma:
-            self.vars.append(self.sigma_t)
+            self.vars['sigma'] = self.sigma_t
 
         # Cytbg
         if self.cytbg is not None:
             self.cytbg_t = tf.Variable(self.cytbg)
         if self.adaptive_cytbg:
-            self.vars.append(self.cytbg_t)
+            self.vars['cytbg'] = self.cytbg_t
 
         # Membg
         if self.membg is not None:
             self.membg_t = tf.Variable(self.membg)
         if self.adaptive_membg:
-            self.vars.append(self.membg_t)
+            self.vars['membg'] = self.membg_t
 
     def sim_images(self, include_c=True, include_m=True):
         nimages = self.mems_t.shape[0]
@@ -362,9 +355,10 @@ class ImageQuant:
             return tf.transpose(mem_total, [0, 2, 1]), tf.transpose(mask_, [0, 2, 1])
 
     def losses_full(self):
+        self.sim, mask = self.sim_images()
+
         if self.loss_mode == 'mse':
-            sim, mask = self.sim_images()
-            sq_errors = (sim - self.target) ** 2
+            sq_errors = (self.sim - self.target) ** 2
 
             # Position weights
             if self.position_weights is not None:
@@ -376,8 +370,7 @@ class ImageQuant:
             return mse
 
         elif self.loss_mode == 'mae':
-            sim, mask = self.sim_images()
-            errors = tf.math.abs(sim - self.target)
+            errors = tf.math.abs(self.sim - self.target)
 
             # Position weights
             if self.position_weights is not None:
@@ -412,6 +405,8 @@ class ImageQuant:
         self.init_tensors()
 
         # Run optimisation
+        self.saved_vars = []
+        self.saved_sims = []
         opt = tf.keras.optimizers.Adam(learning_rate=self.lr)
         self.losses = np.zeros([len(self.img), self.descent_steps])
         for i in tqdm(range(self.descent_steps)):
@@ -419,8 +414,17 @@ class ImageQuant:
                 losses_full = self.losses_full()
                 self.losses[:, i] = losses_full
                 loss = tf.reduce_mean(losses_full)
-                grads = tape.gradient(loss, self.vars)
-                opt.apply_gradients(list(zip(grads, self.vars)))
+                grads = tape.gradient(loss, self.vars.values())
+                opt.apply_gradients(list(zip(grads, self.vars.values())))
+
+            # Save trained variables
+            if self.save_training:
+                newdict = {key: value.numpy() for key, value in self.vars.items()}
+                self.saved_vars.append(newdict)
+
+            # Save interim simulations
+            if self.save_sims:
+                self.saved_sims.append(self.sim.numpy() * self.norms[:, np.newaxis, np.newaxis])
 
         # Save and rescale sim images (rescaled)
         self.sim_both = self.sim_images()[0].numpy() * self.norms[:, np.newaxis, np.newaxis]
@@ -506,7 +510,7 @@ class ImageQuant:
         """
 
         # Offset coordinates
-        self.roi = [offset_coordinates(roi, offsets_full, periodic=self.periodic) for roi, offsets_full in
+        self.roi = [interp_roi(offset_coordinates(roi, offsets_full), periodic=self.periodic) for roi, offsets_full in
                     zip(self.roi, self.offsets_full)]
 
         # Rotate
@@ -618,16 +622,27 @@ class ImageQuant:
                 fig, ax = plot_segmentation_jupyter(self.img[0], self.roi[0])
         return fig, ax
 
-    def plot_losses(self):
+    def plot_losses(self, log=False):
         fig, ax = plt.subplots()
-        ax.plot(self.losses.T)
-        ax.set_xlabel('Descent step')
-        if self.loss_mode == 'mae':
-            ax.set_ylabel('Mean absolute error')
-        elif self.loss_mode == 'mse':
-            ax.set_ylabel('Mean square error')
+        if not log:
+            ax.plot(self.losses.T)
+            ax.set_xlabel('Descent step')
+            if self.loss_mode == 'mae':
+                ax.set_ylabel('Mean absolute error')
+            elif self.loss_mode == 'mse':
+                ax.set_ylabel('Mean square error')
+
+        else:
+            ax.plot(np.log10(self.losses.T))
+            ax.set_xlabel('Descent step')
+            if self.loss_mode == 'mae':
+                ax.set_ylabel('log10(Mean absolute error)')
+            elif self.loss_mode == 'mse':
+                ax.set_ylabel('log10(Mean square error)')
+
         return fig, ax
 
     # def def_roi(self):
     #     r = ROI(self.img, spline=True)
     #     self.roi = r.roi
+
