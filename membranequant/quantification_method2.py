@@ -188,7 +188,7 @@ class ImageQuant2:
 
         # Interpolate
         straight = interp_2d_array(self.straight_filtered, self.thickness_itp, method=self.interp)
-        straight = interp_2d_array(straight, self.nfits, ax=0, method=self.interp)
+        straight = interp_2d_array(straight, self.nfits, ax=1, method=self.interp)
 
         # Fit
         if self.method == 0:
