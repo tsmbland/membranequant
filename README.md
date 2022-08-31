@@ -26,14 +26,4 @@ Open these notebooks from terminal by running:
 
     jupyter notebook notebooks/INDEX.ipynb
 
-
-## Graphical user interface
-
-Simple analysis can be performed with a graphical user interface. 
-This has limited capabilities compared to scripting, but provides a quick and easy way to run simple analysis. 
-Open the graphical user interface from terminal by running:
-
-    python open_gui.py
-
-A new window will pop up.
-For help and instructions, click the Help button at the bottom of this window.
+(NB some notebooks are slightly out of date and don't account for some of the latest changes to the code)
