@@ -399,14 +399,14 @@ def error_func(x, centre, width):
 ########### MISC FUNCTIONS ###########
 
 
-def asi(mems):
+def asi(mems, size):
     """
     Calculates asymmetry index based on membrane concentration profile
 
     """
 
-    ant = bounded_mean_1d(mems, (0.33, 0.67))
-    post = bounded_mean_1d(mems, (0.83, 0.17))
+    ant = bounded_mean_1d(mems, (0.5 - size/2, 0.5 + size/2))
+    post = bounded_mean_1d(mems, (1 - size/2, size/2))
     return (ant - post) / (2 * (ant + post))
 
 

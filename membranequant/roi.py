@@ -12,8 +12,9 @@ Ability to specify a directory and open all channels. Or an nd file
 """
 
 
-def def_roi(stack, spline=True, start_frame=0, end_frame=None, periodic=True, show_fit=True):
-    r = ROI(stack, spline=spline, start_frame=start_frame, end_frame=end_frame, periodic=periodic, show_fit=show_fit)
+def def_roi(stack, spline=True, start_frame=0, end_frame=None, periodic=True, show_fit=True, k=3):
+    r = ROI(stack, spline=spline, start_frame=start_frame, end_frame=end_frame, periodic=periodic, show_fit=show_fit,
+            k=k)
     r.run()
     return r.roi
 
@@ -32,7 +33,7 @@ class ROI:
     :return: cell boundary coordinates
     """
 
-    def __init__(self, img, spline=True, start_frame=0, end_frame=None, periodic=True, show_fit=True):
+    def __init__(self, img, spline=True, start_frame=0, end_frame=None, periodic=True, show_fit=True, k=3):
 
         # Detect if single frame or stack
         if type(img) is list:
@@ -52,6 +53,7 @@ class ROI:
         self.end_frame = end_frame
         self.periodic = periodic
         self.show_fit = show_fit
+        self.k = k
 
         # Internal
         self._current_frame = self.start_frame
@@ -157,7 +159,7 @@ class ROI:
                 # Spline
                 if self.spline:
                     if not self._fitted:
-                        self.roi = spline_roi(roi, periodic=self.periodic)
+                        self.roi = spline_roi(roi, periodic=self.periodic, k=self.k)
                         self._fitted = True
 
                         # Display line
@@ -268,7 +270,7 @@ class ROI_jupyter:
 
         # Spline
         if self.spline:
-            self.roi = spline_roi(roi, periodic=self.periodic)
+            self.roi = spline_roi(roi, periodic=self.periodic, k=self.k)
 
             # Display line
             if self.show_fit:
@@ -310,7 +312,7 @@ class ROI_jupyter:
         self.fig.canvas.draw()
 
 
-def spline_roi(roi, periodic=True, s=0):
+def spline_roi(roi, periodic=True, s=0, k=3):
     """
     Fits a spline to points specifying the coordinates of the cortex, then interpolates to pixel distances
 
@@ -327,7 +329,7 @@ def spline_roi(roi, periodic=True, s=0):
         y = roi[:, 1]
 
     # Fit spline
-    tck, u = splprep([x, y], s=s, per=periodic)
+    tck, u = splprep([x, y], s=s, per=periodic, k=k)
 
     # Evaluate spline
     xi, yi = splev(np.linspace(0, 1, 10000), tck)
@@ -336,7 +338,7 @@ def spline_roi(roi, periodic=True, s=0):
     return interp_roi(np.vstack((xi, yi)).T, periodic=periodic)
 
 
-def interp_roi(roi, periodic=True):
+def interp_roi(roi, periodic=True, npoints=None, gap=1):
     """
     Interpolates coordinates to one pixel distances (or as close as possible to one pixel)
     Linear interpolation
@@ -357,7 +359,10 @@ def interp_roi(roi, periodic=True):
 
     # Interpolate
     fx, fy = interp1d(distances_cumsum, c[:, 0], kind='linear'), interp1d(distances_cumsum, c[:, 1], kind='linear')
-    positions = np.linspace(0, total_length, int(round(total_length)))
+    if npoints is None:
+        positions = np.linspace(0, total_length, int(round(total_length / gap)))
+    else:
+        positions = np.linspace(0, total_length, npoints + 1)
     xcoors, ycoors = fx(positions), fy(positions)
     newpoints = np.c_[xcoors[:-1], ycoors[:-1]]
     return newpoints

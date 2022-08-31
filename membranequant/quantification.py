@@ -546,8 +546,8 @@ class ImageQuant:
         # Create empty dataframe
         df = pd.DataFrame({'Frame': [],
                            'Position': [],
-                           'Membrane concentration': [],
-                           'Cytoplasmic concentration': []})
+                           'Membrane signal': [],
+                           'Cytoplasmic signal': []})
 
         # Fill with data
         for i in range(len(self.img)):

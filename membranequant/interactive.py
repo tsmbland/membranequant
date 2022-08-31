@@ -4,7 +4,7 @@ from matplotlib.widgets import Slider
 import ipywidgets as widgets
 
 
-def view_stack_tk(frames, start_frame=0, end_frame=None):
+def view_stack_tk(frames, start_frame=0, end_frame=None, show=True):
     """
     Interactive stack viewer
 
@@ -53,7 +53,9 @@ def view_stack_tk(frames, start_frame=0, end_frame=None):
         ax.set_yticks([])
 
     fig.canvas.set_window_title('')
-    plt.show(block=True)
+
+    if show:
+        plt.show(block=True)
 
     return fig, ax
 
