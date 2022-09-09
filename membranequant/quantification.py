@@ -135,6 +135,7 @@ class ImageQuant:
         self.fit_outer = fit_outer
         self.save_training = save_training
         self.save_sims = save_sims
+        self.swish_factor = 10
 
         # Background curves
         self.cytbg = cytbg
@@ -258,8 +259,8 @@ class ImageQuant:
 
         # Constrain concentrations
         if self.zerocap:
-            mems = tf.math.maximum(self.mems_t, 0)
-            cyts = tf.math.maximum(self.cyts_t, 0)
+            mems = self.mems_t * tf.math.sigmoid(self.swish_factor * self.mems_t)  # swish function
+            cyts = self.cyts_t * tf.math.sigmoid(self.swish_factor * self.cyts_t)  # swish function
         else:
             mems = self.mems_t
             cyts = self.cyts_t
@@ -434,8 +435,8 @@ class ImageQuant:
 
         # Save and rescale results
         if self.zerocap:
-            mems = tf.math.maximum(self.mems_t, 0)
-            cyts = tf.math.maximum(self.cyts_t, 0)
+            mems = self.mems_t * tf.math.sigmoid(self.swish_factor * self.mems_t)  # swish function
+            cyts = self.cyts_t * tf.math.sigmoid(self.swish_factor * self.cyts_t)  # swish function
         else:
             mems = self.mems_t
             cyts = self.cyts_t
@@ -646,3 +647,12 @@ class ImageQuant:
     #     r = ROI(self.img, spline=True)
     #     self.roi = r.roi
 
+
+"""
+Permit Gross quantification with uniform cytoplasm
+Enable quantification of images with different sizes (padding)
+Ability to terminate early if stable
+Ability to drop individual embryos early when they stabilise
+Different functions when freedom == 0 (no interpolation)
+
+"""

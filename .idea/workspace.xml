@@ -7,17 +7,7 @@
     <list default="true" id="057a977b-e58c-4b81-9f13-fc28652550d5" name="Default" comment="Updated to do list">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/funcs.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/funcs.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/interactive.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/interactive.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/2_models_of_membrane_and_cytoplasmic_protein.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/2_models_of_membrane_and_cytoplasmic_protein.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/3_simple_model_fitting.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/4_custom_model.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/5_intro_to_imagequant.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/control_profile_variation.ipynb" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/saved_cyt_ref_profile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/saved_cyt_ref_profile.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/notebooks/saved_mem_ref_profile.txt" beforeDir="false" afterPath="$PROJECT_DIR$/notebooks/saved_mem_ref_profile.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,9 +39,9 @@
     </file-type-list>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/membranequant/funcs.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/membranequant/roi.py" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/notebooks/1_autofluorescence.ipynb" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/membranequant/funcs.py" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -267,13 +257,6 @@
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
       <workItem from="1656401443203" duration="1453000" />
-    </task>
-    <task id="LOCAL-00026" summary="Minor bug fixes and improvements">
-      <created>1600096997205</created>
-      <option name="number" value="00026" />
-      <option name="presentableId" value="LOCAL-00026" />
-      <option name="project" value="LOCAL" />
-      <updated>1600096997205</updated>
     </task>
     <task id="LOCAL-00027" summary="Changed optimisation method. Now based on tensorflow with Adam optimiser, which gives good performance increases over previous methods. Also now allows infinitely precise alignment, removing previous itp parameter. Stable, but some improvements still to be made. May need further work playing with hyperparameters (e.g. learning rate), will need to test on more images">
       <created>1601386996047</created>
@@ -611,7 +594,14 @@
       <option name="project" value="LOCAL" />
       <updated>1645439849471</updated>
     </task>
-    <option name="localTasksCounter" value="75" />
+    <task id="LOCAL-00075" summary="Version at the time of final thesis submission">
+      <created>1661943467329</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1661943467330</updated>
+    </task>
+    <option name="localTasksCounter" value="76" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -652,10 +642,8 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Added requirements" />
     <MESSAGE value="Minor changes" />
     <MESSAGE value="Rotated embryo function can now return rotated roi" />
     <MESSAGE value="Switched to cubic interpolation for straightening" />
@@ -680,46 +668,17 @@
     <MESSAGE value="adjusted image limits" />
     <MESSAGE value="Ability to save training. Different loss functions" />
     <MESSAGE value="changed interp_2d_array function" />
-    <option name="LAST_COMMIT_MESSAGE" value="changed interp_2d_array function" />
+    <MESSAGE value="Version at the time of final thesis submission" />
+    <option name="LAST_COMMIT_MESSAGE" value="Version at the time of final thesis submission" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="427" y="101" key="CommitChangelistDialog2" timestamp="1645439849154">
+    <state x="424" y="98" key="CommitChangelistDialog2" timestamp="1661943464990">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state x="427" y="101" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1645439849154" />
-    <state x="427" y="122" key="CommitChangelistDialog2/0.23.1680.1027@0.23.1680.1027" timestamp="1637867670583" />
-    <state x="628" y="298" key="FileChooserDialogImpl" timestamp="1637409490751">
-      <screen x="0" y="23" width="1680" height="1027" />
-    </state>
-    <state x="628" y="298" key="FileChooserDialogImpl/0.23.1680.1027@0.23.1680.1027" timestamp="1637409490751" />
-    <state width="1659" height="226" key="GridCell.Tab.0.bottom" timestamp="1637851939317">
+    <state x="424" y="98" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1661943464990" />
+    <state x="440" y="262" key="Vcs.Push.Dialog.v2" timestamp="1661943469078">
       <screen x="0" y="0" width="1680" height="1050" />
     </state>
-    <state width="1659" height="226" key="GridCell.Tab.0.bottom/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939317" />
-    <state width="1659" height="215" key="GridCell.Tab.0.bottom/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178099" />
-    <state width="1659" height="226" key="GridCell.Tab.0.center" timestamp="1637851939316">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="226" key="GridCell.Tab.0.center/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939316" />
-    <state width="1659" height="215" key="GridCell.Tab.0.center/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178098" />
-    <state width="1659" height="226" key="GridCell.Tab.0.left" timestamp="1637851939316">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="226" key="GridCell.Tab.0.left/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939316" />
-    <state width="1659" height="215" key="GridCell.Tab.0.left/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178097" />
-    <state width="1659" height="226" key="GridCell.Tab.0.right" timestamp="1637851939316">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state width="1659" height="226" key="GridCell.Tab.0.right/0.0.1680.1050@0.0.1680.1050" timestamp="1637851939316" />
-    <state width="1659" height="215" key="GridCell.Tab.0.right/0.23.1680.1027@0.23.1680.1027" timestamp="1637414178098" />
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2" timestamp="1645439850929">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="440" y="265" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1645439850929" />
-    <state x="440" y="282" key="Vcs.Push.Dialog.v2/0.23.1680.1027@0.23.1680.1027" timestamp="1637867672719" />
-    <state x="538" y="262" width="604" height="548" key="find.popup" timestamp="1637403173330">
-      <screen x="0" y="23" width="1680" height="1027" />
-    </state>
-    <state x="538" y="262" width="604" height="548" key="find.popup/0.23.1680.1027@0.23.1680.1027" timestamp="1637403173330" />
+    <state x="440" y="262" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1661943469078" />
   </component>
 </project>
