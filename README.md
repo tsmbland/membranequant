@@ -1,3 +1,15 @@
+Early version of C. elegans membrane quantification code which has since evolved and been split into several separate repositories:
+
+- The autofluorescence correction method evolved into SAIBR, see [here](https://github.com/goehringlab/saibr_fiji_plugin) and [here](https://github.com/goehringlab/saibr_python)
+- The quantification/segmentation method has been split into two repositories which serve slightly different purposes:
+  - [Segmentation and basic quantification](https://github.com/tsmbland/par-segmentation) (more general purpose)
+  - [Advanced quantification](https://github.com/tsmbland/discco) (more niche for special applications)
+  
+
+Nevertheless, this repo still has several features which I have not yet incorporated into the new repositories, including detailed notebooks and a GUI, so may still be a useful resource.
+
+---
+
 # MembraneQuant
 
 Functions for segmentation and accurate quantification of membrane and cytoplasmic protein concentrations from midplane confocal images of C. elegans zygotes
