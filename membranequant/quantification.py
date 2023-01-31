@@ -181,25 +181,35 @@ class ImageQuant:
         print('Time elapsed: %.2f seconds ' % (time.time() - t))
 
     def preprocess(self, frame, roi):
+        pad_size = max([r.shape[0] for r in self.roi])
 
         # Straighten
         straight = straighten(frame, roi, thickness=self.thickness, interp='cubic', periodic=self.periodic)
 
-        # Smoothen
-        straight_filtered = rolling_ave_2d(straight, window=self.rol_ave, periodic=self.periodic)
+        # Smoothen (rolling average)
+        straight = rolling_ave_2d(straight, window=self.rol_ave, periodic=self.periodic)
 
         # Interpolate
-        straight_filtered_itp = interp_2d_array(straight_filtered, self.nfits, ax=1, method='cubic')
+        if self.nfits is not None:
+            straight = interp_2d_array(straight, self.nfits, ax=1, method='cubic')
+
+        # Pad
+        if self.nfits is None:
+            target = np.pad(straight, pad_width=((0, 0), (0, (pad_size - straight.shape[1]))))
+            mask = np.zeros(pad_size)
+            mask[:straight.shape[1]] = 1
+        else:
+            mask = np.ones(self.nfits)
+            target = straight
 
         # Normalise
         if not self.batch_norm:
-            norm = np.percentile(straight_filtered_itp, 99)
-            target = straight_filtered_itp / norm
+            norm = np.percentile(straight, 99)
+            target /= norm
         else:
             norm = 1
-            target = straight_filtered_itp
 
-        return target, norm
+        return target, norm, mask
 
     def init_tensors(self):
         nimages = self.target.shape[0]
@@ -255,7 +265,12 @@ class ImageQuant:
 
     def sim_images(self, include_c=True, include_m=True):
         nimages = self.mems_t.shape[0]
-        nfits = self.nfits
+
+        # Specify number of fits
+        if self.nfits is None:
+            nfits = max([len(r[:, 0]) for r in self.roi])
+        else:
+            nfits = self.nfits
 
         # Constrain concentrations
         if self.zerocap:
@@ -265,22 +280,45 @@ class ImageQuant:
             mems = self.mems_t
             cyts = self.cyts_t
 
-        # Fit spline to offsets
+        # Create offsets spline
         if self.periodic:
             x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 2), 0), (nimages, 1))
             y = tf.concat((self.offsets_t[:, -1:], self.offsets_t, self.offsets_t[:, :2]), axis=1)
             knots = tf.stack((x, y))
-            positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots,
-                                                           num=self.nfits + 1)[:-1], dtype=tf.float64), axis=-1)
         else:
             x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 1), 0), (nimages, 1))
             y = tf.concat((self.offsets_t[:, :1], self.offsets_t, self.offsets_t[:, -1:]), axis=1)
             knots = tf.stack((x, y))
-            positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots - 1.000001,
-                                                           num=self.nfits), dtype=tf.float64), axis=-1)
-        spline = interpolate(knots, positions, degree=3, cyclical=False)
-        spline = tf.squeeze(spline, axis=1)
-        offsets_spline = tf.transpose(spline[:, 1, :])
+
+        # Evaluate offset spline
+        if self.nfits is not None:
+            if self.periodic:
+                positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots,
+                                                               num=self.nfits + 1)[:-1], dtype=tf.float64), axis=-1)
+            else:
+                positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots - 1.000001,
+                                                               num=self.nfits), dtype=tf.float64), axis=-1)
+            spline = interpolate(knots, positions, degree=3, cyclical=False)
+            spline = tf.squeeze(spline, axis=1)
+            offsets_spline = tf.transpose(spline[:, 1, :])
+
+        else:
+            offsets_spline = []
+            for i in tf.range(nimages):
+                if self.periodic:
+                    positions = tf.expand_dims(
+                        tf.cast(tf.linspace(start=0.0, stop=self.roi_knots, num=self.roi[i].shape[0] + 1)[:-1],
+                                dtype=tf.float64), axis=-1)
+                else:
+                    positions = tf.expand_dims(tf.cast(
+                        tf.linspace(start=0.0, stop=self.roi_knots - 1.000001, num=self.roi[i].shape[0]),
+                        dtype=tf.float64), axis=-1)
+                spline = interpolate(knots[:, i:i + 1, :], positions, degree=3, cyclical=False)
+                spline = tf.squeeze(spline, axis=1)
+                spline = tf.transpose(spline[:, 1, :])[0]
+                pad = tf.zeros([nfits - self.roi[i].shape[0]], dtype=tf.float64)
+                offsets_spline.append(tf.concat([spline, pad], axis=0))
+            offsets_spline = tf.stack(offsets_spline, axis=0)
 
         # Constrain offsets
         offsets = self.freedom * tf.math.tanh(offsets_spline)
@@ -301,7 +339,6 @@ class ImageQuant:
 
         # Mem curve
         if self.membg is not None:
-            # membg_norm = self.membg_t / tf.reduce_max(self.membg_t)
             if self.interp_type == 'cubic':
                 x = np.arange(-1., self.thickness + 1)
                 y = tf.concat(([self.membg_t[0]], self.membg_t, [self.membg_t[-1]]), axis=0)
@@ -319,7 +356,6 @@ class ImageQuant:
 
         # Cyt curve
         if self.cytbg is not None:
-            # cytbg_norm = self.cytbg_t / tf.reduce_max(self.cytbg_t)
             if self.interp_type == 'cubic':
                 x = np.arange(-1., self.thickness + 1)
                 y = tf.concat(([self.cytbg_t[0]], self.cytbg_t, [self.cytbg_t[-1]]), axis=0)
@@ -356,45 +392,39 @@ class ImageQuant:
             return tf.transpose(mem_total, [0, 2, 1]), tf.transpose(mask_, [0, 2, 1])
 
     def losses_full(self):
+
+        # Simulate images
         self.sim, mask = self.sim_images()
 
-        if self.loss_mode == 'mse':
-            sq_errors = (self.sim - self.target) ** 2
+        # Calculate errors
+        sq_errors = (self.sim - self.target) ** 2
 
-            # Position weights
-            if self.position_weights is not None:
-                sq_errors *= tf.expand_dims(tf.expand_dims(self.position_weights, axis=0), axis=0) / tf.reduce_mean(
-                    self.position_weights)
+        # Masking (when different size images are used)
+        if self.nfits is None:
+            mask *= tf.expand_dims(self.masks, axis=1)
 
-            # Masked average
-            mse = tf.reduce_sum(sq_errors * mask, axis=[1, 2]) / tf.reduce_sum(mask, axis=[1, 2])
-            return mse
+        # Position weights
+        if self.position_weights is not None:
+            sq_errors *= tf.expand_dims(tf.expand_dims(self.position_weights, axis=0), axis=0) / tf.reduce_mean(
+                self.position_weights)
 
-        elif self.loss_mode == 'mae':
-            errors = tf.math.abs(self.sim - self.target)
-
-            # Position weights
-            if self.position_weights is not None:
-                errors *= tf.expand_dims(tf.expand_dims(self.position_weights, axis=0), axis=0) / tf.reduce_mean(
-                    self.position_weights)
-
-            # Masked average
-            mse = tf.reduce_sum(errors * mask, axis=[1, 2]) / tf.reduce_sum(mask, axis=[1, 2])
-            return mse
-
-        else:
-            return None
+        # Masked average
+        mse = tf.reduce_sum(sq_errors * mask, axis=[1, 2]) / tf.reduce_sum(mask, axis=[1, 2])
+        return mse
 
     def fit(self):
 
         # Specify number of fits
         if self.nfits is None:
-            self.nfits = len(self.roi[:, 0])
+            nfits = max([r.shape[0] for r in self.roi])
+        else:
+            nfits = self.nfits
 
         # Preprocess
-        target, norms = zip(*[self.preprocess(frame, roi) for frame, roi in zip(self.img, self.roi)])
+        target, norms, masks = zip(*[self.preprocess(frame, roi) for frame, roi in zip(self.img, self.roi)])
         self.target = np.array(target)
         self.norms = np.array(norms)
+        self.masks = np.array(masks)
 
         # Batch normalise
         if self.batch_norm:
@@ -441,54 +471,99 @@ class ImageQuant:
             mems = self.mems_t
             cyts = self.cyts_t
         if self.uni_mem:
-            self.mems = np.tile((mems.numpy() * self.norms)[:, np.newaxis], [1, self.nfits])
+            self.mems = np.tile((mems.numpy() * self.norms)[:, np.newaxis], [1, nfits])
         else:
             self.mems = mems.numpy() * self.norms[:, np.newaxis]
         if self.uni_cyt:
-            self.cyts = np.tile((cyts.numpy() * self.norms)[:, np.newaxis], [1, self.nfits])
+            self.cyts = np.tile((cyts.numpy() * self.norms)[:, np.newaxis], [1, nfits])
         else:
             self.cyts = cyts.numpy() * self.norms[:, np.newaxis]
 
         # Offsets
+        nimages = self.target.shape[0]
+
+        # Create offsets spline
         if self.periodic:
-            x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 2), 0), (self.mems_t.shape[0], 1))
+            x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 2), 0), (nimages, 1))
             y = tf.concat((self.offsets_t[:, -1:], self.offsets_t, self.offsets_t[:, :2]), axis=1)
             knots = tf.stack((x, y))
-            positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots, num=self.nfits + 1)[:-1],
-                                               dtype=tf.float64), axis=-1)
-
         else:
-            x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 1), 0), (self.mems_t.shape[0], 1))
+            x = np.tile(np.expand_dims(np.arange(-1., self.roi_knots + 1), 0), (nimages, 1))
             y = tf.concat((self.offsets_t[:, :1], self.offsets_t, self.offsets_t[:, -1:]), axis=1)
             knots = tf.stack((x, y))
-            positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots - 1.000001,
-                                                           num=self.nfits), dtype=tf.float64), axis=-1)
-        spline = interpolate(knots, positions, degree=3, cyclical=False)
-        spline = tf.squeeze(spline, axis=1)
-        offsets_spline = tf.transpose(spline[:, 1, :])
-        self.offsets = self.freedom * tf.math.tanh(offsets_spline).numpy()
+
+        # Evaluate offset spline
+        if self.nfits is not None:
+            if self.periodic:
+                positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots,
+                                                               num=self.nfits + 1)[:-1], dtype=tf.float64), axis=-1)
+            else:
+                positions = tf.expand_dims(tf.cast(tf.linspace(start=0.0, stop=self.roi_knots - 1.000001,
+                                                               num=self.nfits), dtype=tf.float64), axis=-1)
+            spline = interpolate(knots, positions, degree=3, cyclical=False)
+            spline = tf.squeeze(spline, axis=1)
+            offsets_spline = tf.transpose(spline[:, 1, :])
+
+        else:
+            offsets_spline = []
+            for i in tf.range(nimages):
+                if self.periodic:
+                    positions = tf.expand_dims(
+                        tf.cast(tf.linspace(start=0.0, stop=self.roi_knots, num=self.roi[i].shape[0] + 1)[:-1],
+                                dtype=tf.float64), axis=-1)
+                else:
+                    positions = tf.expand_dims(tf.cast(
+                        tf.linspace(start=0.0, stop=self.roi_knots - 1.000001, num=self.roi[i].shape[0]),
+                        dtype=tf.float64), axis=-1)
+                spline = interpolate(knots[:, i:i + 1, :], positions, degree=3, cyclical=False)
+                spline = tf.squeeze(spline, axis=1)
+                spline = tf.transpose(spline[:, 1, :])[0]
+                pad = tf.zeros([nfits - self.roi[i].shape[0]], dtype=tf.float64)
+                offsets_spline.append(tf.concat([spline, pad], axis=0))
+            offsets_spline = tf.stack(offsets_spline, axis=0)
+
+        # Constrain offsets
+        self.offsets = self.freedom * tf.math.tanh(offsets_spline)
+
+        # Crop results
+        if self.nfits is None:
+            self.offsets = [offsets[mask == 1] for offsets, mask in zip(self.offsets, self.masks)]
+            self.cyts = [cyts[mask == 1] for cyts, mask in zip(self.cyts, self.masks)]
+            self.mems = [mems[mask == 1] for mems, mask in zip(self.mems, self.masks)]
 
         # Interpolated results
-        self.offsets_full = [interp_1d_array(offsets, len(roi[:, 0]), method='cubic') for offsets, roi in
-                             zip(self.offsets, self.roi)]
-        self.cyts_full = [interp_1d_array(cyts, len(roi[:, 0]), method='linear') for cyts, roi in
-                          zip(self.cyts, self.roi)]
-        self.mems_full = [interp_1d_array(mems, len(roi[:, 0]), method='linear') for mems, roi in
-                          zip(self.mems, self.roi)]
+        if not self.nfits is None:
+            self.offsets_full = [interp_1d_array(offsets, len(roi[:, 0]), method='cubic') for offsets, roi in
+                                 zip(self.offsets, self.roi)]
+            self.cyts_full = [interp_1d_array(cyts, len(roi[:, 0]), method='linear') for cyts, roi in
+                              zip(self.cyts, self.roi)]
+            self.mems_full = [interp_1d_array(mems, len(roi[:, 0]), method='linear') for mems, roi in
+                              zip(self.mems, self.roi)]
+        else:
+            self.offsets_full = self.offsets
+            self.cyts_full = self.cyts
+            self.mems_full = self.mems
 
         # Interpolated sim images
-        self.sim_both_full = [interp1d(np.arange(self.nfits), sim_both, axis=-1)(
-            np.linspace(0, self.nfits - 1, len(roi[:, 0]))) for roi, sim_both in
-            zip(self.roi, self.sim_both)]
-        self.sim_cyt_full = [
-            interp1d(np.arange(self.nfits), sim_cyt, axis=-1)(np.linspace(0, self.nfits - 1, len(roi[:, 0]))) for
-            roi, sim_cyt in zip(self.roi, self.sim_cyt)]
-        self.sim_mem_full = [interp1d(np.arange(self.nfits), sim_mem, axis=-1)(
-            np.linspace(0, self.nfits - 1, len(roi[:, 0]))) for roi, sim_mem in
-            zip(self.roi, self.sim_mem)]
-        self.target_full = [interp1d(np.arange(self.nfits), target, axis=-1)(
-            np.linspace(0, self.nfits - 1, len(roi[:, 0]))) for roi, target in zip(self.roi, self.target)]
-        self.resids_full = [i - j for i, j in zip(self.target_full, self.sim_both_full)]
+        if self.nfits is not None:
+            self.sim_both_full = [interp1d(np.arange(self.nfits), sim_both, axis=-1)(
+                np.linspace(0, self.nfits - 1, len(roi[:, 0]))) for roi, sim_both in
+                zip(self.roi, self.sim_both)]
+            self.sim_cyt_full = [
+                interp1d(np.arange(self.nfits), sim_cyt, axis=-1)(np.linspace(0, self.nfits - 1, len(roi[:, 0]))) for
+                roi, sim_cyt in zip(self.roi, self.sim_cyt)]
+            self.sim_mem_full = [interp1d(np.arange(self.nfits), sim_mem, axis=-1)(
+                np.linspace(0, self.nfits - 1, len(roi[:, 0]))) for roi, sim_mem in
+                zip(self.roi, self.sim_mem)]
+            self.target_full = [interp1d(np.arange(self.nfits), target, axis=-1)(
+                np.linspace(0, self.nfits - 1, len(roi[:, 0]))) for roi, target in zip(self.roi, self.target)]
+            self.resids_full = [i - j for i, j in zip(self.target_full, self.sim_both_full)]
+        else:
+            self.sim_both_full = [sim_both.T[mask == 1].T for sim_both, mask in zip(self.sim_both, self.masks)]
+            self.sim_cyt_full = [sim_cyt.T[mask == 1].T for sim_cyt, mask in zip(self.sim_cyt, self.masks)]
+            self.sim_mem_full = [sim_mem.T[mask == 1].T for sim_mem, mask in zip(self.sim_mem, self.masks)]
+            self.target_full = [target.T[mask == 1].T for target, mask in zip(self.target, self.masks)]
+            self.resids_full = [i - j for i, j in zip(self.target_full, self.sim_both_full)]
 
         # Save adaptable params
         if self.sigma is not None:
