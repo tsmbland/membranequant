@@ -365,6 +365,7 @@ def interp_roi(roi, periodic=True, npoints=None, gap=1):
         positions = np.linspace(0, total_length, npoints + 1)
     xcoors, ycoors = fx(positions), fy(positions)
     newpoints = np.c_[xcoors[:-1], ycoors[:-1]]
+
     return newpoints
 
 

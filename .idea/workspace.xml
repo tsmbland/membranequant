@@ -8,6 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/membranequant/quantification.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/quantification.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/membranequant/roi.py" beforeDir="false" afterPath="$PROJECT_DIR$/membranequant/roi.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +53,11 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
+  }
+}</component>
   <component name="ReaderModeSettings">
     <option name="enabled" value="false" />
   </component>
@@ -257,13 +263,6 @@
       <workItem from="1613560827865" duration="1966000" />
       <workItem from="1614080218881" duration="132000" />
       <workItem from="1656401443203" duration="1453000" />
-    </task>
-    <task id="LOCAL-00027" summary="Changed optimisation method. Now based on tensorflow with Adam optimiser, which gives good performance increases over previous methods. Also now allows infinitely precise alignment, removing previous itp parameter. Stable, but some improvements still to be made. May need further work playing with hyperparameters (e.g. learning rate), will need to test on more images">
-      <created>1601386996047</created>
-      <option name="number" value="00027" />
-      <option name="presentableId" value="LOCAL-00027" />
-      <option name="project" value="LOCAL" />
-      <updated>1601386996047</updated>
     </task>
     <task id="LOCAL-00028" summary="Now uses linear interpolation for background curves instead of approximating with a neural network. &#10;Tidied up code slightly.">
       <created>1601543801839</created>
@@ -601,7 +600,14 @@
       <option name="project" value="LOCAL" />
       <updated>1661943467330</updated>
     </task>
-    <option name="localTasksCounter" value="76" />
+    <task id="LOCAL-00076" summary="Different method to constrain concentrations at lower end (swish function - permits small negative values but not large negative values)">
+      <created>1662725626863</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1662725626864</updated>
+    </task>
+    <option name="localTasksCounter" value="77" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -644,7 +650,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="Minor changes" />
     <MESSAGE value="Rotated embryo function can now return rotated roi" />
     <MESSAGE value="Switched to cubic interpolation for straightening" />
     <MESSAGE value="Switched to sklearn linear regression" />
@@ -669,16 +674,7 @@
     <MESSAGE value="Ability to save training. Different loss functions" />
     <MESSAGE value="changed interp_2d_array function" />
     <MESSAGE value="Version at the time of final thesis submission" />
-    <option name="LAST_COMMIT_MESSAGE" value="Version at the time of final thesis submission" />
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="424" y="98" key="CommitChangelistDialog2" timestamp="1661943464990">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="424" y="98" key="CommitChangelistDialog2/0.0.1680.1050@0.0.1680.1050" timestamp="1661943464990" />
-    <state x="440" y="262" key="Vcs.Push.Dialog.v2" timestamp="1661943469078">
-      <screen x="0" y="0" width="1680" height="1050" />
-    </state>
-    <state x="440" y="262" key="Vcs.Push.Dialog.v2/0.0.1680.1050@0.0.1680.1050" timestamp="1661943469078" />
+    <MESSAGE value="Different method to constrain concentrations at lower end (swish function - permits small negative values but not large negative values)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Different method to constrain concentrations at lower end (swish function - permits small negative values but not large negative values)" />
   </component>
 </project>
